@@ -61,15 +61,23 @@ clean-all: clean-volumes clean-images ## Full cleanup
 
 # ── Install ──────────────────────────────────────────────────────
 
-.PHONY: install uninstall
-install: ## Install claude-cage CLI to /usr/local/bin
+.PHONY: install install-full uninstall gui
+install: ## Quick install (symlink to /usr/local/bin)
 	@chmod +x bin/claude-cage
 	@ln -sf "$(CAGE_ROOT)/bin/claude-cage" /usr/local/bin/claude-cage
 	@echo "Installed claude-cage to /usr/local/bin/claude-cage"
 
-uninstall: ## Remove claude-cage from /usr/local/bin
-	@rm -f /usr/local/bin/claude-cage
-	@echo "Uninstalled claude-cage"
+install-full: ## Full install with dependency check and image build
+	@chmod +x install.sh
+	@bash install.sh --dir "$(CAGE_ROOT)"
+
+uninstall: ## Remove claude-cage installation
+	@chmod +x install.sh
+	@bash install.sh --uninstall
+
+gui: ## Launch interactive TUI dashboard
+	@chmod +x bin/claude-cage
+	@bin/claude-cage gui
 
 # ── Security ─────────────────────────────────────────────────────
 
