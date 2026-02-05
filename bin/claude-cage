@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# claude-cage — Dockerized sandbox for Claude CLI & Claude Desktop
+# Usage: claude-cage <command> [options]
+set -euo pipefail
+
+CAGE_VERSION="0.1.0"
+CAGE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Source libraries
+source "$CAGE_ROOT/lib/config.sh"
+source "$CAGE_ROOT/lib/sandbox.sh"
+source "$CAGE_ROOT/lib/docker.sh"
+source "$CAGE_ROOT/lib/session.sh"
+source "$CAGE_ROOT/lib/cli.sh"
+
+main() {
+    local command="${1:-help}"
+    shift || true
+
+    case "$command" in
+        start)      cmd_start "$@" ;;
+        stop)       cmd_stop "$@" ;;
+        shell)      cmd_shell "$@" ;;
+        status)     cmd_status "$@" ;;
+        logs)       cmd_logs "$@" ;;
+        list)       cmd_list "$@" ;;
+        destroy)    cmd_destroy "$@" ;;
+        build)      cmd_build "$@" ;;
+        config)     cmd_config "$@" ;;
+        version)    echo "claude-cage $CAGE_VERSION" ;;
+        help|-h|--help) cmd_help "$@" ;;
+        *)
+            echo "Error: unknown command '$command'" >&2
+            echo "Run 'claude-cage help' for usage." >&2
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"

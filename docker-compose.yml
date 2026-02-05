@@ -1,0 +1,125 @@
+# docker-compose.yml — Orchestration for claude-cage services
+# Usage:
+#   docker compose up cli          # Interactive Claude CLI
+#   docker compose up desktop -d   # Claude Desktop (browser at :6080)
+
+x-common: &common
+  labels:
+    managed-by: claude-cage
+  restart: "no"
+  read_only: true
+  security_opt:
+    - no-new-privileges
+    - seccomp=security/seccomp-default.json
+  cap_drop:
+    - ALL
+  cap_add:
+    - CHOWN
+    - DAC_OVERRIDE
+    - SETGID
+    - SETUID
+  ulimits:
+    nofile:
+      soft: 1024
+      hard: 2048
+    nproc:
+      soft: 256
+      hard: 512
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,size=512m
+    - /run:rw,noexec,nosuid,size=64m
+  dns:
+    - 1.1.1.1
+
+services:
+  # ── Claude CLI (interactive terminal) ──────────────────────────
+  cli:
+    <<: *common
+    build:
+      context: ./docker/cli
+      dockerfile: Dockerfile
+    image: claude-cage-cli:latest
+    container_name: cage-cli
+    hostname: cage-cli
+    stdin_open: true
+    tty: true
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY}
+    volumes:
+      - cli-data:/home/cageuser/.claude
+      - ${CAGE_WORKSPACE:-.}:/workspace:rw
+    cpus: 2
+    mem_limit: 4g
+    pids_limit: 512
+    networks:
+      - cage-net
+
+  # ── Claude Desktop (browser via noVNC) ─────────────────────────
+  desktop:
+    <<: *common
+    build:
+      context: ./docker/desktop
+      dockerfile: Dockerfile
+    image: claude-cage-desktop:latest
+    container_name: cage-desktop
+    hostname: cage-desktop
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY}
+      - DISPLAY=:1
+      - VNC_RESOLUTION=1920x1080
+    volumes:
+      - desktop-data:/home/cageuser/.claude
+      - ${CAGE_WORKSPACE:-.}:/workspace:rw
+    ports:
+      - "${CAGE_NOVNC_PORT:-6080}:6080"
+      - "${CAGE_VNC_PORT:-5900}:5900"
+    cpus: 2
+    mem_limit: 4g
+    pids_limit: 512
+    networks:
+      - cage-net
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:6080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── Isolated CLI (no network) ──────────────────────────────────
+  cli-isolated:
+    <<: *common
+    build:
+      context: ./docker/cli
+      dockerfile: Dockerfile
+    image: claude-cage-cli:latest
+    container_name: cage-cli-isolated
+    hostname: cage-isolated
+    stdin_open: true
+    tty: true
+    network_mode: none
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY}
+    volumes:
+      - isolated-data:/home/cageuser/.claude
+      - ${CAGE_WORKSPACE:-.}:/workspace:rw
+    cpus: 1
+    mem_limit: 2g
+    pids_limit: 256
+
+volumes:
+  cli-data:
+    name: cage-cli-data
+  desktop-data:
+    name: cage-desktop-data
+  isolated-data:
+    name: cage-isolated-data
+
+networks:
+  cage-net:
+    name: cage-filtered
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "false"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

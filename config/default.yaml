@@ -1,0 +1,35 @@
+# claude-cage default configuration
+# Override per-user at: ~/.config/claude-cage/config.yaml
+
+# ── Session defaults ─────────────────────────────────────────────
+mode: cli
+persist: true
+max_sessions: 5
+
+# ── Resource limits ──────────────────────────────────────────────
+cpus: 2
+memory: 4g
+
+# ── Network ──────────────────────────────────────────────────────
+# Policy: none | filtered | host
+#   none     — no network access at all
+#   filtered — only allowed_hosts reachable (default)
+#   host     — full host network (NOT recommended)
+network: filtered
+dns: 1.1.1.1
+allowed_hosts: api.anthropic.com,cdn.anthropic.com
+
+# ── Container images ─────────────────────────────────────────────
+image_cli: claude-cage-cli:latest
+image_desktop: claude-cage-desktop:latest
+
+# ── Desktop mode ─────────────────────────────────────────────────
+desktop_port: 6080
+vnc_port: 5900
+
+# ── Security ─────────────────────────────────────────────────────
+read_only_root: true
+seccomp_profile: default
+
+# ── Logging ──────────────────────────────────────────────────────
+log_level: info
