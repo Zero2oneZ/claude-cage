@@ -1,0 +1,100 @@
+# AppArmor profile for claude-cage containers
+# Load with: sudo apparmor_parser -r -W /path/to/apparmor-profile
+
+#include <tunables/global>
+
+profile claude-cage flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+  #include <abstractions/openssl>
+
+  # ── Deny dangerous operations ─────────────────────────────────
+  # No mounting filesystems
+  deny mount,
+  deny umount,
+  deny pivot_root,
+
+  # No loading kernel modules
+  deny @{PROC}/sys/kernel/modules_disabled w,
+  deny /lib/modules/** w,
+
+  # No ptrace (prevents debugging other processes)
+  deny ptrace (trace),
+  deny ptrace (read),
+
+  # No access to sensitive kernel interfaces
+  deny @{PROC}/sys/** w,
+  deny @{PROC}/sysrq-trigger rw,
+  deny @{PROC}/kcore r,
+  deny /sys/firmware/** r,
+  deny /sys/kernel/security/** rw,
+
+  # No raw network access
+  deny network raw,
+  deny network packet,
+
+  # ── Allow standard operations ─────────────────────────────────
+  # Network (TCP/UDP only)
+  network inet stream,
+  network inet dgram,
+  network inet6 stream,
+  network inet6 dgram,
+  network unix stream,
+  network unix dgram,
+
+  # File access — workspace
+  /workspace/** rw,
+  /workspace/ r,
+
+  # File access — home directory
+  /home/cageuser/** rw,
+  /home/cageuser/ r,
+
+  # File access — temp
+  /tmp/** rw,
+  /run/** rw,
+
+  # File access — system (read-only)
+  /usr/** r,
+  /lib/** r,
+  /etc/** r,
+  /opt/** r,
+  /bin/** rix,
+  /usr/bin/** rix,
+  /usr/local/bin/** rix,
+  /usr/local/lib/** r,
+
+  # Node.js / npm
+  /usr/local/lib/node_modules/** r,
+  /usr/local/bin/node rix,
+  /usr/local/bin/claude rix,
+
+  # Process execution
+  /bin/bash rix,
+  /bin/sh rix,
+  /usr/bin/git rix,
+  /usr/bin/curl rix,
+  /usr/bin/jq rix,
+  /usr/bin/rg rix,
+
+  # Proc filesystem (limited)
+  @{PROC}/@{pid}/status r,
+  @{PROC}/@{pid}/fd/ r,
+  @{PROC}/@{pid}/fd/** rw,
+  @{PROC}/@{pid}/maps r,
+  @{PROC}/@{pid}/stat r,
+  @{PROC}/version r,
+  @{PROC}/meminfo r,
+  @{PROC}/cpuinfo r,
+  @{PROC}/uptime r,
+  @{PROC}/loadavg r,
+
+  # Dev filesystem
+  /dev/null rw,
+  /dev/zero r,
+  /dev/urandom r,
+  /dev/random r,
+  /dev/tty rw,
+  /dev/pts/** rw,
+  /dev/shm/** rw,
+}

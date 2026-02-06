@@ -18,6 +18,7 @@ COMMANDS
     destroy     Remove a session and its data
     build       Build container images
     config      Show or validate configuration
+    gui         Launch interactive TUI dashboard
     version     Print version
     help        Show this help message
 
