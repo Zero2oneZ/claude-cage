@@ -1,0 +1,55 @@
+{
+  "node_id": "capt:ipfs",
+  "title": "IPFS Storage",
+  "scale": "captain",
+  "description": "IPFS Storage (captain)",
+  "what_it_does": [
+    "Rule: always_hash \u2014 any content \u2192 pass",
+    "Rule: ipfs_optional \u2014 ipfs unavailable \u2192 log"
+  ],
+  "owned_files": [
+    "ptc/ipfs.py"
+  ],
+  "entry_points": [
+    "content_hash",
+    "ipfs_add",
+    "ipfs_get",
+    "ipfs_pin",
+    "dual_store",
+    "migrate_existing"
+  ],
+  "key_concepts": [
+    "ipfs_optional",
+    "always_hash",
+    "ipfs"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:architect",
+      "children": [],
+      "siblings": [
+        "capt:blueprints",
+        "capt:vectors",
+        "capt:docs"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:architect",
+        "files": [
+          "ptc/ipfs.py"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:4d63fa5beed6702c6c589f02967bf6cdd29f604c38429f4b7eade7539fffb5bc",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.598065+00:00"
+  },
+  "content_hash": "sha256:65366bec1d79b53374363011e3e65d12919482213c64f07822ac3a7f1dea8e7b",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.598065+00:00"
+}

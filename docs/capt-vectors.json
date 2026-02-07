@@ -1,0 +1,55 @@
+{
+  "node_id": "capt:vectors",
+  "title": "Vector Search",
+  "scale": "captain",
+  "description": "Vector Search (captain)",
+  "what_it_does": [
+    "Rule: model_required \u2014 no embedding model \u2192 log",
+    "Rule: fallback_text \u2014 vector search fails \u2192 transform"
+  ],
+  "owned_files": [
+    "ptc/embeddings.py"
+  ],
+  "entry_points": [
+    "embed_text",
+    "semantic_search",
+    "embed_trace",
+    "embed_blueprint",
+    "find_similar_traces"
+  ],
+  "key_concepts": [
+    "vectors",
+    "fallback_text",
+    "embeddings",
+    "model_required"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:architect",
+      "children": [],
+      "siblings": [
+        "capt:blueprints",
+        "capt:ipfs",
+        "capt:docs"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:architect",
+        "files": [
+          "ptc/embeddings.py"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:4a8fbeeb105bdc4f1ba06fc3ce07dd11c9615b45fe97128b8a12e2d0cca237ab",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.598158+00:00"
+  },
+  "content_hash": "sha256:922cbef3fb663f02c2678b7106bbe918c69882c1fec1efef7da2dcc5c404dd52",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.598158+00:00"
+}

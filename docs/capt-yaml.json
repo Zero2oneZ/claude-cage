@@ -1,0 +1,44 @@
+{
+  "node_id": "capt:yaml",
+  "title": "YAML Parser",
+  "scale": "captain",
+  "description": "YAML Parser (captain)",
+  "what_it_does": [
+    "Rule: flat_only \u2014 nested structure \u2192 block"
+  ],
+  "owned_files": [
+    "config/default.yaml"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "config",
+    "flat_only"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:config",
+      "children": [],
+      "siblings": [
+        "capt:cli-parse"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:config",
+        "files": [
+          "config/default.yaml"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:f156584061234534bd76e487afd9aafa57af5f985681c4da3f54fa136f24711f",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.595037+00:00"
+  },
+  "content_hash": "sha256:e84042edd845cabfb354dd47a880439fb73ff879c34b790d9330ad65e45662e2",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.595037+00:00"
+}

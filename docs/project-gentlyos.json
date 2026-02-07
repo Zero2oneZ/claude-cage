@@ -1,0 +1,49 @@
+{
+  "node_id": "project:gentlyos",
+  "title": "GentlyOS",
+  "scale": "department",
+  "description": "Child project tree. 34 agents. Sephirot mapping. Its own PTC cycle. Traces flow back to root.",
+  "what_it_does": [
+    "Child project tree. 34 agents. Sephirot mapping. Its own PTC cycle. Traces flow back to root.",
+    "Rule: own_tree \u2014 has gentlyos/tree.json \u2192 pass",
+    "Rule: feed_root \u2014 trace generated \u2192 pass"
+  ],
+  "owned_files": [
+    "gentlyos/tree.json"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "gentlyos",
+    "feed_root",
+    "own_tree"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "root:cage",
+      "children": [],
+      "siblings": [
+        "dept:runtime",
+        "dept:security",
+        "dept:sessions",
+        "dept:config",
+        "dept:observe",
+        "dept:web",
+        "dept:tree",
+        "dept:ptc",
+        "dept:training",
+        "dept:architect"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:053505f3a2eb8c3ada142371bbc19610e1bb4bc12e2279b187b3dc98a7635163",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.598428+00:00"
+  },
+  "content_hash": "sha256:491c28d7f8ca9098884453da7193b716dfbfc357e7eff5de6f40010522d3c3cb",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.598428+00:00"
+}

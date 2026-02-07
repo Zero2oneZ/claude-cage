@@ -1,0 +1,50 @@
+{
+  "node_id": "capt:apparmor",
+  "title": "AppArmor Profile",
+  "scale": "captain",
+  "description": "AppArmor Profile (captain)",
+  "what_it_does": [
+    "Rule: deny_mount \u2014 mount attempt \u2192 block",
+    "Rule: deny_ptrace \u2014 ptrace attempt \u2192 block",
+    "Rule: deny_raw_net \u2014 raw network access \u2192 block"
+  ],
+  "owned_files": [
+    "security/apparmor-profile"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "deny_mount",
+    "deny_raw_net",
+    "deny_ptrace",
+    "apparmor"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:security",
+      "children": [],
+      "siblings": [
+        "capt:sandbox",
+        "capt:seccomp",
+        "capt:network"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:security",
+        "files": [
+          "security/apparmor-profile"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:320877a5ce91e7719e8e3c58cbd9104d7f1fed4748ec9c3bd3c383b6a48be552",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.594669+00:00"
+  },
+  "content_hash": "sha256:bca5de0cf7b715d3870091df19663009a6be270dd77a59fd7ed146231cce262b",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.594669+00:00"
+}

@@ -1,0 +1,41 @@
+{
+  "node_id": "capt:frontend",
+  "title": "Dashboard UI",
+  "scale": "captain",
+  "description": "Dashboard UI (captain)",
+  "what_it_does": [],
+  "owned_files": [
+    "web/templates/index.html"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "dashboard"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:web",
+      "children": [],
+      "siblings": [
+        "capt:flask"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:web",
+        "files": [
+          "web/templates/index.html"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:8e58dccf6cbdd1dc3d23c1936a8222fc946ed9800f855daa3aa21f0a3e0f4e2f",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.595924+00:00"
+  },
+  "content_hash": "sha256:7413ce36229de5fb4d2cab0e43459353affdf97a1adcdabdce56c80a8fdc7090",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.595924+00:00"
+}

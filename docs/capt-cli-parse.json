@@ -1,0 +1,52 @@
+{
+  "node_id": "capt:cli-parse",
+  "title": "CLI Parser",
+  "scale": "captain",
+  "description": "CLI Parser (captain)",
+  "what_it_does": [
+    "Rule: validate_mode \u2014 mode not cli|desktop \u2192 block",
+    "Rule: validate_network \u2014 network not none|host|filtered \u2192 block"
+  ],
+  "owned_files": [
+    "lib/cli.sh"
+  ],
+  "entry_points": [
+    "cmd_start",
+    "cmd_stop",
+    "cmd_shell",
+    "cmd_build",
+    "cmd_config"
+  ],
+  "key_concepts": [
+    "cli",
+    "validate_network",
+    "validate_mode"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:config",
+      "children": [],
+      "siblings": [
+        "capt:yaml"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:observe",
+        "files": [
+          "lib/cli.sh"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:2fac0d8796639b37c40643448b62b4a04e4b92205ca23dfedf00ccfbbb439ab2",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.595100+00:00"
+  },
+  "content_hash": "sha256:b4a7213221e2dbcbf8c323a2bca1b820d2b24b3607515f72d7181f5d05a32590",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.595100+00:00"
+}

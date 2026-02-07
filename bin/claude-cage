@@ -15,6 +15,7 @@ source "$CAGE_ROOT/lib/tui.sh"
 source "$CAGE_ROOT/lib/gui.sh"
 source "$CAGE_ROOT/lib/tree.sh"
 source "$CAGE_ROOT/lib/architect.sh"
+source "$CAGE_ROOT/lib/docs.sh"
 source "$CAGE_ROOT/lib/cli.sh"
 
 main() {
@@ -36,6 +37,7 @@ main() {
         ptc)        cmd_ptc "$@" ;;
         train)      cmd_train "$@" ;;
         design)     cmd_design "$@" ;;
+        docs)       cmd_docs "$@" ;;
         ipfs)       cmd_ipfs "$@" ;;
         vsearch)    cmd_vsearch "$@" ;;
         gui|ui|tui) gui_main "$@" ;;

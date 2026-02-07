@@ -207,6 +207,32 @@ embed-all: ## Generate embeddings for all artifacts
 vector-setup: ## Create MongoDB Atlas vector search indexes
 	node mongodb/vector-setup.js
 
+# ── Documentation Circle ─────────────────────────────────────
+
+.PHONY: docs docs-generate docs-status docs-check docs-interconnect docs-search docs-graph docs-refresh
+docs: docs-status ## Show documentation coverage and staleness
+
+docs-generate: ## Generate docs for all tree nodes
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.docs generate-all
+
+docs-status: ## Show documentation coverage stats
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.docs status
+
+docs-check: ## Check all docs for staleness
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.docs check-stale
+
+docs-interconnect: ## Build the full bidirectional graph (the circle)
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.docs interconnect
+
+docs-search: ## Semantic search docs (usage: make docs-search Q="query")
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.docs search "$(Q)"
+
+docs-graph: ## Output interconnection graph as JSON
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.docs graph
+
+docs-refresh: ## Refresh all stale docs
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.docs refresh
+
 # ── GentlyOS ─────────────────────────────────────────────────
 .PHONY: gentlyos-seed gentlyos-tree
 gentlyos-seed: ## Seed GentlyOS docs, tree, and nodes into MongoDB

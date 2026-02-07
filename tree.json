@@ -3,7 +3,7 @@
     "title": "claude-cage Root Tree",
     "description": "claude-cage IS root. Every project is a branch. Every trace flows back. The tree of trees.",
     "schema": "universal-node.schema.json",
-    "version": "3.0.0"
+    "version": "3.1.0"
   },
   "nodes": [
     {
@@ -749,7 +749,7 @@
       "name": "Architect System",
       "scale": "department",
       "parent": "root:cage",
-      "children": ["capt:blueprints", "capt:ipfs", "capt:vectors"],
+      "children": ["capt:blueprints", "capt:ipfs", "capt:vectors", "capt:docs"],
       "inputs": [
         {"name": "design_intent", "type": "task", "from": "root:cage"},
         {"name": "verification_result", "type": "result", "from": "dept:ptc"}
@@ -845,6 +845,35 @@
         "crates_owned": ["vectors", "embeddings"],
         "files": ["ptc/embeddings.py", "mongodb/vector-setup.js"],
         "functions": ["embed_text", "semantic_search", "embed_trace", "embed_blueprint", "find_similar_traces"]
+      }
+    },
+
+    {
+      "id": "capt:docs",
+      "name": "Documentation Circle",
+      "scale": "captain",
+      "parent": "dept:architect",
+      "children": [],
+      "inputs": [
+        {"name": "tree_nodes", "type": "data", "from": "dept:architect"},
+        {"name": "file_changes", "type": "signal", "from": null}
+      ],
+      "outputs": [
+        {"name": "doc_artifacts", "type": "artifact", "to": "dept:architect"},
+        {"name": "interconnection_graph", "type": "artifact", "to": null},
+        {"name": "staleness_report", "type": "signal", "to": "dept:architect"}
+      ],
+      "rules": [
+        {"name": "hash_track", "condition": "file modified", "action": "log"},
+        {"name": "propagate_stale", "condition": "doc marked stale", "action": "pass"},
+        {"name": "bidirectional", "condition": "edge created", "action": "pass"}
+      ],
+      "escalation": {"target": "dept:architect", "threshold": 3, "cascade": ["dept:architect"]},
+      "metadata": {
+        "crates_owned": ["docs", "circle"],
+        "files": ["ptc/docs.py", "lib/docs.sh"],
+        "functions": ["generate_doc", "generate_all", "full_interconnect", "check_staleness", "propagate_staleness", "search_docs"],
+        "role": "The circle. Documentation as code. Change one side, the other knows."
       }
     },
 

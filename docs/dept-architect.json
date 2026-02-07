@@ -1,0 +1,82 @@
+{
+  "node_id": "dept:architect",
+  "title": "Architect System",
+  "scale": "department",
+  "description": "The brain. Designs hammers, does not pick them up.",
+  "what_it_does": [
+    "The brain. Designs hammers, does not pick them up.",
+    "Rule: cache_first \u2014 intent matches existing blueprint \u2192 pass",
+    "Rule: design_only \u2014 no implementation in blueprints \u2192 block",
+    "Rule: embed_all \u2014 artifact created \u2192 log"
+  ],
+  "owned_files": [
+    "ptc/architect.py",
+    "ptc/ipfs.py",
+    "ptc/embeddings.py",
+    "ptc/git_ops.py"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "design_only",
+    "blueprints",
+    "design",
+    "embed_all",
+    "cache_first",
+    "ipfs",
+    "vectors",
+    "architect"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "root:cage",
+      "children": [
+        "capt:blueprints",
+        "capt:ipfs",
+        "capt:vectors",
+        "capt:docs"
+      ],
+      "siblings": [
+        "dept:runtime",
+        "dept:security",
+        "dept:sessions",
+        "dept:config",
+        "dept:observe",
+        "dept:web",
+        "dept:tree",
+        "dept:ptc",
+        "dept:training",
+        "project:gentlyos"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "capt:blueprints",
+        "files": [
+          "ptc/architect.py"
+        ]
+      },
+      {
+        "node": "capt:ipfs",
+        "files": [
+          "ptc/ipfs.py"
+        ]
+      },
+      {
+        "node": "capt:vectors",
+        "files": [
+          "ptc/embeddings.py"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:247da48dd570bbd00a3519281e923e082ef76314d58c0d2a6c7c1620a04062f3",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.597443+00:00"
+  },
+  "content_hash": "sha256:8721c6577b550e8b165981fcda2675f531113540b175ba9a02204d41dedc9ea2",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.597443+00:00"
+}

@@ -23,6 +23,7 @@ COMMANDS
     ptc         Pass-Through Coordination — intent down, artifacts up
     train       Training data extraction and LoRA pipeline
     design      Architect-mode blueprint system
+    docs        Circular documentation system — the perfect circle
     ipfs        IPFS content-addressed storage
     vsearch     Semantic vector search across everything
     gui         Launch interactive TUI dashboard
@@ -55,6 +56,17 @@ DESIGN (Architect Mode)
     claude-cage design build <id> [--live]       Decompose to PTC builders
     claude-cage design verify <id>               Verify against acceptance criteria
     claude-cage design search "query"            Vector search blueprints
+
+DOCS (Circular Documentation)
+    claude-cage docs status                      Coverage + staleness stats
+    claude-cage docs generate <node_id>          Generate doc for one node
+    claude-cage docs generate-all                Generate docs for all nodes
+    claude-cage docs check                       Check all docs for staleness
+    claude-cage docs refresh [node_id]           Regenerate stale doc(s)
+    claude-cage docs interconnect                Compute full bidirectional graph
+    claude-cage docs search "query" [N]          Semantic search across docs
+    claude-cage docs show <node_id>              Display doc with cross-refs
+    claude-cage docs graph                       Output interconnection graph JSON
 
 IPFS
     claude-cage ipfs status                      Check IPFS daemon connectivity
@@ -788,6 +800,100 @@ DESIGNHELP
         *)
             echo "Error: unknown design action '$action'" >&2
             echo "Run 'claude-cage design help' for usage." >&2
+            exit 1
+            ;;
+    esac
+}
+
+# ── Docs: circular documentation system ────────────────────────
+cmd_docs() {
+    local action="${1:-help}"
+    shift || true
+
+    case "$action" in
+        status)
+            docs_status
+            ;;
+        generate)
+            local node_id="${1:-}"
+            if [[ -z "$node_id" ]]; then
+                echo "Usage: claude-cage docs generate <node_id>" >&2
+                exit 1
+            fi
+            docs_generate "$node_id"
+            ;;
+        generate-all)
+            docs_generate_all
+            ;;
+        check|check-stale)
+            docs_check_stale
+            ;;
+        refresh)
+            local node_id="${1:-}"
+            docs_refresh "$node_id"
+            ;;
+        interconnect)
+            docs_interconnect
+            ;;
+        search)
+            local query="${1:-}"
+            local limit="${2:-10}"
+            if [[ -z "$query" ]]; then
+                echo "Usage: claude-cage docs search \"query\" [limit]" >&2
+                exit 1
+            fi
+            docs_search "$query" "$limit"
+            ;;
+        show)
+            local node_id="${1:-}"
+            if [[ -z "$node_id" ]]; then
+                echo "Usage: claude-cage docs show <node_id>" >&2
+                exit 1
+            fi
+            docs_show "$node_id"
+            ;;
+        graph)
+            docs_graph
+            ;;
+        help|"")
+            cat <<'DOCSHELP'
+DOCS — Circular Documentation System
+
+  Documentation as code. Bidirectional. Staleness-tracked. One circle.
+  Change one side, the other knows.
+
+USAGE
+    claude-cage docs status                      Coverage + staleness stats
+    claude-cage docs generate <node_id>          Generate doc for one node
+    claude-cage docs generate-all                Generate docs for all nodes
+    claude-cage docs check                       Check all docs for staleness
+    claude-cage docs refresh [node_id]           Regenerate stale doc(s)
+    claude-cage docs interconnect                Compute full bidirectional graph
+    claude-cage docs search "query" [N]          Semantic search across docs
+    claude-cage docs show <node_id>              Display doc with cross-refs
+    claude-cage docs graph                       Output interconnection graph JSON
+
+EXAMPLES
+    # See coverage
+    claude-cage docs status
+
+    # Generate all docs with cross-refs
+    claude-cage docs generate-all
+
+    # Build the circle (interconnection graph)
+    claude-cage docs interconnect
+
+    # Check what drifted
+    claude-cage docs check
+
+    # Search docs semantically
+    claude-cage docs search "container isolation"
+
+DOCSHELP
+            ;;
+        *)
+            echo "Error: unknown docs action '$action'" >&2
+            echo "Run 'claude-cage docs help' for usage." >&2
             exit 1
             ;;
     esac

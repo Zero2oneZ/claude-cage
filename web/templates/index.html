@@ -601,6 +601,75 @@ tbody tr:hover { background: var(--bg-tertiary); }
 .search-result .sr-score { font-family: var(--font-mono); font-size: 12px; color: var(--accent-cyan); float: right; }
 .search-result .sr-snippet { font-size: 13px; color: var(--text-secondary); margin-top: 6px; line-height: 1.4; }
 
+/* ── Docs Circle ───────────────────────────────────────────── */
+.circle-svg-wrap {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.circle-svg-wrap svg { width: 100%; height: 500px; }
+
+.doc-node-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.doc-node-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.doc-node-item:hover { border-color: var(--accent-blue); }
+
+.doc-node-item .staleness-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.doc-node-item .staleness-dot.fresh { background: var(--accent-green); }
+.doc-node-item .staleness-dot.stale { background: var(--accent-yellow); }
+.doc-node-item .staleness-dot.undoc { background: var(--border); }
+
+.doc-node-item .node-title { font-weight: 600; font-size: 13px; }
+.doc-node-item .node-id { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
+
+.doc-detail-panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.cross-ref-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    margin: 2px;
+}
+
+.cross-ref-badge.structural { background: rgba(88,166,255,0.15); color: var(--accent-blue); }
+.cross-ref-badge.code_shared { background: rgba(63,185,80,0.15); color: var(--accent-green); }
+.cross-ref-badge.semantic { background: rgba(188,140,255,0.15); color: var(--accent-purple); }
+
 /* ── Spinner ────────────────────────────────────────────────── */
 .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent-blue); border-radius: 50%; animation: spin 0.6s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -627,6 +696,10 @@ tbody tr:hover { background: var(--bg-tertiary); }
         <div class="nav-item" data-view="search" onclick="navigate('search')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             Search
+        </div>
+        <div class="nav-item" data-view="docs-circle" onclick="navigate('docs-circle')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="3" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="21"/><line x1="3" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="21" y2="12"/></svg>
+            Docs Circle
         </div>
         <div class="nav-item" data-view="gentlyos" onclick="navigate('gentlyos')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
@@ -776,10 +849,281 @@ function render() {
         case 'dashboard': renderDashboard(el); break;
         case 'projects': renderProjects(el); break;
         case 'blueprints': renderBlueprints(el); break;
+        case 'docs-circle': renderDocsCircle(el); break;
         case 'search': renderSearch(el); break;
         case 'gentlyos': renderGentlyOS(el); break;
         case 'config': renderConfig(el); break;
         case 'detail': renderDetail(); break;
+    }
+}
+
+/* ── Docs Circle View ──────────────────────────────────────────── */
+let docsStatus = null;
+let docsGraph = null;
+
+async function renderDocsCircle(el) {
+    el.innerHTML = `<div class="page-title">Docs Circle</div><p style="color:var(--text-secondary)"><span class="spinner"></span> Loading...</p>`;
+
+    // Fetch status and graph in parallel
+    const [status, graph] = await Promise.all([
+        api('/api/docs/status'),
+        api('/api/docs/graph'),
+    ]);
+    docsStatus = status;
+    docsGraph = graph;
+
+    const s = docsStatus || {};
+    const g = docsGraph || { nodes: [], edges: [] };
+
+    // Stats row
+    const statsHtml = `
+        <div class="stats-row">
+            <div class="stat-card"><div class="label">Total Nodes</div><div class="value" style="color:var(--accent-cyan)">${s.total || 0}</div></div>
+            <div class="stat-card"><div class="label">Documented</div><div class="value" style="color:var(--accent-blue)">${s.documented || 0}</div></div>
+            <div class="stat-card"><div class="label">Fresh</div><div class="value" style="color:var(--accent-green)">${s.fresh || 0}</div></div>
+            <div class="stat-card"><div class="label">Stale</div><div class="value" style="color:var(--accent-yellow)">${s.stale || 0}</div></div>
+        </div>`;
+
+    // Search bar
+    const searchHtml = `
+        <div class="search-bar">
+            <input type="text" id="docsSearchInput" placeholder="Search documentation..." onkeydown="if(event.key==='Enter')doDocsSearch()">
+            <button class="btn primary" onclick="doDocsSearch()">Search</button>
+        </div>
+        <div id="docsSearchResults"></div>`;
+
+    // SVG circle graph
+    const svgHtml = renderDocsCircleSVG(g);
+
+    // Node list
+    const nodes = g.nodes || [];
+    const undoc = new Set(s.undocumented_nodes || []);
+    let nodeListHtml = '';
+    const allNodeIds = [...new Set([...nodes.map(n => n.id), ...(s.undocumented_nodes || [])])].sort();
+    allNodeIds.forEach(nid => {
+        const node = nodes.find(n => n.id === nid);
+        const isUndoc = undoc.has(nid) && !node;
+        const isStale = node ? node.is_stale : false;
+        const dotClass = isUndoc ? 'undoc' : (isStale ? 'stale' : 'fresh');
+        const title = node ? node.title : nid;
+        nodeListHtml += `<div class="doc-node-item" onclick="showDocDetail('${escAttr(nid)}')">
+            <span class="staleness-dot ${dotClass}"></span>
+            <div>
+                <div class="node-title">${escHtml(title)}</div>
+                <div class="node-id">${escHtml(nid)}</div>
+            </div>
+        </div>`;
+    });
+
+    // Action buttons
+    const actionsHtml = `
+        <div class="quick-actions">
+            <button class="btn primary" onclick="doDocsGenerateAll()">Generate All</button>
+            <button class="btn" onclick="doDocsInterconnect()">Recompute Circle</button>
+            <button class="btn" onclick="doDocsRefreshStale()">Refresh Stale</button>
+            <button class="btn" onclick="docsStatus=null;docsGraph=null;renderDocsCircle(document.getElementById('mainContent'))">Reload</button>
+        </div>`;
+
+    el.innerHTML = `
+        <div class="page-title">Docs Circle <span style="font-size:14px;color:var(--text-dim);font-weight:400">The Perfect Circle</span></div>
+        ${statsHtml}
+        ${actionsHtml}
+        ${searchHtml}
+        <div class="circle-svg-wrap">${svgHtml}</div>
+        <h3 style="font-size:14px;margin-bottom:12px;color:var(--text-secondary)">All Nodes</h3>
+        <div class="doc-node-list">${nodeListHtml}</div>
+        <div id="docDetailPanel"></div>`;
+}
+
+function renderDocsCircleSVG(graph) {
+    const nodes = graph.nodes || [];
+    const edges = graph.edges || [];
+    if (nodes.length === 0) {
+        return '<svg viewBox="0 0 800 500"><text x="400" y="250" text-anchor="middle" fill="#8b949e" font-size="14">No docs generated yet. Click "Generate All" to start.</text></svg>';
+    }
+
+    const cx = 400, cy = 250, radius = 200;
+    const nodePositions = {};
+
+    // Arrange nodes in a circle
+    nodes.forEach((n, i) => {
+        const angle = (2 * Math.PI * i) / nodes.length - Math.PI / 2;
+        nodePositions[n.id] = {
+            x: cx + radius * Math.cos(angle),
+            y: cy + radius * Math.sin(angle),
+        };
+    });
+
+    // Draw edges
+    let edgesSvg = '';
+    const edgeColors = {
+        structural: '#58a6ff',
+        code_shared: '#3fb950',
+        semantic: '#bc8cff',
+    };
+    // Deduplicate edges for drawing (only draw each pair once)
+    const drawnEdges = new Set();
+    edges.forEach(e => {
+        const key = [e.from, e.to].sort().join('|') + '|' + e.type;
+        if (drawnEdges.has(key)) return;
+        drawnEdges.add(key);
+        const from = nodePositions[e.from];
+        const to = nodePositions[e.to];
+        if (!from || !to) return;
+        const color = edgeColors[e.type] || '#30363d';
+        const opacity = e.type === 'semantic' ? 0.4 : (e.type === 'code_shared' ? 0.6 : 0.3);
+        edgesSvg += `<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" stroke="${color}" stroke-width="1" opacity="${opacity}"/>`;
+    });
+
+    // Draw nodes
+    let nodesSvg = '';
+    nodes.forEach(n => {
+        const pos = nodePositions[n.id];
+        const fill = n.is_stale ? '#d29922' : '#3fb950';
+        const r = n.scale === 'department' ? 8 : (n.scale === 'executive' ? 10 : 6);
+        // Short label
+        const label = n.id.replace(/^(root|dept|capt|project):/, '');
+        nodesSvg += `<g style="cursor:pointer" onclick="showDocDetail('${escAttr(n.id)}')">`;
+        nodesSvg += `<circle cx="${pos.x}" cy="${pos.y}" r="${r}" fill="${fill}" stroke="#161b22" stroke-width="2"/>`;
+        nodesSvg += `<text x="${pos.x}" y="${pos.y + r + 14}" text-anchor="middle" fill="#8b949e" font-size="10" font-family="var(--font-mono)">${escHtml(label)}</text>`;
+        nodesSvg += `</g>`;
+    });
+
+    // Legend
+    const legendSvg = `
+        <g transform="translate(20, 460)">
+            <line x1="0" y1="0" x2="20" y2="0" stroke="#58a6ff" stroke-width="2"/><text x="25" y="4" fill="#8b949e" font-size="10">structural</text>
+            <line x1="100" y1="0" x2="120" y2="0" stroke="#3fb950" stroke-width="2"/><text x="125" y="4" fill="#8b949e" font-size="10">code_shared</text>
+            <line x1="220" y1="0" x2="240" y2="0" stroke="#bc8cff" stroke-width="2"/><text x="245" y="4" fill="#8b949e" font-size="10">semantic</text>
+            <circle cx="340" cy="0" r="5" fill="#3fb950"/><text x="350" y="4" fill="#8b949e" font-size="10">fresh</text>
+            <circle cx="400" cy="0" r="5" fill="#d29922"/><text x="410" y="4" fill="#8b949e" font-size="10">stale</text>
+            <circle cx="460" cy="0" r="5" fill="#30363d"/><text x="470" y="4" fill="#8b949e" font-size="10">undocumented</text>
+        </g>`;
+
+    return `<svg viewBox="0 0 800 500">${edgesSvg}${nodesSvg}${legendSvg}</svg>`;
+}
+
+async function showDocDetail(nodeId) {
+    const data = await api('/api/docs/node/' + encodeURIComponent(nodeId));
+    const panel = document.getElementById('docDetailPanel');
+    if (!data || data.error) {
+        panel.innerHTML = `<div class="doc-detail-panel"><p style="color:var(--text-dim)">No doc for ${escHtml(nodeId)} — generate it first.</p><button class="btn primary small" onclick="doDocsGenerate('${escAttr(nodeId)}')">Generate</button></div>`;
+        panel.scrollIntoView({ behavior: 'smooth' });
+        return;
+    }
+
+    const refs = data.cross_refs || {};
+    const struct = refs.structural || {};
+    const codeShared = refs.code_shared || [];
+    const semantic = refs.semantic || [];
+    const staleness = data.staleness || {};
+
+    let refsHtml = '';
+    if (struct.parent) refsHtml += `<span class="cross-ref-badge structural">${escHtml(struct.parent)}</span>`;
+    (struct.children || []).forEach(c => { refsHtml += `<span class="cross-ref-badge structural">${escHtml(c)}</span>`; });
+    (struct.siblings || []).forEach(s => { refsHtml += `<span class="cross-ref-badge structural">${escHtml(s)}</span>`; });
+    codeShared.forEach(cs => { refsHtml += `<span class="cross-ref-badge code_shared" title="Files: ${escAttr((cs.files||[]).join(', '))}">${escHtml(cs.node)}</span>`; });
+    semantic.forEach(s => { refsHtml += `<span class="cross-ref-badge semantic" title="Similarity: ${s.similarity}">${escHtml(s.node)} (${(s.similarity*100).toFixed(0)}%)</span>`; });
+
+    const filesHtml = (data.owned_files || []).map(f => `<div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);padding:2px 0">${escHtml(f)}</div>`).join('');
+    const conceptsHtml = (data.key_concepts || []).map(c => `<span style="display:inline-block;padding:2px 8px;margin:2px;background:var(--bg-tertiary);border-radius:var(--radius-sm);font-size:11px;font-family:var(--font-mono);color:var(--text-secondary)">${escHtml(c)}</span>`).join('');
+    const whatHtml = (data.what_it_does || []).map(w => `<div style="font-size:13px;color:var(--text-secondary);padding:2px 0">- ${escHtml(w)}</div>`).join('');
+
+    panel.innerHTML = `
+        <div class="doc-detail-panel">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+                <div>
+                    <h3 style="font-size:16px;font-weight:600">${escHtml(data.title || data.node_id)}</h3>
+                    <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-dim)">${escHtml(data.node_id)} (${data.scale || '?'})</div>
+                </div>
+                <div>
+                    <span class="staleness-dot ${staleness.is_stale ? 'stale' : 'fresh'}" style="display:inline-block;vertical-align:middle"></span>
+                    <span style="font-size:12px;color:${staleness.is_stale ? 'var(--accent-yellow)' : 'var(--accent-green)'}">${staleness.is_stale ? 'Stale' : 'Fresh'}</span>
+                </div>
+            </div>
+            <p style="color:var(--text-secondary);margin-bottom:12px;font-size:13px">${escHtml(data.description || '')}</p>
+            ${whatHtml ? `<div style="margin-bottom:12px"><strong style="font-size:12px;color:var(--text-dim)">WHAT IT DOES</strong>${whatHtml}</div>` : ''}
+            ${filesHtml ? `<div style="margin-bottom:12px"><strong style="font-size:12px;color:var(--text-dim)">OWNED FILES</strong>${filesHtml}</div>` : ''}
+            ${conceptsHtml ? `<div style="margin-bottom:12px"><strong style="font-size:12px;color:var(--text-dim)">KEY CONCEPTS</strong><div style="margin-top:4px">${conceptsHtml}</div></div>` : ''}
+            <div style="margin-bottom:12px"><strong style="font-size:12px;color:var(--text-dim)">CROSS-REFERENCES (THE CIRCLE)</strong><div style="margin-top:4px">${refsHtml || '<span style="color:var(--text-dim);font-size:12px">No cross-refs computed. Run interconnect.</span>'}</div></div>
+            <div style="font-size:11px;color:var(--text-dim)">
+                Hash: ${escHtml((data.content_hash || '').slice(0, 24))} |
+                Source: ${escHtml((staleness.source_hash || '').slice(0, 24))} |
+                Verified: ${escHtml((staleness.last_verified || '').slice(0, 19))}
+            </div>
+        </div>`;
+    panel.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function doDocsSearch() {
+    const input = document.getElementById('docsSearchInput');
+    const query = input ? input.value.trim() : '';
+    if (!query) return;
+    document.getElementById('docsSearchResults').innerHTML = '<p style="color:var(--text-secondary)"><span class="spinner"></span> Searching docs...</p>';
+    const results = await api('/api/docs/search?q=' + encodeURIComponent(query));
+    const el = document.getElementById('docsSearchResults');
+    if (!results || results.error) {
+        el.innerHTML = '<p style="color:var(--text-dim)">No results</p>';
+        return;
+    }
+    const items = Array.isArray(results) ? results : (results.results || []);
+    if (items.length === 0) {
+        el.innerHTML = '<p style="color:var(--text-dim)">No matching docs found</p>';
+        return;
+    }
+    el.innerHTML = items.map(r => `
+        <div class="search-result" onclick="showDocDetail('${escAttr(r.node_id || '')}')">
+            <div class="sr-title">${escHtml(r.title || r.node_id || '')}</div>
+            ${r.score ? `<span class="sr-score">${typeof r.score === 'number' ? (r.score * 100).toFixed(1) + '%' : r.score}</span>` : ''}
+            ${r.description ? `<div class="sr-snippet">${escHtml(r.description.slice(0, 200))}</div>` : ''}
+        </div>
+    `).join('');
+}
+
+async function doDocsGenerateAll() {
+    toast('Generating all docs...', 'info');
+    const r = await api('/api/docs/generate', { method: 'POST', body: '{}' });
+    if (r && !r.error) {
+        toast('Docs generated', 'success');
+        docsStatus = null; docsGraph = null;
+        renderDocsCircle(document.getElementById('mainContent'));
+    } else {
+        toast('Failed: ' + (r?.error || 'unknown'), 'error');
+    }
+}
+
+async function doDocsGenerate(nodeId) {
+    toast('Generating doc for ' + nodeId + '...', 'info');
+    const r = await api('/api/docs/generate', { method: 'POST', body: JSON.stringify({ node_id: nodeId }) });
+    if (r && !r.error) {
+        toast('Doc generated', 'success');
+        showDocDetail(nodeId);
+    } else {
+        toast('Failed: ' + (r?.error || 'unknown'), 'error');
+    }
+}
+
+async function doDocsInterconnect() {
+    toast('Computing interconnection graph...', 'info');
+    const r = await api('/api/docs/interconnect', { method: 'POST' });
+    if (r && !r.error) {
+        toast('Circle computed', 'success');
+        docsStatus = null; docsGraph = null;
+        renderDocsCircle(document.getElementById('mainContent'));
+    } else {
+        toast('Failed: ' + (r?.error || 'unknown'), 'error');
+    }
+}
+
+async function doDocsRefreshStale() {
+    toast('Refreshing stale docs...', 'info');
+    const r = await api('/api/docs/generate', { method: 'POST', body: '{}' });
+    if (r && !r.error) {
+        toast('Stale docs refreshed', 'success');
+        docsStatus = null; docsGraph = null;
+        renderDocsCircle(document.getElementById('mainContent'));
+    } else {
+        toast('Failed: ' + (r?.error || 'unknown'), 'error');
     }
 }
 

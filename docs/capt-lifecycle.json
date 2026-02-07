@@ -1,0 +1,50 @@
+{
+  "node_id": "capt:lifecycle",
+  "title": "Session Lifecycle",
+  "scale": "captain",
+  "description": "Session Lifecycle (captain)",
+  "what_it_does": [
+    "Rule: name_format \u2014 name generated \u2192 pass"
+  ],
+  "owned_files": [
+    "lib/session.sh"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "session",
+    "name_format"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:sessions",
+      "children": [],
+      "siblings": [
+        "capt:memory"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:runtime",
+        "files": [
+          "lib/session.sh"
+        ]
+      },
+      {
+        "node": "dept:sessions",
+        "files": [
+          "lib/session.sh"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:3de9f69680893b2472639215057044b63e558cef4e29f2971c52bd7b5621e427",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.594865+00:00"
+  },
+  "content_hash": "sha256:b462f714801b454055a0353680608a496eec62b9ca31a06880ffabc9374cd8cd",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.594865+00:00"
+}
