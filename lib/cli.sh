@@ -2,7 +2,7 @@
 # cli.sh — Command implementations and help text
 
 cmd_help() {
-    cat <<'USAGE'
+    cat <<'HELPTEXT'
 claude-cage — Dockerized sandbox for Claude CLI & Claude Desktop
 
 USAGE
@@ -18,9 +18,32 @@ COMMANDS
     destroy     Remove a session and its data
     build       Build container images
     config      Show or validate configuration
+    init        Initialize a new project with tree infrastructure
+    tree        Inspect and operate on a project tree
+    ptc         Pass-Through Coordination — intent down, artifacts up
+    train       Training data extraction and LoRA pipeline
     gui         Launch interactive TUI dashboard
+    web         Launch web dashboard (http://localhost:5000)
+    observe     Show observability dashboard for running sessions
     version     Print version
     help        Show this help message
+
+INIT
+    claude-cage init <directory> [--name <project-name>]
+
+TREE
+    claude-cage tree show [tree.json]              Show tree hierarchy
+    claude-cage tree count [tree.json]             Count nodes
+    claude-cage tree node <tree.json> <node-id>    Get node details
+    claude-cage tree blast-radius <tree.json> <targets>  Calculate blast radius
+    claude-cage tree route <tree.json> <intent>    Route intent through tree
+    claude-cage tree seed <tree.json> [project]    Seed tree into MongoDB
+
+PTC (Pass-Through Coordination)
+    claude-cage ptc run "intent" [--tree path] [--live]   Run full PTC cycle
+    claude-cage ptc exec <node> "task" [--live]           Execute at a specific leaf
+    claude-cage ptc leaves [tree.json]                    Show all worker nodes
+    claude-cage ptc tree [tree.json]                      Show tree structure
 
 START OPTIONS
     claude-cage start [options]
@@ -52,7 +75,7 @@ EXAMPLES
     # Resource-constrained session
     claude-cage start --mode cli --cpus 1 --memory 2g
 
-USAGE
+HELPTEXT
 }
 
 cmd_start() {
@@ -104,11 +127,9 @@ cmd_start() {
         exit 1
     fi
 
-    # Require API key
+    # API key is optional — Claude Max users authenticate via `claude login` inside the container
     if [[ -z "$api_key" ]]; then
-        echo "Error: Anthropic API key required." >&2
-        echo "Set ANTHROPIC_API_KEY or pass --api-key <key>" >&2
-        exit 1
+        echo "==> No API key set. Use 'claude login' inside the container to authenticate with your Max subscription."
     fi
 
     # Load config
@@ -311,4 +332,335 @@ cmd_config() {
             exit 1
             ;;
     esac
+}
+
+# ── Init: scaffold a new project with tree infrastructure ──────
+cmd_init() {
+    local project_dir=""
+    local project_name=""
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --name) project_name="$2"; shift 2 ;;
+            *)      project_dir="$1"; shift ;;
+        esac
+    done
+
+    if [[ -z "$project_dir" ]]; then
+        echo "Usage: claude-cage init <directory> [--name <project-name>]" >&2
+        exit 1
+    fi
+
+    # Default name from directory basename
+    if [[ -z "$project_name" ]]; then
+        project_name="$(basename "$project_dir")"
+    fi
+
+    # Create directory if it doesn't exist
+    mkdir -p "$project_dir"
+    project_dir="$(cd "$project_dir" && pwd)"
+
+    echo "==> Initializing project: $project_name"
+    echo "    Directory: $project_dir"
+
+    # Initialize tree
+    tree_init "$project_dir" "$project_name"
+
+    echo ""
+    echo "==> Project '$project_name' initialized."
+    echo "    Edit tree.json to add your nodes."
+    echo "    View tree: claude-cage tree $project_dir"
+}
+
+# ── Tree: inspect and operate on a project tree ────────────────
+cmd_tree() {
+    local action="${1:-show}"
+    shift || true
+    local tree_path="${1:-./tree.json}"
+
+    case "$action" in
+        show)
+            tree_show "$tree_path"
+            ;;
+        load|count)
+            local count
+            count=$(tree_load "$tree_path")
+            echo "Nodes: $count"
+            ;;
+        node)
+            local node_id="${2:-}"
+            if [[ -z "$node_id" ]]; then
+                echo "Usage: claude-cage tree node <tree.json> <node-id>" >&2
+                exit 1
+            fi
+            tree_node "$tree_path" "$node_id"
+            ;;
+        blast-radius)
+            local targets="${2:-}"
+            if [[ -z "$targets" ]]; then
+                echo "Usage: claude-cage tree blast-radius <tree.json> <target1,target2,...>" >&2
+                exit 1
+            fi
+            tree_blast_radius "$tree_path" "$targets"
+            ;;
+        route)
+            local intent="${2:-}"
+            if [[ -z "$intent" ]]; then
+                echo "Usage: claude-cage tree route <tree.json> <intent keywords>" >&2
+                exit 1
+            fi
+            tree_route "$tree_path" "$intent"
+            ;;
+        seed)
+            local project="${2:-$(basename "$(dirname "$tree_path")")}"
+            tree_seed "$tree_path" "$project"
+            ;;
+        *)
+            echo "Usage: claude-cage tree <show|count|node|blast-radius|route|seed> [tree.json] [args]" >&2
+            exit 1
+            ;;
+    esac
+}
+
+# ── Web: launch the web dashboard ─────────────────────────────
+cmd_web() {
+    local port="${CAGE_WEB_PORT:-5000}"
+    echo "==> Starting claude-cage web dashboard"
+    echo "    http://localhost:${port}"
+    python3 "$CAGE_ROOT/web/app.py"
+}
+
+# ── PTC: Pass-Through Coordination ─────────────────────────────
+cmd_ptc() {
+    local action="${1:-}"
+    shift || true
+
+    case "$action" in
+        run)
+            # claude-cage ptc run "intent" [--tree path] [--target node] [--live] [--json]
+            local intent=""
+            local tree_path="${CAGE_ROOT}/tree.json"
+            local target=""
+            local extra_args=()
+
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --tree)   tree_path="$2"; shift 2 ;;
+                    --target) target="$2"; shift 2 ;;
+                    --live)   extra_args+=(--live); shift ;;
+                    --json)   extra_args+=(--json); shift ;;
+                    -v|--verbose) extra_args+=(--verbose); shift ;;
+                    *)        intent="$1"; shift ;;
+                esac
+            done
+
+            if [[ -z "$intent" ]]; then
+                echo "Usage: claude-cage ptc run \"intent\" [--tree path] [--target node] [--live]" >&2
+                exit 1
+            fi
+
+            local -a cmd=(python3 -m ptc.engine --tree "$tree_path" --intent "$intent")
+            [[ -n "$target" ]] && cmd+=(--target "$target")
+            cmd+=("${extra_args[@]}")
+
+            CAGE_ROOT="$CAGE_ROOT" PYTHONPATH="$CAGE_ROOT" "${cmd[@]}"
+            ;;
+        exec)
+            # claude-cage ptc exec <node-id> "task" [--tree path] [--live]
+            local node_id=""
+            local task=""
+            local tree_path="${CAGE_ROOT}/tree.json"
+            local extra_args=()
+
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --tree) tree_path="$2"; shift 2 ;;
+                    --live) extra_args+=(--live); shift ;;
+                    --json) extra_args+=(--json); shift ;;
+                    *)
+                        if [[ -z "$node_id" ]]; then
+                            node_id="$1"
+                        else
+                            task="$1"
+                        fi
+                        shift
+                        ;;
+                esac
+            done
+
+            if [[ -z "$node_id" || -z "$task" ]]; then
+                echo "Usage: claude-cage ptc exec <node-id> \"task\" [--tree path] [--live]" >&2
+                exit 1
+            fi
+
+            CAGE_ROOT="$CAGE_ROOT" PYTHONPATH="$CAGE_ROOT" \
+                python3 -m ptc.engine --tree "$tree_path" --node "$node_id" --task "$task" "${extra_args[@]}"
+            ;;
+        leaves)
+            # claude-cage ptc leaves [--tree path]
+            local tree_path="${1:-${CAGE_ROOT}/tree.json}"
+            CAGE_ROOT="$CAGE_ROOT" PYTHONPATH="$CAGE_ROOT" \
+                python3 -m ptc.engine --tree "$tree_path" --show-leaves
+            ;;
+        tree)
+            # claude-cage ptc tree [--tree path]
+            local tree_path="${1:-${CAGE_ROOT}/tree.json}"
+            CAGE_ROOT="$CAGE_ROOT" PYTHONPATH="$CAGE_ROOT" \
+                python3 -m ptc.engine --tree "$tree_path" --show-tree
+            ;;
+        help|"")
+            cat <<'PTCHELP'
+PTC — Pass-Through Coordination
+
+  Intent flows DOWN. Artifacts flow UP. One pattern. Every scale.
+
+USAGE
+    claude-cage ptc run "intent" [--tree path] [--target node] [--live] [-v]
+    claude-cage ptc exec <node-id> "task" [--tree path] [--live]
+    claude-cage ptc leaves [tree.json]
+    claude-cage ptc tree [tree.json]
+
+EXAMPLES
+    # Dry run — see what would happen
+    claude-cage ptc run "add GPU monitoring"
+
+    # Live execution — leaves do the work
+    claude-cage ptc run "fix security sandbox" --live
+
+    # Target a specific department
+    claude-cage ptc run "update auth" --target dept:security
+
+    # Execute directly at a leaf node
+    claude-cage ptc exec capt:sandbox "verify all flags" --live
+
+    # Use a different tree
+    claude-cage ptc run "implement wire protocol" --tree gentlyos/tree.json
+
+    # Show all workers
+    claude-cage ptc leaves
+
+PTCHELP
+            ;;
+        *)
+            echo "Error: unknown ptc action '$action'" >&2
+            echo "Run 'claude-cage ptc help' for usage." >&2
+            exit 1
+            ;;
+    esac
+}
+
+# ── Train: training data extraction and LoRA pipeline ──────────
+cmd_train() {
+    local action="${1:-help}"
+    shift || true
+
+    case "$action" in
+        extract)
+            # claude-cage train extract [--source local|mongodb] [--output dir]
+            local source="local"
+            local output=""
+            local extra_args=()
+
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --source) source="$2"; shift 2 ;;
+                    --output|-o) output="$2"; shift 2 ;;
+                    *) extra_args+=("$1"); shift ;;
+                esac
+            done
+
+            [[ -z "$output" ]] && output="${CAGE_ROOT}/training/datasets/latest"
+
+            CAGE_ROOT="$CAGE_ROOT" PYTHONPATH="$CAGE_ROOT" \
+                python3 -m ptc.training extract --source "$source" --output "$output" "${extra_args[@]}"
+            ;;
+        pipeline)
+            # claude-cage train pipeline [--tree path] [--model name]
+            local tree_path="${CAGE_ROOT}/tree.json"
+            local model=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --tree) tree_path="$2"; shift 2 ;;
+                    --model) model="$2"; shift 2 ;;
+                    *) shift ;;
+                esac
+            done
+
+            local -a cmd=(python3 -m ptc.lora pipeline --tree "$tree_path")
+            [[ -n "$model" ]] && cmd+=(--model "$model")
+
+            CAGE_ROOT="$CAGE_ROOT" PYTHONPATH="$CAGE_ROOT" "${cmd[@]}"
+            ;;
+        stack)
+            # claude-cage train stack [--tree path]
+            local tree_path="${1:-${CAGE_ROOT}/tree.json}"
+            CAGE_ROOT="$CAGE_ROOT" PYTHONPATH="$CAGE_ROOT" \
+                python3 -m ptc.lora stack --tree "$tree_path"
+            ;;
+        preview)
+            # claude-cage train preview [--trace file]
+            local trace="${1:-}"
+            if [[ -z "$trace" ]]; then
+                # Find most recent trace
+                trace=$(ls -t "${CAGE_ROOT}/training/traces/"*.json 2>/dev/null | head -1)
+                if [[ -z "$trace" ]]; then
+                    echo "No traces found. Run: claude-cage ptc run \"intent\" --json > training/traces/trace.json" >&2
+                    exit 1
+                fi
+            fi
+            CAGE_ROOT="$CAGE_ROOT" PYTHONPATH="$CAGE_ROOT" \
+                python3 -m ptc.training preview --trace "$trace"
+            ;;
+        stats)
+            CAGE_ROOT="$CAGE_ROOT" PYTHONPATH="$CAGE_ROOT" \
+                python3 -m ptc.training stats --source local
+            ;;
+        help|"")
+            cat <<'TRAINHELP'
+TRAIN — Training Data Extraction & LoRA Pipeline
+
+  Every PTC trace IS a chain of thought. Extract. Train. Stack. Grow.
+
+USAGE
+    claude-cage train extract [--source local|mongodb] [--output dir]
+    claude-cage train pipeline [--tree path] [--model name]
+    claude-cage train stack [--tree path]
+    claude-cage train preview [trace.json]
+    claude-cage train stats
+
+FLOW
+    1. Run PTC to generate traces:
+       claude-cage ptc run "intent" --json > training/traces/my-trace.json
+
+    2. Extract training data (Alpaca, ShareGPT, CoT formats):
+       claude-cage train extract
+
+    3. Generate LoRA pipeline (configs for all adapters):
+       claude-cage train pipeline
+
+    4. See stacking order (base → scale → department → captain):
+       claude-cage train stack
+
+    5. Train adapters (on your 3090s):
+       python3 training/scripts/train_ptc_base.py
+
+TRAINHELP
+            ;;
+        *)
+            echo "Error: unknown train action '$action'" >&2
+            echo "Run 'claude-cage train help' for usage." >&2
+            exit 1
+            ;;
+    esac
+}
+
+# ── Observe: show observability dashboard ──────────────────────
+cmd_observe() {
+    echo "OBSERVABILITY DASHBOARD"
+    echo "═══════════════════════════════════════"
+    echo ""
+    docker ps --filter "label=managed-by=claude-cage" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null || echo "  (no containers running)"
+    echo ""
+    echo "RESOURCE USAGE:"
+    docker stats --no-stream --filter "label=managed-by=claude-cage" --format "  {{.Name}}: CPU={{.CPUPerc}} MEM={{.MemUsage}} NET={{.NetIO}}" 2>/dev/null || echo "  (no containers running)"
 }

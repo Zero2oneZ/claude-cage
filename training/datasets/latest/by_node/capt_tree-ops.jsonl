@@ -1,0 +1,1 @@
+{"intent": "add GPU monitoring to dashboard", "status": "planned", "output": {"plan": "Would execute: add GPU monitoring to dashboard", "files": ["lib/tree.sh"], "functions": ["tree_load", "tree_show", "tree_node", "tree_blast_radius", "tree_route", "tree_add_node", "tree_seed"], "rules_applied": []}, "trace_id": "ptc-1770499719", "timestamp": "2026-02-07T21:28:39.194157+00:00"}

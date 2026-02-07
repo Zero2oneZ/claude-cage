@@ -1,0 +1,1 @@
+{"intent": "fix security sandbox network", "status": "planned", "output": {"plan": "Would execute: fix security sandbox network", "files": ["lib/sandbox.sh"], "functions": ["sandbox_apply_network_filter"], "rules_applied": ["allowlist_only", "icc_disabled"]}, "trace_id": "ptc-1770499719", "timestamp": "2026-02-07T21:28:39.738185+00:00"}

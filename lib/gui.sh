@@ -794,17 +794,10 @@ gui_launch_session() {
     [[ -n "$mount_path" ]] && args+=(--mount "$mount_path")
     [[ "$ephemeral" == "yes" ]] && args+=(--ephemeral)
 
-    # Need API key
-    if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
-        tui_cleanup
-        echo "Error: ANTHROPIC_API_KEY is required."
-        echo "Set it and re-run: export ANTHROPIC_API_KEY=sk-ant-..."
-        read -rp "Press Enter to return to GUI..."
-        tui_init
-        return
+    # Pass API key if available (optional — Max users authenticate via claude login)
+    if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
+        args+=(--api-key "$ANTHROPIC_API_KEY")
     fi
-
-    args+=(--api-key "$ANTHROPIC_API_KEY")
 
     if [[ "$mode" == "cli" ]]; then
         # CLI mode: exit TUI, run interactively

@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>claude-cage dashboard</title>
+<style>
+/* ── Reset & Variables ──────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-tertiary: #21262d;
+    --bg-hover: #292e36;
+    --border: #30363d;
+    --border-light: #444c56;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --text-dim: #6e7681;
+    --accent-blue: #58a6ff;
+    --accent-green: #3fb950;
+    --accent-yellow: #d29922;
+    --accent-red: #f85149;
+    --accent-purple: #bc8cff;
+    --accent-cyan: #39d2c0;
+    --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --radius: 8px;
+    --radius-sm: 4px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────── */
+.sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+.sidebar-logo {
+    padding: 20px 16px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+    letter-spacing: -0.3px;
+}
+
+.sidebar-logo span { color: var(--text-dim); font-weight: 400; font-size: 11px; margin-left: 6px; }
+
+.sidebar-nav { flex: 1; padding: 8px; }
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.15s;
+    user-select: none;
+}
+
+.nav-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+.nav-item.active { background: var(--bg-tertiary); color: var(--accent-blue); font-weight: 600; }
+.nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+.sidebar-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-dim);
+}
+
+.docker-status { display: flex; align-items: center; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot.green { background: var(--accent-green); }
+.dot.red { background: var(--accent-red); }
+.dot.yellow { background: var(--accent-yellow); }
+
+/* ── Main Content ───────────────────────────────────────────── */
+.main { flex: 1; overflow-y: auto; padding: 24px 32px; }
+
+.page-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ── Stats Cards ────────────────────────────────────────────── */
+.stats-row { display: flex; gap: 16px; margin-bottom: 24px; }
+
+.stat-card {
+    flex: 1;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+}
+
+.stat-card .label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-card .value { font-size: 28px; font-weight: 700; font-family: var(--font-mono); margin-top: 4px; }
+.stat-card.running .value { color: var(--accent-green); }
+.stat-card.stopped .value { color: var(--accent-yellow); }
+.stat-card.total .value { color: var(--accent-cyan); }
+
+/* ── Quick Actions ──────────────────────────────────────────── */
+.quick-actions { display: flex; gap: 10px; margin-bottom: 24px; }
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.btn:hover { background: var(--bg-hover); border-color: var(--border-light); }
+.btn.primary { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+.btn.primary:hover { background: #4a96ef; }
+.btn.danger { color: var(--accent-red); }
+.btn.danger:hover { background: rgba(248,81,73,0.15); }
+.btn.success { color: var(--accent-green); }
+.btn.success:hover { background: rgba(63,185,80,0.15); }
+.btn.small { padding: 4px 10px; font-size: 12px; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Session Table ──────────────────────────────────────────── */
+.table-wrap {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+table { width: 100%; border-collapse: collapse; }
+thead th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-tertiary);
+}
+
+tbody td {
+    padding: 12px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: var(--bg-tertiary); }
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+}
+
+.status-badge.running { background: rgba(63,185,80,0.15); color: var(--accent-green); }
+.status-badge.exited { background: rgba(210,153,34,0.15); color: var(--accent-yellow); }
+.status-badge.created { background: rgba(88,166,255,0.15); color: var(--accent-blue); }
+.status-badge.removed, .status-badge.dead { background: rgba(248,81,73,0.15); color: var(--accent-red); }
+
+.mode-tag {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+.mode-tag.desktop { color: var(--accent-purple); background: rgba(188,140,255,0.1); }
+.mode-tag.cli { color: var(--accent-cyan); background: rgba(57,210,192,0.1); }
+
+.actions-cell { display: flex; gap: 4px; }
+
+.empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-state p { margin-bottom: 16px; }
+
+/* ── Modal ──────────────────────────────────────────────────── */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 560px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-header h2 { font-size: 16px; font-weight: 600; }
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 20px;
+    padding: 4px;
+    line-height: 1;
+}
+
+.modal-close:hover { color: var(--text-primary); }
+
+.modal-body { padding: 20px; }
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+}
+
+/* ── Form Fields ────────────────────────────────────────────── */
+.form-group { margin-bottom: 16px; }
+.form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: var(--font-mono);
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--accent-blue);
+}
+
+.form-row { display: flex; gap: 12px; }
+.form-row .form-group { flex: 1; }
+
+.toggle-group { display: flex; gap: 4px; }
+.toggle-btn {
+    flex: 1;
+    padding: 8px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+}
+
+.toggle-btn:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.toggle-btn:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.toggle-btn.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+
+.checkbox-group { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.checkbox-group input { accent-color: var(--accent-blue); }
+
+.workspace-list { margin-top: 8px; }
+.workspace-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 13px;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+}
+.workspace-item input { accent-color: var(--accent-blue); }
+
+.preview-cmd {
+    margin-top: 16px;
+    padding: 10px 14px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    word-break: break-all;
+}
+
+/* ── Session Detail ─────────────────────────────────────────── */
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.detail-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+}
+
+.detail-card h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.detail-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+.detail-row .key { color: var(--text-secondary); }
+.detail-row .val { font-family: var(--font-mono); }
+
+.security-check { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 13px; }
+.check-ok { color: var(--accent-green); }
+.check-warn { color: var(--accent-yellow); }
+
+.progress-bar {
+    height: 8px;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.progress-bar .fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s;
+}
+
+.fill.green { background: var(--accent-green); }
+.fill.yellow { background: var(--accent-yellow); }
+.fill.red { background: var(--accent-red); }
+
+.logs-panel {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.5;
+}
+
+/* ── Projects Page ──────────────────────────────────────────── */
+.project-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 24px; }
+
+.project-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.project-card .info { flex: 1; min-width: 0; }
+.project-card .name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+.project-card .path { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.project-card .missing { color: var(--accent-red); }
+
+.add-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+.add-section h3 { font-size: 14px; margin-bottom: 12px; }
+
+.inline-form { display: flex; gap: 8px; align-items: flex-end; }
+.inline-form input {
+    flex: 1;
+    padding: 8px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: var(--font-mono);
+    outline: none;
+}
+.inline-form input:focus { border-color: var(--accent-blue); }
+
+/* ── File Browser ───────────────────────────────────────────── */
+.browser {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    max-height: 240px;
+    overflow-y: auto;
+    margin-top: 8px;
+}
+
+.browser-path {
+    padding: 8px 12px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.browser-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.browser-item:hover { background: var(--bg-tertiary); }
+.browser-item.selected { background: rgba(88,166,255,0.1); color: var(--accent-blue); }
+
+/* ── Config Page ────────────────────────────────────────────── */
+.config-table { font-family: var(--font-mono); font-size: 13px; }
+.config-table .key { color: var(--accent-cyan); }
+.config-table .val { color: var(--text-primary); margin-left: 8px; }
+
+/* ── Toast ──────────────────────────────────────────────────── */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 12px 20px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    z-index: 200;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    max-width: 400px;
+}
+
+.toast.visible { opacity: 1; transform: translateY(0); }
+.toast.success { background: rgba(63,185,80,0.9); color: #fff; }
+.toast.error { background: rgba(248,81,73,0.9); color: #fff; }
+.toast.info { background: rgba(88,166,255,0.9); color: #fff; }
+
+/* ── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+/* ── Spinner ────────────────────────────────────────────────── */
+.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent-blue); border-radius: 50%; animation: spin 0.6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="sidebar-logo">claude-cage <span>v0.1.0</span></div>
+    <nav class="sidebar-nav">
+        <div class="nav-item active" data-view="dashboard" onclick="navigate('dashboard')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Dashboard
+        </div>
+        <div class="nav-item" data-view="projects" onclick="navigate('projects')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+            Projects
+        </div>
+        <div class="nav-item" data-view="gentlyos" onclick="navigate('gentlyos')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            GentlyOS Tree
+        </div>
+        <div class="nav-item" data-view="config" onclick="navigate('config')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            Config
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="docker-status">
+            <span class="dot" id="dockerDot"></span>
+            <span id="dockerLabel">Checking...</span>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="main" id="mainContent"></div>
+
+<!-- New Session Modal -->
+<div class="modal-overlay" id="newSessionModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>New Session</h2>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Mode</label>
+                <div class="toggle-group">
+                    <div class="toggle-btn active" data-field="mode" data-value="cli" onclick="setToggle(this)">CLI</div>
+                    <div class="toggle-btn" data-field="mode" data-value="desktop" onclick="setToggle(this)">Desktop</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Session Name <span style="color:var(--text-dim)">(leave empty for auto)</span></label>
+                <input type="text" id="sessionName" placeholder="e.g. swift-fox-a1b2">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Network</label>
+                    <div class="toggle-group">
+                        <div class="toggle-btn" data-field="network" data-value="none" onclick="setToggle(this)">None</div>
+                        <div class="toggle-btn active" data-field="network" data-value="filtered" onclick="setToggle(this)">Filtered</div>
+                        <div class="toggle-btn" data-field="network" data-value="host" onclick="setToggle(this)">Host</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>CPUs</label>
+                    <input type="number" id="sessionCpus" value="2" min="1" max="16">
+                </div>
+                <div class="form-group">
+                    <label>Memory</label>
+                    <select id="sessionMemory">
+                        <option value="1g">1 GB</option>
+                        <option value="2g">2 GB</option>
+                        <option value="4g" selected>4 GB</option>
+                        <option value="8g">8 GB</option>
+                        <option value="16g">16 GB</option>
+                        <option value="32g">32 GB</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="sessionGpu"> <label for="sessionGpu" style="margin:0;text-transform:none;letter-spacing:0;font-size:14px">Enable GPU</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="sessionEphemeral"> <label for="sessionEphemeral" style="margin:0;text-transform:none;letter-spacing:0;font-size:14px">Ephemeral</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Mount Workspaces</label>
+                <div id="workspacePicker" class="workspace-list">
+                    <span style="color:var(--text-dim);font-size:13px">Loading workspaces...</span>
+                </div>
+            </div>
+            <div class="preview-cmd" id="cmdPreview"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeModal()">Cancel</button>
+            <button class="btn primary" id="launchBtn" onclick="launchSession()">Launch Session</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── State ──────────────────────────────────────────────────── */
+let currentView = 'dashboard';
+let sessions = [];
+let workspaces = [];
+let health = {};
+let selectedDetail = null;
+let detailInterval = null;
+let pollingInterval = null;
+
+const formState = { mode: 'cli', network: 'filtered' };
+
+/* ── API helpers ────────────────────────────────────────────── */
+async function api(url, opts = {}) {
+    try {
+        const res = await fetch(url, {
+            headers: { 'Content-Type': 'application/json' },
+            ...opts,
+        });
+        return await res.json();
+    } catch (e) {
+        console.error('API error:', e);
+        return null;
+    }
+}
+
+/* ── Navigation ─────────────────────────────────────────────── */
+function navigate(view) {
+    currentView = view;
+    document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.view === view);
+    });
+    if (detailInterval) { clearInterval(detailInterval); detailInterval = null; }
+    selectedDetail = null;
+    render();
+}
+
+function navigateDetail(name) {
+    selectedDetail = name;
+    currentView = 'detail';
+    if (detailInterval) clearInterval(detailInterval);
+    detailInterval = setInterval(() => { if (currentView === 'detail') renderDetail(); }, 3000);
+    renderDetail();
+}
+
+/* ── Render Router ──────────────────────────────────────────── */
+function render() {
+    const el = document.getElementById('mainContent');
+    switch (currentView) {
+        case 'dashboard': renderDashboard(el); break;
+        case 'projects': renderProjects(el); break;
+        case 'gentlyos': renderGentlyOS(el); break;
+        case 'config': renderConfig(el); break;
+        case 'detail': renderDetail(); break;
+    }
+}
+
+/* ── GentlyOS Tree View ────────────────────────────────────────── */
+let gentlyTree = null;
+
+async function renderGentlyOS(el) {
+    if (!gentlyTree) {
+        gentlyTree = await api('/api/gentlyos/tree');
+    }
+    if (!gentlyTree || gentlyTree.error) {
+        el.innerHTML = `<div class="page-title">GentlyOS Tree</div><div class="empty-state"><p>Tree not loaded. Run <code>node gentlyos/seed.js</code> first.</p></div>`;
+        return;
+    }
+
+    const nodes = gentlyTree.nodes || [];
+    const byId = {};
+    nodes.forEach(n => byId[n.id] = n);
+    const seph = gentlyTree.sephirot_mapping || {};
+
+    // Build tree HTML recursively
+    function renderNode(nid, depth) {
+        const node = byId[nid];
+        if (!node) return '';
+        const indent = depth * 20;
+        const scaleColors = {
+            executive: 'var(--accent-purple)', department: 'var(--accent-blue)',
+            captain: 'var(--accent-cyan)', crate: 'var(--accent-green)',
+        };
+        const color = scaleColors[node.scale] || 'var(--text-secondary)';
+        const rules = node.rules ? node.rules.length : 0;
+        const esc = node.escalation ? node.escalation.threshold : '?';
+        const sephira = node.metadata?.sephira_mapping ? ` (${node.metadata.sephira_mapping})` : '';
+        const crates = node.metadata?.crates_owned?.length ? ` [${node.metadata.crates_owned.join(', ')}]` : '';
+
+        let html = `<div class="tree-node" style="padding:6px 12px 6px ${indent + 12}px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.1s" onmouseover="this.style.background='var(--bg-tertiary)'" onmouseout="this.style.background=''" onclick="showNodeDetail('${nid}')">
+            <span style="color:${color};font-weight:600;font-size:13px">${escHtml(node.name)}</span>
+            <span style="font-size:11px;color:var(--text-dim);margin-left:8px">${node.scale}${sephira}</span>
+            <span style="float:right;font-size:11px;color:var(--text-dim)">rules:${rules} esc@${esc}${crates}</span>
+        </div>`;
+
+        (node.children || []).forEach(cid => {
+            html += renderNode(cid, depth + 1);
+        });
+        return html;
+    }
+
+    const treeHtml = renderNode('root:human', 0);
+
+    // Sephirot mapping
+    let sephRows = '';
+    Object.entries(seph).forEach(([k, v]) => {
+        if (k.startsWith('_')) return;
+        const dept = byId[v];
+        sephRows += `<div class="detail-row"><span class="key" style="color:var(--accent-purple)">${escHtml(k)}</span><span class="val">${dept ? dept.name : v}</span></div>`;
+    });
+
+    // Coordination phases
+    const phases = (gentlyTree.coordination?.phases || []).map((p, i) =>
+        `<span style="display:inline-block;padding:4px 10px;margin:2px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-family:var(--font-mono)">${i+1}. ${p}</span>`
+    ).join('');
+
+    el.innerHTML = `
+        <div class="page-title">GentlyOS Recursive Tree</div>
+        <p style="color:var(--text-secondary);margin-bottom:16px;font-size:13px">One pattern. Every scale. Same shape. ${nodes.length} nodes — executives, departments, captains — all the same universal struct.</p>
+        <div style="display:flex;gap:16px;margin-bottom:16px">
+            <div class="stat-card" style="flex:0 0 auto"><div class="label">Nodes</div><div class="value" style="color:var(--accent-cyan)">${nodes.length}</div></div>
+            <div class="stat-card" style="flex:0 0 auto"><div class="label">Executives</div><div class="value" style="color:var(--accent-purple)">${nodes.filter(n=>n.scale==='executive').length}</div></div>
+            <div class="stat-card" style="flex:0 0 auto"><div class="label">Departments</div><div class="value" style="color:var(--accent-blue)">${nodes.filter(n=>n.scale==='department').length}</div></div>
+            <div class="stat-card" style="flex:0 0 auto"><div class="label">Captains</div><div class="value" style="color:var(--accent-cyan)">${nodes.filter(n=>n.scale==='captain').length}</div></div>
+        </div>
+        <div class="table-wrap" style="margin-bottom:24px">
+            <div style="padding:10px 16px;font-weight:600;font-size:12px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;background:var(--bg-tertiary);border-bottom:1px solid var(--border)">Tree Hierarchy</div>
+            ${treeHtml}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+            <div class="detail-card">
+                <h3>Tree of Life Mapping</h3>
+                ${sephRows}
+            </div>
+            <div class="detail-card">
+                <h3>Coordination Phases</h3>
+                <div style="margin-top:8px">${phases}</div>
+                <div style="margin-top:12px;font-size:12px;color:var(--text-dim)">
+                    Approval cascade: Low (1-3) → Captain | Medium (4-6) → Director | High (7-8) → CTO | Critical (9-10) → Human
+                </div>
+            </div>
+        </div>
+        <div id="nodeDetailPanel"></div>`;
+}
+
+async function showNodeDetail(nid) {
+    const data = await api('/api/gentlyos/node/' + nid);
+    if (!data || data.error) return;
+    const panel = document.getElementById('nodeDetailPanel');
+    const rules = (data.rules || []).map(r =>
+        `<div style="padding:4px 0;font-size:13px"><span style="color:var(--accent-cyan)">${escHtml(r.name)}</span> → <span style="color:${r.action==='block'?'var(--accent-red)':r.action==='escalate'?'var(--accent-yellow)':'var(--accent-green)'}">${r.action}</span>${r.condition ? ` <span style="color:var(--text-dim)">if: ${escHtml(r.condition)}</span>` : ''}</div>`
+    ).join('');
+    const esc = data.escalation || {};
+    panel.innerHTML = `
+        <div class="detail-card" style="margin-top:0">
+            <h3>${escHtml(data.name)} <span style="color:var(--text-dim);font-weight:400">(${data.scale})</span></h3>
+            <div class="detail-row"><span class="key">ID</span><span class="val">${data.id}</span></div>
+            <div class="detail-row"><span class="key">Parent</span><span class="val">${data.parent || 'none (root)'}</span></div>
+            <div class="detail-row"><span class="key">Children</span><span class="val">${(data.children||[]).join(', ') || 'none (leaf)'}</span></div>
+            <div class="detail-row"><span class="key">Escalation</span><span class="val">${esc.target || 'none'} @ risk >= ${esc.threshold || '?'}</span></div>
+            ${data.metadata?.crates_owned ? `<div class="detail-row"><span class="key">Crates</span><span class="val">${data.metadata.crates_owned.join(', ')}</span></div>` : ''}
+            ${data.metadata?.sephira_mapping ? `<div class="detail-row"><span class="key">Sephira</span><span class="val" style="color:var(--accent-purple)">${data.metadata.sephira_mapping}</span></div>` : ''}
+            <h3 style="margin-top:12px">Rules (${(data.rules||[]).length})</h3>
+            ${rules || '<span style="color:var(--text-dim);font-size:13px">No rules defined</span>'}
+            ${data.metadata?.output_format ? `<h3 style="margin-top:12px">Output Format</h3><pre style="background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px;font-size:12px;color:var(--text-secondary);white-space:pre-wrap">${escHtml(data.metadata.output_format)}</pre>` : ''}
+        </div>`;
+    panel.scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ── Dashboard ──────────────────────────────────────────────── */
+function renderDashboard(el) {
+    const running = sessions.filter(s => s.status === 'running').length;
+    const stopped = sessions.filter(s => s.status !== 'running').length;
+
+    let tableRows = '';
+    if (sessions.length === 0) {
+        tableRows = `<tr><td colspan="5"><div class="empty-state"><p>No sessions found</p><button class="btn primary" onclick="openModal()">Create your first session</button></div></td></tr>`;
+    } else {
+        sessions.forEach(s => {
+            tableRows += `<tr>
+                <td><a href="#" onclick="navigateDetail('${s.name}');return false" style="color:var(--accent-blue);text-decoration:none;font-family:var(--font-mono)">${s.name}</a></td>
+                <td><span class="mode-tag ${s.mode}">${s.mode}</span></td>
+                <td><span class="status-badge ${s.status}">${s.status}</span></td>
+                <td style="font-size:13px;color:var(--text-secondary)">${s.created || ''}</td>
+                <td><div class="actions-cell">
+                    ${s.status === 'running'
+                        ? `<button class="btn small danger" onclick="stopSession('${s.name}')">Stop</button>`
+                        : `<button class="btn small success" onclick="startSession('${s.name}')">Start</button>`}
+                    <button class="btn small danger" onclick="destroySession('${s.name}')">Destroy</button>
+                </div></td>
+            </tr>`;
+        });
+    }
+
+    el.innerHTML = `
+        <div class="page-title">Dashboard</div>
+        <div class="stats-row">
+            <div class="stat-card running"><div class="label">Running</div><div class="value">${running}</div></div>
+            <div class="stat-card stopped"><div class="label">Stopped</div><div class="value">${stopped}</div></div>
+            <div class="stat-card total"><div class="label">Total</div><div class="value">${sessions.length}</div></div>
+        </div>
+        <div class="quick-actions">
+            <button class="btn primary" onclick="openModal()">+ New Session</button>
+            <button class="btn" onclick="refreshData()"><span class="spinner" style="display:none" id="refreshSpin"></span> Refresh</button>
+            ${running > 0 ? `<button class="btn danger" onclick="stopAllSessions()">Stop All</button>` : ''}
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Name</th><th>Mode</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+                <tbody>${tableRows}</tbody>
+            </table>
+        </div>`;
+}
+
+/* ── Session Detail ─────────────────────────────────────────── */
+async function renderDetail() {
+    const el = document.getElementById('mainContent');
+    if (!selectedDetail) { navigate('dashboard'); return; }
+
+    const data = await api(`/api/sessions/${selectedDetail}`);
+    if (!data || data.error) {
+        el.innerHTML = `<div class="page-title"><button class="btn small" onclick="navigate('dashboard')">&larr; Back</button> Session not found</div>`;
+        return;
+    }
+
+    const stats = data.running ? await api(`/api/sessions/${selectedDetail}/stats`) : null;
+    const logs = await api(`/api/sessions/${selectedDetail}/logs?tail=50`);
+
+    const sec = data.security || {};
+    const checkIcon = ok => ok ? '<span class="check-ok">&#10003;</span>' : '<span class="check-warn">&#10007;</span>';
+
+    const cpuPct = stats ? stats.cpu_percent : 0;
+    const memPct = stats ? stats.memory_percent : 0;
+    const memUsed = stats ? (stats.memory_usage / 1073741824).toFixed(1) : 0;
+    const memLimit = data.memory_gb || 0;
+
+    const cpuColor = cpuPct > 80 ? 'red' : cpuPct > 50 ? 'yellow' : 'green';
+    const memColor = memPct > 80 ? 'red' : memPct > 50 ? 'yellow' : 'green';
+
+    const portInfo = data.ports || {};
+    let desktopUrl = '';
+    if (data.mode === 'desktop' && portInfo['6080/tcp']) {
+        const p = Array.isArray(portInfo['6080/tcp']) ? portInfo['6080/tcp'][0].HostPort : portInfo['6080/tcp'];
+        desktopUrl = `<div class="detail-row"><span class="key">Desktop URL</span><a href="http://localhost:${p}" target="_blank" style="color:var(--accent-blue)">http://localhost:${p}</a></div>`;
+    }
+
+    el.innerHTML = `
+        <div class="page-title">
+            <button class="btn small" onclick="navigate('dashboard')">&larr; Back</button>
+            <span style="font-family:var(--font-mono)">${data.name}</span>
+            <span class="status-badge ${data.status || ''}">${data.status || 'unknown'}</span>
+        </div>
+        <div style="margin-bottom:16px;display:flex;gap:8px">
+            ${data.running
+                ? `<button class="btn danger" onclick="stopSession('${data.name}');setTimeout(()=>renderDetail(),500)">Stop</button>`
+                : `<button class="btn success" onclick="startSession('${data.name}');setTimeout(()=>renderDetail(),500)">Start</button>`}
+            <button class="btn danger" onclick="destroySession('${data.name}')">Destroy</button>
+        </div>
+        <div class="detail-grid">
+            <div class="detail-card">
+                <h3>Session Info</h3>
+                <div class="detail-row"><span class="key">Mode</span><span class="val"><span class="mode-tag ${data.mode || ''}">${data.mode || '?'}</span></span></div>
+                <div class="detail-row"><span class="key">Image</span><span class="val">${data.image || 'N/A'}</span></div>
+                <div class="detail-row"><span class="key">Container</span><span class="val">${data.container || ''}</span></div>
+                <div class="detail-row"><span class="key">Started</span><span class="val">${data.started_at ? data.started_at.slice(0,19) : 'N/A'}</span></div>
+                ${desktopUrl}
+            </div>
+            <div class="detail-card">
+                <h3>Resources</h3>
+                <div class="detail-row"><span class="key">CPUs</span><span class="val">${data.cpus || 0} cores</span></div>
+                <div class="detail-row"><span class="key">Memory</span><span class="val">${memLimit} GB</span></div>
+                ${stats ? `
+                <div style="margin-top:8px">
+                    <div class="detail-row"><span class="key">CPU Usage</span><span class="val">${cpuPct}%</span></div>
+                    <div class="progress-bar"><div class="fill ${cpuColor}" style="width:${Math.min(cpuPct,100)}%"></div></div>
+                    <div class="detail-row" style="margin-top:8px"><span class="key">Memory</span><span class="val">${memUsed} / ${memLimit} GB (${memPct}%)</span></div>
+                    <div class="progress-bar"><div class="fill ${memColor}" style="width:${Math.min(memPct,100)}%"></div></div>
+                </div>` : '<div style="color:var(--text-dim);font-size:13px;margin-top:8px">Stats unavailable (container not running)</div>'}
+            </div>
+            <div class="detail-card" style="grid-column:1/-1">
+                <h3>Security Status</h3>
+                <div class="security-check">${checkIcon(sec.read_only_root)} Read-only root filesystem</div>
+                <div class="security-check">${checkIcon(sec.caps_dropped)} All capabilities dropped</div>
+                <div class="security-check">${checkIcon(sec.no_new_privileges)} no-new-privileges enforced</div>
+                <div class="security-check">${checkIcon(sec.seccomp_active)} Seccomp profile active</div>
+            </div>
+        </div>
+        <h3 style="font-size:14px;margin-bottom:8px;color:var(--text-secondary)">Logs (last 50 lines)</h3>
+        <div class="logs-panel" id="logsPanel">${escHtml(logs ? logs.logs : '')}</div>`;
+}
+
+/* ── Projects ───────────────────────────────────────────────── */
+async function renderProjects(el) {
+    workspaces = await api('/api/workspaces') || [];
+
+    let cards = '';
+    if (workspaces.length === 0) {
+        cards = '<div class="empty-state"><p>No workspaces registered</p></div>';
+    } else {
+        workspaces.forEach(w => {
+            cards += `<div class="project-card">
+                <div class="info">
+                    <div class="name">${escHtml(w.name)}</div>
+                    <div class="path ${w.exists ? '' : 'missing'}">${escHtml(w.path)}${w.exists ? '' : ' (missing)'}</div>
+                </div>
+                <button class="btn small danger" onclick="removeWorkspace('${escAttr(w.path)}')">&times;</button>
+            </div>`;
+        });
+    }
+
+    el.innerHTML = `
+        <div class="page-title">Projects</div>
+        <div class="project-cards">${cards}</div>
+        <div class="add-section">
+            <h3>Create New Project</h3>
+            <div class="inline-form">
+                <input type="text" id="newProjectName" placeholder="project-name">
+                <input type="text" id="newProjectParent" placeholder="~/projects" value="${escAttr(homePath() + '/projects')}">
+                <button class="btn primary" onclick="createProject()">Create</button>
+            </div>
+        </div>
+        <div class="add-section">
+            <h3>Add Existing Directory</h3>
+            <div class="inline-form">
+                <input type="text" id="addExistingPath" placeholder="/path/to/project">
+                <button class="btn primary" onclick="addExisting()">Add</button>
+                <button class="btn" onclick="toggleBrowser()">Browse</button>
+            </div>
+            <div id="fileBrowser" style="display:none"></div>
+        </div>`;
+}
+
+/* ── File Browser ───────────────────────────────────────────── */
+let browserVisible = false;
+async function toggleBrowser() {
+    browserVisible = !browserVisible;
+    const el = document.getElementById('fileBrowser');
+    if (!browserVisible) { el.style.display = 'none'; return; }
+    el.style.display = 'block';
+    await browseTo(homePath());
+}
+
+async function browseTo(path) {
+    const data = await api(`/api/browse?path=${encodeURIComponent(path)}`);
+    if (!data) return;
+    const el = document.getElementById('fileBrowser');
+    let items = '';
+    if (data.parent) {
+        items += `<div class="browser-item" onclick="browseTo('${escAttr(data.parent)}')">..</div>`;
+    }
+    (data.entries || []).forEach(e => {
+        items += `<div class="browser-item" onclick="selectBrowsed('${escAttr(e.path)}')" ondblclick="browseTo('${escAttr(e.path)}')">${escHtml(e.name)}/</div>`;
+    });
+    el.innerHTML = `<div class="browser"><div class="browser-path">${escHtml(data.current || path)}</div>${items}</div>`;
+}
+
+function selectBrowsed(path) {
+    document.getElementById('addExistingPath').value = path;
+    document.querySelectorAll('.browser-item').forEach(el => el.classList.remove('selected'));
+    event.target.classList.add('selected');
+}
+
+/* ── Config ─────────────────────────────────────────────────── */
+async function renderConfig(el) {
+    const cfg = await api('/api/config') || {};
+    let rows = '';
+    Object.keys(cfg).sort().forEach(k => {
+        rows += `<div class="detail-row"><span class="key config-table"><span class="key">${escHtml(k)}</span></span><span class="val config-table"><span class="val">${escHtml(cfg[k])}</span></span></div>`;
+    });
+
+    el.innerHTML = `
+        <div class="page-title">Configuration</div>
+        <div class="detail-card" style="max-width:600px">
+            <h3>Current Config</h3>
+            ${rows}
+        </div>
+        <p style="margin-top:12px;font-size:12px;color:var(--text-dim)">
+            Override at: ~/.config/claude-cage/config.yaml
+        </p>`;
+}
+
+/* ── Actions ────────────────────────────────────────────────── */
+async function stopSession(name) {
+    const r = await api(`/api/sessions/${name}/stop`, { method: 'POST' });
+    toast(r && r.success ? `Stopped ${name}` : `Failed: ${r?.message}`, r?.success ? 'success' : 'error');
+    await refreshData();
+}
+
+async function startSession(name) {
+    const r = await api(`/api/sessions/${name}/start`, { method: 'POST' });
+    toast(r && r.success ? `Started ${name}` : `Failed: ${r?.message}`, r?.success ? 'success' : 'error');
+    await refreshData();
+}
+
+async function destroySession(name) {
+    if (!confirm(`Destroy session "${name}"? This removes the container and volume.`)) return;
+    const r = await api(`/api/sessions/${name}?force=true`, { method: 'DELETE' });
+    toast(r && r.success ? `Destroyed ${name}` : `Failed: ${r?.message}`, r?.success ? 'success' : 'error');
+    if (currentView === 'detail') navigate('dashboard');
+    await refreshData();
+}
+
+async function stopAllSessions() {
+    if (!confirm('Stop all running sessions?')) return;
+    const r = await api('/api/sessions/stop-all', { method: 'POST' });
+    toast(`Stopped ${r?.stopped || 0} sessions`, 'success');
+    await refreshData();
+}
+
+async function launchSession() {
+    const btn = document.getElementById('launchBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Launching...';
+
+    const selectedMounts = [];
+    document.querySelectorAll('#workspacePicker input:checked').forEach(cb => {
+        selectedMounts.push(cb.value);
+    });
+
+    const body = {
+        mode: formState.mode,
+        name: document.getElementById('sessionName').value || undefined,
+        network: formState.network,
+        cpus: document.getElementById('sessionCpus').value,
+        memory: document.getElementById('sessionMemory').value,
+        gpu: document.getElementById('sessionGpu').checked,
+        ephemeral: document.getElementById('sessionEphemeral').checked,
+        mounts: selectedMounts,
+    };
+
+    const r = await api('/api/sessions', { method: 'POST', body: JSON.stringify(body) });
+    btn.disabled = false;
+    btn.textContent = 'Launch Session';
+
+    if (r && !r.error) {
+        toast(`Session launched: ${r.name || 'ok'}`, 'success');
+        closeModal();
+        await refreshData();
+    } else {
+        toast(`Failed: ${r?.error || 'unknown error'}`, 'error');
+    }
+}
+
+async function createProject() {
+    const name = document.getElementById('newProjectName').value.trim();
+    const parent = document.getElementById('newProjectParent').value.trim();
+    if (!name) { toast('Name required', 'error'); return; }
+    const r = await api('/api/workspaces', { method: 'POST', body: JSON.stringify({ name, parent }) });
+    if (r && !r.error) {
+        toast(`Created ${name}`, 'success');
+        renderProjects(document.getElementById('mainContent'));
+    } else {
+        toast(`Failed: ${r?.error || 'unknown'}`, 'error');
+    }
+}
+
+async function addExisting() {
+    const path = document.getElementById('addExistingPath').value.trim();
+    if (!path) { toast('Path required', 'error'); return; }
+    const r = await api('/api/workspaces', { method: 'POST', body: JSON.stringify({ path }) });
+    if (r && !r.error) {
+        toast(`Added ${path}`, 'success');
+        renderProjects(document.getElementById('mainContent'));
+    } else {
+        toast(`Failed: ${r?.error || 'unknown'}`, 'error');
+    }
+}
+
+async function removeWorkspace(path) {
+    const r = await api('/api/workspaces', { method: 'DELETE', body: JSON.stringify({ path }) });
+    if (r && r.success) {
+        toast('Removed', 'success');
+        renderProjects(document.getElementById('mainContent'));
+    }
+}
+
+/* ── Modal ──────────────────────────────────────────────────── */
+async function openModal() {
+    document.getElementById('newSessionModal').classList.add('active');
+    document.getElementById('sessionName').value = '';
+    // Load workspaces into picker
+    workspaces = await api('/api/workspaces') || [];
+    const picker = document.getElementById('workspacePicker');
+    if (workspaces.length === 0) {
+        picker.innerHTML = '<span style="color:var(--text-dim);font-size:13px">No workspaces. Add some in Projects first.</span>';
+    } else {
+        picker.innerHTML = workspaces.map(w =>
+            `<div class="workspace-item"><input type="checkbox" value="${escAttr(w.path)}"> ${escHtml(w.name)} <span style="color:var(--text-dim)">${escHtml(w.path)}</span></div>`
+        ).join('');
+    }
+    updatePreview();
+}
+
+function closeModal() {
+    document.getElementById('newSessionModal').classList.remove('active');
+}
+
+function setToggle(el) {
+    const field = el.dataset.field;
+    const value = el.dataset.value;
+    formState[field] = value;
+    el.parentElement.querySelectorAll('.toggle-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.value === value);
+    });
+    updatePreview();
+}
+
+function updatePreview() {
+    const name = document.getElementById('sessionName').value;
+    let cmd = `claude-cage start --mode ${formState.mode}`;
+    if (name) cmd += ` --name ${name}`;
+    cmd += ` --network ${formState.network}`;
+    cmd += ` --cpus ${document.getElementById('sessionCpus').value}`;
+    cmd += ` --memory ${document.getElementById('sessionMemory').value}`;
+    if (document.getElementById('sessionGpu').checked) cmd += ' --gpu';
+    if (document.getElementById('sessionEphemeral').checked) cmd += ' --ephemeral';
+    const el = document.getElementById('cmdPreview');
+    if (el) el.textContent = cmd;
+}
+
+/* ── Toast ──────────────────────────────────────────────────── */
+function toast(msg, type = 'info') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `toast ${type} visible`;
+    setTimeout(() => el.classList.remove('visible'), 3000);
+}
+
+/* ── Helpers ────────────────────────────────────────────────── */
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+function escAttr(s) { return (s || '').replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+function homePath() { return '/home/' + (document.cookie.match(/user=([^;]+)/)?.[1] || 'zero20nez'); }
+
+/* ── Data Loading ───────────────────────────────────────────── */
+async function refreshData() {
+    sessions = await api('/api/sessions') || [];
+    health = await api('/api/health') || {};
+
+    const dot = document.getElementById('dockerDot');
+    const label = document.getElementById('dockerLabel');
+    if (health.docker) {
+        dot.className = 'dot green';
+        label.textContent = 'Docker connected';
+    } else {
+        dot.className = 'dot red';
+        label.textContent = 'Docker offline';
+    }
+
+    if (!health.api_key_set) {
+        label.textContent += ' | No API key';
+    }
+
+    if (currentView === 'dashboard') renderDashboard(document.getElementById('mainContent'));
+}
+
+/* ── Init ───────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', async () => {
+    await refreshData();
+    // Add input listeners for preview
+    ['sessionName','sessionCpus','sessionMemory','sessionGpu','sessionEphemeral'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', updatePreview);
+        if (el) el.addEventListener('change', updatePreview);
+    });
+    // Poll every 5 seconds
+    pollingInterval = setInterval(refreshData, 5000);
+});
+
+// Close modal on overlay click
+document.getElementById('newSessionModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+});
+
+// Keyboard shortcut: Escape closes modal
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+});
+</script>
+</body>
+</html>

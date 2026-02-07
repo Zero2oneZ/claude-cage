@@ -1,0 +1,1372 @@
+{
+  "_meta": {
+    "tree": "claude-cage Architecture Tree",
+    "tree_path": "tree.json",
+    "model": "mistralai/Mistral-7B-Instruct-v0.3",
+    "generated": "2026-02-07T21:28:18.153488+00:00",
+    "hardware": "2x RTX 3090 24GB",
+    "technique": "QLoRA (4-bit NF4 + LoRA)"
+  },
+  "adapters": {
+    "ptc-base": {
+      "name": "ptc-base",
+      "description": "Base PTC adapter \u2014 universal tree coordination",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/alpaca.jsonl",
+      "output_dir": "training/adapters/ptc-base",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 64,
+        "lora_alpha": 128,
+        "lora_dropout": 0.05,
+        "target_modules": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj",
+          "gate_proj",
+          "up_proj",
+          "down_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 3,
+        "per_device_train_batch_size": 4,
+        "gradient_accumulation_steps": 4,
+        "learning_rate": 0.0002,
+        "weight_decay": 0.01,
+        "warmup_ratio": 0.03,
+        "lr_scheduler_type": "cosine",
+        "max_seq_length": 2048,
+        "fp16": true,
+        "logging_steps": 10,
+        "save_strategy": "epoch",
+        "evaluation_strategy": "epoch",
+        "gradient_checkpointing": true
+      },
+      "hardware": {
+        "devices": "0,1",
+        "gpu_memory_utilization": 0.85,
+        "note": "2x RTX 3090 24GB \u2014 QLoRA fits 7B model comfortably"
+      },
+      "stacking": {
+        "parent": null,
+        "children": [
+          "ptc-scale-executive",
+          "ptc-scale-department",
+          "ptc-scale-captain"
+        ],
+        "level": 0
+      }
+    },
+    "ptc-scale-captain": {
+      "name": "ptc-scale-captain",
+      "description": "Scale adapter for captain-level operations",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_scale/captain.jsonl",
+      "output_dir": "training/adapters/ptc-scale-captain",
+      "base_adapter": "training/adapters/ptc-base",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 32,
+        "lora_alpha": 64,
+        "lora_dropout": 0.05,
+        "target_modules": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 5,
+        "per_device_train_batch_size": 4,
+        "gradient_accumulation_steps": 2,
+        "learning_rate": 0.0001,
+        "max_seq_length": 2048,
+        "fp16": true,
+        "gradient_checkpointing": true
+      },
+      "stacking": {
+        "parent": "ptc-base",
+        "children": [],
+        "level": 1
+      }
+    },
+    "ptc-scale-department": {
+      "name": "ptc-scale-department",
+      "description": "Scale adapter for department-level operations",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_scale/department.jsonl",
+      "output_dir": "training/adapters/ptc-scale-department",
+      "base_adapter": "training/adapters/ptc-base",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 32,
+        "lora_alpha": 64,
+        "lora_dropout": 0.05,
+        "target_modules": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 5,
+        "per_device_train_batch_size": 4,
+        "gradient_accumulation_steps": 2,
+        "learning_rate": 0.0001,
+        "max_seq_length": 2048,
+        "fp16": true,
+        "gradient_checkpointing": true
+      },
+      "stacking": {
+        "parent": "ptc-base",
+        "children": [],
+        "level": 1
+      }
+    },
+    "ptc-scale-executive": {
+      "name": "ptc-scale-executive",
+      "description": "Scale adapter for executive-level operations",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_scale/executive.jsonl",
+      "output_dir": "training/adapters/ptc-scale-executive",
+      "base_adapter": "training/adapters/ptc-base",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 32,
+        "lora_alpha": 64,
+        "lora_dropout": 0.05,
+        "target_modules": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 5,
+        "per_device_train_batch_size": 4,
+        "gradient_accumulation_steps": 2,
+        "learning_rate": 0.0001,
+        "max_seq_length": 2048,
+        "fp16": true,
+        "gradient_checkpointing": true
+      },
+      "stacking": {
+        "parent": "ptc-base",
+        "children": [],
+        "level": 1
+      }
+    },
+    "ptc-dept_config": {
+      "name": "ptc-dept_config",
+      "description": "Department adapter for dept:config",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_department/dept_config.jsonl",
+      "output_dir": "training/adapters/ptc-dept_config",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-department",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 16,
+        "lora_alpha": 32,
+        "lora_dropout": 0.05,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 5,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 5e-05,
+        "max_seq_length": 1024,
+        "fp16": true,
+        "gradient_checkpointing": true
+      },
+      "stacking": {
+        "parent": "ptc-scale-department",
+        "children": [],
+        "level": 2
+      }
+    },
+    "ptc-dept_observe": {
+      "name": "ptc-dept_observe",
+      "description": "Department adapter for dept:observe",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_department/dept_observe.jsonl",
+      "output_dir": "training/adapters/ptc-dept_observe",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-department",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 16,
+        "lora_alpha": 32,
+        "lora_dropout": 0.05,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 5,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 5e-05,
+        "max_seq_length": 1024,
+        "fp16": true,
+        "gradient_checkpointing": true
+      },
+      "stacking": {
+        "parent": "ptc-scale-department",
+        "children": [],
+        "level": 2
+      }
+    },
+    "ptc-dept_runtime": {
+      "name": "ptc-dept_runtime",
+      "description": "Department adapter for dept:runtime",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_department/dept_runtime.jsonl",
+      "output_dir": "training/adapters/ptc-dept_runtime",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-department",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 16,
+        "lora_alpha": 32,
+        "lora_dropout": 0.05,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 5,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 5e-05,
+        "max_seq_length": 1024,
+        "fp16": true,
+        "gradient_checkpointing": true
+      },
+      "stacking": {
+        "parent": "ptc-scale-department",
+        "children": [],
+        "level": 2
+      }
+    },
+    "ptc-dept_security": {
+      "name": "ptc-dept_security",
+      "description": "Department adapter for dept:security",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_department/dept_security.jsonl",
+      "output_dir": "training/adapters/ptc-dept_security",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-department",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 16,
+        "lora_alpha": 32,
+        "lora_dropout": 0.05,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 5,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 5e-05,
+        "max_seq_length": 1024,
+        "fp16": true,
+        "gradient_checkpointing": true
+      },
+      "stacking": {
+        "parent": "ptc-scale-department",
+        "children": [],
+        "level": 2
+      }
+    },
+    "ptc-dept_sessions": {
+      "name": "ptc-dept_sessions",
+      "description": "Department adapter for dept:sessions",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_department/dept_sessions.jsonl",
+      "output_dir": "training/adapters/ptc-dept_sessions",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-department",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 16,
+        "lora_alpha": 32,
+        "lora_dropout": 0.05,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 5,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 5e-05,
+        "max_seq_length": 1024,
+        "fp16": true,
+        "gradient_checkpointing": true
+      },
+      "stacking": {
+        "parent": "ptc-scale-department",
+        "children": [],
+        "level": 2
+      }
+    },
+    "ptc-dept_tree": {
+      "name": "ptc-dept_tree",
+      "description": "Department adapter for dept:tree",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_department/dept_tree.jsonl",
+      "output_dir": "training/adapters/ptc-dept_tree",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-department",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 16,
+        "lora_alpha": 32,
+        "lora_dropout": 0.05,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 5,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 5e-05,
+        "max_seq_length": 1024,
+        "fp16": true,
+        "gradient_checkpointing": true
+      },
+      "stacking": {
+        "parent": "ptc-scale-department",
+        "children": [],
+        "level": 2
+      }
+    },
+    "ptc-dept_web": {
+      "name": "ptc-dept_web",
+      "description": "Department adapter for dept:web",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_department/dept_web.jsonl",
+      "output_dir": "training/adapters/ptc-dept_web",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-department",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 16,
+        "lora_alpha": 32,
+        "lora_dropout": 0.05,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 5,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 5e-05,
+        "max_seq_length": 1024,
+        "fp16": true,
+        "gradient_checkpointing": true
+      },
+      "stacking": {
+        "parent": "ptc-scale-department",
+        "children": [],
+        "level": 2
+      }
+    },
+    "ptc-capt_docker": {
+      "name": "ptc-capt_docker",
+      "description": "Captain adapter for capt:docker",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_docker.jsonl",
+      "output_dir": "training/adapters/ptc-capt_docker",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_runtime",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_runtime",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_compose": {
+      "name": "ptc-capt_compose",
+      "description": "Captain adapter for capt:compose",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_compose.jsonl",
+      "output_dir": "training/adapters/ptc-capt_compose",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_runtime",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_runtime",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_images": {
+      "name": "ptc-capt_images",
+      "description": "Captain adapter for capt:images",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_images.jsonl",
+      "output_dir": "training/adapters/ptc-capt_images",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_runtime",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_runtime",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_sandbox": {
+      "name": "ptc-capt_sandbox",
+      "description": "Captain adapter for capt:sandbox",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_sandbox.jsonl",
+      "output_dir": "training/adapters/ptc-capt_sandbox",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_security",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_security",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_seccomp": {
+      "name": "ptc-capt_seccomp",
+      "description": "Captain adapter for capt:seccomp",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_seccomp.jsonl",
+      "output_dir": "training/adapters/ptc-capt_seccomp",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_security",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_security",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_apparmor": {
+      "name": "ptc-capt_apparmor",
+      "description": "Captain adapter for capt:apparmor",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_apparmor.jsonl",
+      "output_dir": "training/adapters/ptc-capt_apparmor",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_security",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_security",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_network": {
+      "name": "ptc-capt_network",
+      "description": "Captain adapter for capt:network",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_network.jsonl",
+      "output_dir": "training/adapters/ptc-capt_network",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_security",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_security",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_lifecycle": {
+      "name": "ptc-capt_lifecycle",
+      "description": "Captain adapter for capt:lifecycle",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_lifecycle.jsonl",
+      "output_dir": "training/adapters/ptc-capt_lifecycle",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_sessions",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_sessions",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_memory": {
+      "name": "ptc-capt_memory",
+      "description": "Captain adapter for capt:memory",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_memory.jsonl",
+      "output_dir": "training/adapters/ptc-capt_memory",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_sessions",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_sessions",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_yaml": {
+      "name": "ptc-capt_yaml",
+      "description": "Captain adapter for capt:yaml",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_yaml.jsonl",
+      "output_dir": "training/adapters/ptc-capt_yaml",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_config",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_config",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_cli-parse": {
+      "name": "ptc-capt_cli-parse",
+      "description": "Captain adapter for capt:cli-parse",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_cli-parse.jsonl",
+      "output_dir": "training/adapters/ptc-capt_cli-parse",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_config",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_config",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_metrics": {
+      "name": "ptc-capt_metrics",
+      "description": "Captain adapter for capt:metrics",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_metrics.jsonl",
+      "output_dir": "training/adapters/ptc-capt_metrics",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_observe",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_observe",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_mongodb": {
+      "name": "ptc-capt_mongodb",
+      "description": "Captain adapter for capt:mongodb",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_mongodb.jsonl",
+      "output_dir": "training/adapters/ptc-capt_mongodb",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_observe",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_observe",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_flask": {
+      "name": "ptc-capt_flask",
+      "description": "Captain adapter for capt:flask",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_flask.jsonl",
+      "output_dir": "training/adapters/ptc-capt_flask",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_web",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_web",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_frontend": {
+      "name": "ptc-capt_frontend",
+      "description": "Captain adapter for capt:frontend",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_frontend.jsonl",
+      "output_dir": "training/adapters/ptc-capt_frontend",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_web",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_web",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_tree-ops": {
+      "name": "ptc-capt_tree-ops",
+      "description": "Captain adapter for capt:tree-ops",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_tree-ops.jsonl",
+      "output_dir": "training/adapters/ptc-capt_tree-ops",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_tree",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_tree",
+        "children": [],
+        "level": 3
+      }
+    },
+    "ptc-capt_scaffold": {
+      "name": "ptc-capt_scaffold",
+      "description": "Captain adapter for capt:scaffold",
+      "model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+      "dataset": "training/datasets/latest/by_node/capt_scaffold.jsonl",
+      "output_dir": "training/adapters/ptc-capt_scaffold",
+      "base_adapter": "training/adapters/ptc-base",
+      "scale_adapter": "training/adapters/ptc-scale-captain",
+      "dept_adapter": "training/adapters/ptc-dept_tree",
+      "quantization": {
+        "load_in_4bit": true,
+        "bnb_4bit_compute_dtype": "float16",
+        "bnb_4bit_quant_type": "nf4",
+        "bnb_4bit_use_double_quant": true
+      },
+      "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "lora_dropout": 0.1,
+        "target_modules": [
+          "q_proj",
+          "v_proj"
+        ],
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+      },
+      "training": {
+        "num_train_epochs": 10,
+        "per_device_train_batch_size": 8,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 3e-05,
+        "max_seq_length": 512,
+        "fp16": true
+      },
+      "stacking": {
+        "parent": "ptc-dept_tree",
+        "children": [],
+        "level": 3
+      }
+    }
+  },
+  "stacking_order": [
+    {
+      "node_id": "capt:docker",
+      "node_name": "Docker Lifecycle",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_runtime",
+        "ptc-capt_docker"
+      ],
+      "description": "Specialized agent for Docker Lifecycle"
+    },
+    {
+      "node_id": "capt:compose",
+      "node_name": "Compose Services",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_runtime",
+        "ptc-capt_compose"
+      ],
+      "description": "Specialized agent for Compose Services"
+    },
+    {
+      "node_id": "capt:images",
+      "node_name": "Image Builder",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_runtime",
+        "ptc-capt_images"
+      ],
+      "description": "Specialized agent for Image Builder"
+    },
+    {
+      "node_id": "capt:sandbox",
+      "node_name": "Sandbox Flags",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_security",
+        "ptc-capt_sandbox"
+      ],
+      "description": "Specialized agent for Sandbox Flags"
+    },
+    {
+      "node_id": "capt:seccomp",
+      "node_name": "Seccomp Profile",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_security",
+        "ptc-capt_seccomp"
+      ],
+      "description": "Specialized agent for Seccomp Profile"
+    },
+    {
+      "node_id": "capt:apparmor",
+      "node_name": "AppArmor Profile",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_security",
+        "ptc-capt_apparmor"
+      ],
+      "description": "Specialized agent for AppArmor Profile"
+    },
+    {
+      "node_id": "capt:network",
+      "node_name": "Network Filter",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_security",
+        "ptc-capt_network"
+      ],
+      "description": "Specialized agent for Network Filter"
+    },
+    {
+      "node_id": "capt:lifecycle",
+      "node_name": "Session Lifecycle",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_sessions",
+        "ptc-capt_lifecycle"
+      ],
+      "description": "Specialized agent for Session Lifecycle"
+    },
+    {
+      "node_id": "capt:memory",
+      "node_name": "Session Memory",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_sessions",
+        "ptc-capt_memory"
+      ],
+      "description": "Specialized agent for Session Memory"
+    },
+    {
+      "node_id": "capt:yaml",
+      "node_name": "YAML Parser",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_config",
+        "ptc-capt_yaml"
+      ],
+      "description": "Specialized agent for YAML Parser"
+    },
+    {
+      "node_id": "capt:cli-parse",
+      "node_name": "CLI Parser",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_config",
+        "ptc-capt_cli-parse"
+      ],
+      "description": "Specialized agent for CLI Parser"
+    },
+    {
+      "node_id": "capt:metrics",
+      "node_name": "Container Metrics",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_observe",
+        "ptc-capt_metrics"
+      ],
+      "description": "Specialized agent for Container Metrics"
+    },
+    {
+      "node_id": "capt:mongodb",
+      "node_name": "MongoDB Store",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_observe",
+        "ptc-capt_mongodb"
+      ],
+      "description": "Specialized agent for MongoDB Store"
+    },
+    {
+      "node_id": "capt:flask",
+      "node_name": "Flask API",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_web",
+        "ptc-capt_flask"
+      ],
+      "description": "Specialized agent for Flask API"
+    },
+    {
+      "node_id": "capt:frontend",
+      "node_name": "Dashboard UI",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_web",
+        "ptc-capt_frontend"
+      ],
+      "description": "Specialized agent for Dashboard UI"
+    },
+    {
+      "node_id": "capt:tree-ops",
+      "node_name": "Tree Operations",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_tree",
+        "ptc-capt_tree-ops"
+      ],
+      "description": "Specialized agent for Tree Operations"
+    },
+    {
+      "node_id": "capt:scaffold",
+      "node_name": "Project Scaffold",
+      "stack": [
+        "ptc-base",
+        "ptc-scale-captain",
+        "ptc-dept_tree",
+        "ptc-capt_scaffold"
+      ],
+      "description": "Specialized agent for Project Scaffold"
+    }
+  ],
+  "training_order": [
+    "ptc-base",
+    "ptc-scale-captain",
+    "ptc-scale-department",
+    "ptc-scale-executive",
+    "ptc-dept_config",
+    "ptc-dept_observe",
+    "ptc-dept_runtime",
+    "ptc-dept_security",
+    "ptc-dept_sessions",
+    "ptc-dept_tree",
+    "ptc-dept_web",
+    "ptc-capt_docker",
+    "ptc-capt_compose",
+    "ptc-capt_images",
+    "ptc-capt_sandbox",
+    "ptc-capt_seccomp",
+    "ptc-capt_apparmor",
+    "ptc-capt_network",
+    "ptc-capt_lifecycle",
+    "ptc-capt_memory",
+    "ptc-capt_yaml",
+    "ptc-capt_cli-parse",
+    "ptc-capt_metrics",
+    "ptc-capt_mongodb",
+    "ptc-capt_flask",
+    "ptc-capt_frontend",
+    "ptc-capt_tree-ops",
+    "ptc-capt_scaffold"
+  ]
+}

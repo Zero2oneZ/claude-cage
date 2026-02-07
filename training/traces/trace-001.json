@@ -1,0 +1,585 @@
+{
+  "run_id": "ptc-1770499719",
+  "intent": "add GPU monitoring to dashboard",
+  "target": null,
+  "dry_run": true,
+  "tree_path": "tree.json",
+  "tree_title": "claude-cage Architecture Tree",
+  "phases_used": [
+    "INTAKE",
+    "TRIAGE",
+    "PLAN",
+    "EXECUTE",
+    "VERIFY",
+    "INTEGRATE",
+    "SHIP"
+  ],
+  "tasks_decomposed": 7,
+  "tasks_executed": 7,
+  "tasks_completed": 7,
+  "tasks_failed": 0,
+  "leaf_results": [
+    {
+      "node_id": "capt:cli-parse",
+      "node_name": "CLI Parser",
+      "scale": "captain",
+      "intent": "add GPU monitoring to dashboard",
+      "lineage": [
+        "root:human",
+        "exec:cage",
+        "dept:config",
+        "capt:cli-parse"
+      ],
+      "status": "planned",
+      "started_at": null,
+      "completed_at": null,
+      "output": {
+        "plan": "Would execute: add GPU monitoring to dashboard",
+        "files": [
+          "lib/cli.sh"
+        ],
+        "functions": [
+          "cmd_start",
+          "cmd_stop",
+          "cmd_shell",
+          "cmd_build",
+          "cmd_config"
+        ],
+        "rules_applied": [
+          "validate_mode",
+          "validate_network"
+        ]
+      },
+      "artifacts": [],
+      "error": null
+    },
+    {
+      "node_id": "capt:docker",
+      "node_name": "Docker Lifecycle",
+      "scale": "captain",
+      "intent": "add GPU monitoring to dashboard",
+      "lineage": [
+        "root:human",
+        "exec:cage",
+        "dept:runtime",
+        "capt:docker"
+      ],
+      "status": "planned",
+      "started_at": null,
+      "completed_at": null,
+      "output": {
+        "plan": "Would execute: add GPU monitoring to dashboard",
+        "files": [
+          "lib/docker.sh"
+        ],
+        "functions": [
+          "docker_run_session",
+          "docker_stop_session",
+          "docker_destroy_session",
+          "docker_exec_session"
+        ],
+        "rules_applied": [
+          "label_all",
+          "force_guard"
+        ]
+      },
+      "artifacts": [],
+      "error": null
+    },
+    {
+      "node_id": "capt:frontend",
+      "node_name": "Dashboard UI",
+      "scale": "captain",
+      "intent": "add GPU monitoring to dashboard",
+      "lineage": [
+        "root:human",
+        "exec:cage",
+        "dept:web",
+        "capt:frontend"
+      ],
+      "status": "planned",
+      "started_at": null,
+      "completed_at": null,
+      "output": {
+        "plan": "Would execute: add GPU monitoring to dashboard",
+        "files": [
+          "web/templates/index.html"
+        ],
+        "functions": [],
+        "rules_applied": []
+      },
+      "artifacts": [],
+      "error": null
+    },
+    {
+      "node_id": "capt:images",
+      "node_name": "Image Builder",
+      "scale": "captain",
+      "intent": "add GPU monitoring to dashboard",
+      "lineage": [
+        "root:human",
+        "exec:cage",
+        "dept:runtime",
+        "capt:images"
+      ],
+      "status": "planned",
+      "started_at": null,
+      "completed_at": null,
+      "output": {
+        "plan": "Would execute: add GPU monitoring to dashboard",
+        "files": [
+          "docker/cli/Dockerfile",
+          "docker/desktop/Dockerfile",
+          "docker/desktop/entrypoint-desktop.sh"
+        ],
+        "functions": [],
+        "rules_applied": [
+          "dockerfile_valid"
+        ]
+      },
+      "artifacts": [],
+      "error": null
+    },
+    {
+      "node_id": "capt:metrics",
+      "node_name": "Container Metrics",
+      "scale": "captain",
+      "intent": "add GPU monitoring to dashboard",
+      "lineage": [
+        "root:human",
+        "exec:cage",
+        "dept:observe",
+        "capt:metrics"
+      ],
+      "status": "planned",
+      "started_at": null,
+      "completed_at": null,
+      "output": {
+        "plan": "Would execute: add GPU monitoring to dashboard",
+        "files": [
+          "lib/observability.sh"
+        ],
+        "functions": [
+          "obs_snapshot",
+          "obs_health",
+          "obs_dashboard"
+        ],
+        "rules_applied": [
+          "degraded_threshold"
+        ]
+      },
+      "artifacts": [],
+      "error": null
+    },
+    {
+      "node_id": "capt:mongodb",
+      "node_name": "MongoDB Store",
+      "scale": "captain",
+      "intent": "add GPU monitoring to dashboard",
+      "lineage": [
+        "root:human",
+        "exec:cage",
+        "dept:observe",
+        "capt:mongodb"
+      ],
+      "status": "planned",
+      "started_at": null,
+      "completed_at": null,
+      "output": {
+        "plan": "Would execute: add GPU monitoring to dashboard",
+        "files": [
+          "lib/mongodb.sh",
+          "mongodb/store.js",
+          "mongodb/seed-artifacts.js"
+        ],
+        "functions": [],
+        "rules_applied": [
+          "async_only",
+          "never_block_cli"
+        ]
+      },
+      "artifacts": [],
+      "error": null
+    },
+    {
+      "node_id": "capt:tree-ops",
+      "node_name": "Tree Operations",
+      "scale": "captain",
+      "intent": "add GPU monitoring to dashboard",
+      "lineage": [
+        "root:human",
+        "exec:cage",
+        "dept:tree",
+        "capt:tree-ops"
+      ],
+      "status": "planned",
+      "started_at": null,
+      "completed_at": null,
+      "output": {
+        "plan": "Would execute: add GPU monitoring to dashboard",
+        "files": [
+          "lib/tree.sh"
+        ],
+        "functions": [
+          "tree_load",
+          "tree_show",
+          "tree_node",
+          "tree_blast_radius",
+          "tree_route",
+          "tree_add_node",
+          "tree_seed"
+        ],
+        "rules_applied": []
+      },
+      "artifacts": [],
+      "error": null
+    }
+  ],
+  "aggregated": {
+    "node_id": "root:human",
+    "node_name": "Human Architect",
+    "scale": "executive",
+    "status": "in_progress",
+    "lineage": [
+      "root:human"
+    ],
+    "children_results": [
+      {
+        "node_id": "exec:cage",
+        "node_name": "claude-cage System",
+        "scale": "executive",
+        "status": "in_progress",
+        "lineage": [
+          "root:human",
+          "exec:cage"
+        ],
+        "children_results": [
+          {
+            "node_id": "dept:runtime",
+            "node_name": "Container Runtime",
+            "scale": "department",
+            "status": "in_progress",
+            "lineage": [
+              "root:human",
+              "exec:cage",
+              "dept:runtime"
+            ],
+            "children_results": [
+              {
+                "node_id": "capt:docker",
+                "node_name": "Docker Lifecycle",
+                "scale": "captain",
+                "intent": "add GPU monitoring to dashboard",
+                "lineage": [
+                  "root:human",
+                  "exec:cage",
+                  "dept:runtime",
+                  "capt:docker"
+                ],
+                "status": "planned",
+                "started_at": null,
+                "completed_at": null,
+                "output": {
+                  "plan": "Would execute: add GPU monitoring to dashboard",
+                  "files": [
+                    "lib/docker.sh"
+                  ],
+                  "functions": [
+                    "docker_run_session",
+                    "docker_stop_session",
+                    "docker_destroy_session",
+                    "docker_exec_session"
+                  ],
+                  "rules_applied": [
+                    "label_all",
+                    "force_guard"
+                  ]
+                },
+                "artifacts": [],
+                "error": null
+              },
+              {
+                "node_id": "capt:images",
+                "node_name": "Image Builder",
+                "scale": "captain",
+                "intent": "add GPU monitoring to dashboard",
+                "lineage": [
+                  "root:human",
+                  "exec:cage",
+                  "dept:runtime",
+                  "capt:images"
+                ],
+                "status": "planned",
+                "started_at": null,
+                "completed_at": null,
+                "output": {
+                  "plan": "Would execute: add GPU monitoring to dashboard",
+                  "files": [
+                    "docker/cli/Dockerfile",
+                    "docker/desktop/Dockerfile",
+                    "docker/desktop/entrypoint-desktop.sh"
+                  ],
+                  "functions": [],
+                  "rules_applied": [
+                    "dockerfile_valid"
+                  ]
+                },
+                "artifacts": [],
+                "error": null
+              }
+            ],
+            "children_count": 2,
+            "completed": 0,
+            "failed": 0,
+            "blocked": false,
+            "escalated": false,
+            "escalation_target": null
+          },
+          {
+            "node_id": "dept:config",
+            "node_name": "Configuration",
+            "scale": "department",
+            "status": "in_progress",
+            "lineage": [
+              "root:human",
+              "exec:cage",
+              "dept:config"
+            ],
+            "children_results": [
+              {
+                "node_id": "capt:cli-parse",
+                "node_name": "CLI Parser",
+                "scale": "captain",
+                "intent": "add GPU monitoring to dashboard",
+                "lineage": [
+                  "root:human",
+                  "exec:cage",
+                  "dept:config",
+                  "capt:cli-parse"
+                ],
+                "status": "planned",
+                "started_at": null,
+                "completed_at": null,
+                "output": {
+                  "plan": "Would execute: add GPU monitoring to dashboard",
+                  "files": [
+                    "lib/cli.sh"
+                  ],
+                  "functions": [
+                    "cmd_start",
+                    "cmd_stop",
+                    "cmd_shell",
+                    "cmd_build",
+                    "cmd_config"
+                  ],
+                  "rules_applied": [
+                    "validate_mode",
+                    "validate_network"
+                  ]
+                },
+                "artifacts": [],
+                "error": null
+              }
+            ],
+            "children_count": 1,
+            "completed": 0,
+            "failed": 0,
+            "blocked": false,
+            "escalated": false,
+            "escalation_target": null
+          },
+          {
+            "node_id": "dept:observe",
+            "node_name": "Observability",
+            "scale": "department",
+            "status": "in_progress",
+            "lineage": [
+              "root:human",
+              "exec:cage",
+              "dept:observe"
+            ],
+            "children_results": [
+              {
+                "node_id": "capt:metrics",
+                "node_name": "Container Metrics",
+                "scale": "captain",
+                "intent": "add GPU monitoring to dashboard",
+                "lineage": [
+                  "root:human",
+                  "exec:cage",
+                  "dept:observe",
+                  "capt:metrics"
+                ],
+                "status": "planned",
+                "started_at": null,
+                "completed_at": null,
+                "output": {
+                  "plan": "Would execute: add GPU monitoring to dashboard",
+                  "files": [
+                    "lib/observability.sh"
+                  ],
+                  "functions": [
+                    "obs_snapshot",
+                    "obs_health",
+                    "obs_dashboard"
+                  ],
+                  "rules_applied": [
+                    "degraded_threshold"
+                  ]
+                },
+                "artifacts": [],
+                "error": null
+              },
+              {
+                "node_id": "capt:mongodb",
+                "node_name": "MongoDB Store",
+                "scale": "captain",
+                "intent": "add GPU monitoring to dashboard",
+                "lineage": [
+                  "root:human",
+                  "exec:cage",
+                  "dept:observe",
+                  "capt:mongodb"
+                ],
+                "status": "planned",
+                "started_at": null,
+                "completed_at": null,
+                "output": {
+                  "plan": "Would execute: add GPU monitoring to dashboard",
+                  "files": [
+                    "lib/mongodb.sh",
+                    "mongodb/store.js",
+                    "mongodb/seed-artifacts.js"
+                  ],
+                  "functions": [],
+                  "rules_applied": [
+                    "async_only",
+                    "never_block_cli"
+                  ]
+                },
+                "artifacts": [],
+                "error": null
+              }
+            ],
+            "children_count": 2,
+            "completed": 0,
+            "failed": 0,
+            "blocked": false,
+            "escalated": false,
+            "escalation_target": null
+          },
+          {
+            "node_id": "dept:web",
+            "node_name": "Web Dashboard",
+            "scale": "department",
+            "status": "in_progress",
+            "lineage": [
+              "root:human",
+              "exec:cage",
+              "dept:web"
+            ],
+            "children_results": [
+              {
+                "node_id": "capt:frontend",
+                "node_name": "Dashboard UI",
+                "scale": "captain",
+                "intent": "add GPU monitoring to dashboard",
+                "lineage": [
+                  "root:human",
+                  "exec:cage",
+                  "dept:web",
+                  "capt:frontend"
+                ],
+                "status": "planned",
+                "started_at": null,
+                "completed_at": null,
+                "output": {
+                  "plan": "Would execute: add GPU monitoring to dashboard",
+                  "files": [
+                    "web/templates/index.html"
+                  ],
+                  "functions": [],
+                  "rules_applied": []
+                },
+                "artifacts": [],
+                "error": null
+              }
+            ],
+            "children_count": 1,
+            "completed": 0,
+            "failed": 0,
+            "blocked": false,
+            "escalated": false,
+            "escalation_target": null
+          },
+          {
+            "node_id": "dept:tree",
+            "node_name": "Tree Infrastructure",
+            "scale": "department",
+            "status": "in_progress",
+            "lineage": [
+              "root:human",
+              "exec:cage",
+              "dept:tree"
+            ],
+            "children_results": [
+              {
+                "node_id": "capt:tree-ops",
+                "node_name": "Tree Operations",
+                "scale": "captain",
+                "intent": "add GPU monitoring to dashboard",
+                "lineage": [
+                  "root:human",
+                  "exec:cage",
+                  "dept:tree",
+                  "capt:tree-ops"
+                ],
+                "status": "planned",
+                "started_at": null,
+                "completed_at": null,
+                "output": {
+                  "plan": "Would execute: add GPU monitoring to dashboard",
+                  "files": [
+                    "lib/tree.sh"
+                  ],
+                  "functions": [
+                    "tree_load",
+                    "tree_show",
+                    "tree_node",
+                    "tree_blast_radius",
+                    "tree_route",
+                    "tree_add_node",
+                    "tree_seed"
+                  ],
+                  "rules_applied": []
+                },
+                "artifacts": [],
+                "error": null
+              }
+            ],
+            "children_count": 1,
+            "completed": 0,
+            "failed": 0,
+            "blocked": false,
+            "escalated": false,
+            "escalation_target": null
+          }
+        ],
+        "children_count": 5,
+        "completed": 0,
+        "failed": 0,
+        "blocked": false,
+        "escalated": false,
+        "escalation_target": null
+      }
+    ],
+    "children_count": 1,
+    "completed": 0,
+    "failed": 0,
+    "blocked": false,
+    "escalated": false,
+    "escalation_target": null
+  },
+  "duration_ms": 41,
+  "timestamp": "2026-02-07T21:28:39.194157+00:00"
+}

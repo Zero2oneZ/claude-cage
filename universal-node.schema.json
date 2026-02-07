@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gentlyos.dev/schema/universal-node.json",
+  "title": "Universal Node",
+  "description": "One pattern. Every scale. Same shape. A node is a crate, a department, a sephira, a knowledge node, a CODIE primitive, a reasoning chain link. Parameterized by scale. Self-identifying — any fragment can reconstruct its place in the tree.",
+  "type": "object",
+  "required": ["id", "name", "scale", "inputs", "outputs", "rules", "escalation"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier. Convention: scale:name (e.g., dept:foundation, crate:crypto, sephira:tiferet)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name"
+    },
+    "scale": {
+      "type": "string",
+      "enum": ["executive", "department", "captain", "crate", "module", "sephira", "knowledge", "reasoning", "primitive"],
+      "description": "What level this node instantiates at. The struct is the same — only scale differs."
+    },
+    "parent": {
+      "type": ["string", "null"],
+      "description": "Parent node ID. null = root (Human Architect / Keter / workspace root)"
+    },
+    "children": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Child node IDs. A department's children are captains. A crate's children are modules. A sephira's children are its inner tree.",
+      "default": []
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["task", "data", "event", "config", "signal", "dependency", "emanation"] },
+          "from": { "type": ["string", "null"] }
+        },
+        "required": ["name", "type"]
+      },
+      "description": "What flows INTO this node. Tasks from parent, dependencies from siblings, emanation from above."
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["result", "artifact", "event", "decision", "signal", "emanation"] },
+          "to": { "type": ["string", "null"] }
+        },
+        "required": ["name", "type"]
+      },
+      "description": "What flows OUT of this node. Results to parent, artifacts to siblings, decisions upward."
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "condition": { "type": "string" },
+          "action": { "type": "string", "enum": ["pass", "block", "transform", "escalate", "log"] }
+        },
+        "required": ["name", "action"]
+      },
+      "description": "Rules for what passes through this node. Build constraints, review criteria, security gates."
+    },
+    "escalation": {
+      "type": "object",
+      "properties": {
+        "target": {
+          "type": ["string", "null"],
+          "description": "Node ID to escalate to when this node can't decide"
+        },
+        "threshold": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Risk level that triggers escalation (1=always, 10=never)"
+        },
+        "cascade": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Full escalation path: captain → director → CTO → human"
+        }
+      },
+      "required": ["target"]
+    },
+    "lineage": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Full path from root to this node. Self-identification — any node can reconstruct where it belongs. Computed, not stored in tree.json (the engine calculates it).",
+      "default": []
+    },
+    "execution": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["idle", "pending", "executing", "completed", "failed", "escalated"],
+          "description": "Current execution state of this node"
+        },
+        "last_input": { "type": "string", "description": "Last intent/task received" },
+        "last_output": { "type": ["string", "object", "null"], "description": "Last result produced" },
+        "last_run": { "type": "string", "format": "date-time", "description": "When this node last executed" },
+        "run_count": { "type": "integer", "description": "Total executions", "default": 0 },
+        "error_count": { "type": "integer", "description": "Total failures", "default": 0 }
+      },
+      "description": "Execution state. The tree isn't a map — it's a machine. Leaves execute, branches aggregate.",
+      "default": { "status": "idle", "run_count": 0, "error_count": 0 }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["code", "config", "doc", "output", "decision", "trace"] },
+          "hash": { "type": "string", "description": "Content hash for dedup and IPFS addressing" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "storage": { "type": "string", "enum": ["mongodb", "ipfs", "local", "inline"], "default": "mongodb" }
+        },
+        "required": ["name", "type"]
+      },
+      "description": "Artifacts this node has produced. Each one addressable, storable, retrievable. Flows UP to parent.",
+      "default": []
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "agent_id": { "type": "string", "description": "For agent nodes: the agent identifier" },
+        "crates_owned": { "type": "array", "items": { "type": "string" }, "description": "For dept/captain nodes: which crates they own" },
+        "sephira_mapping": { "type": "string", "description": "For sephira nodes: Kabbalistic name" },
+        "output_format": { "type": "string", "description": "Structured output template for this node" },
+        "performance_targets": { "type": "object", "description": "Key metrics this node must maintain" },
+        "files": { "type": "array", "items": { "type": "string" }, "description": "Source files this node owns" },
+        "functions": { "type": "array", "items": { "type": "string" }, "description": "Functions this node implements" }
+      },
+      "additionalProperties": true,
+      "description": "Scale-specific metadata. The shape is the same — the contents adapt."
+    }
+  },
+  "additionalProperties": false
+}

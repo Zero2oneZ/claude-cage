@@ -115,7 +115,19 @@ docker_run_session() {
     for m in "${_mounts[@]+"${_mounts[@]}"}"; do
         local mount_target="/workspace/$(basename "$m")"
         cmd+=(-v "${m}:${mount_target}:rw")
+        # Auto-detect tree.json in mounted workspace
+        if [[ -f "${m}/tree.json" ]]; then
+            echo "    Tree detected: ${m}/tree.json"
+        fi
     done
+
+    # Mount cage's own tree infrastructure (read-only) for project scaffolding
+    if [[ -f "$CAGE_ROOT/universal-node.schema.json" ]]; then
+        cmd+=(-v "${CAGE_ROOT}/universal-node.schema.json:/opt/cage/universal-node.schema.json:ro")
+    fi
+    if [[ -d "$CAGE_ROOT/templates" ]]; then
+        cmd+=(-v "${CAGE_ROOT}/templates:/opt/cage/templates:ro")
+    fi
 
     # Port mappings
     for p in "${_ports[@]+"${_ports[@]}"}"; do

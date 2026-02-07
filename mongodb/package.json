@@ -1,0 +1,13 @@
+{
+  "name": "claude-cage-mongo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MongoDB fire-and-forget store for claude-cage",
+  "main": "store.js",
+  "scripts": {
+    "test": "node store.js ping"
+  },
+  "dependencies": {
+    "mongodb": "^6.12.0"
+  }
+}
