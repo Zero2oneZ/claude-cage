@@ -1,0 +1,315 @@
+{
+  "run_id": "ptc-1770499719",
+  "intent": "fix security sandbox network",
+  "target": null,
+  "dry_run": true,
+  "tree_path": "tree.json",
+  "tree_title": "claude-cage Architecture Tree",
+  "phases_used": [
+    "INTAKE",
+    "TRIAGE",
+    "PLAN",
+    "EXECUTE",
+    "VERIFY",
+    "INTEGRATE",
+    "SHIP"
+  ],
+  "tasks_decomposed": 4,
+  "tasks_executed": 4,
+  "tasks_completed": 4,
+  "tasks_failed": 0,
+  "leaf_results": [
+    {
+      "node_id": "capt:sandbox",
+      "node_name": "Sandbox Flags",
+      "scale": "captain",
+      "intent": "fix security sandbox network",
+      "lineage": [
+        "root:human",
+        "exec:cage",
+        "dept:security",
+        "capt:sandbox"
+      ],
+      "status": "planned",
+      "started_at": null,
+      "completed_at": null,
+      "output": {
+        "plan": "Would execute: fix security sandbox network",
+        "files": [
+          "lib/sandbox.sh"
+        ],
+        "functions": [
+          "sandbox_build_flags",
+          "sandbox_verify"
+        ],
+        "rules_applied": [
+          "readonly_root",
+          "cap_drop_all",
+          "resource_limits"
+        ]
+      },
+      "artifacts": [],
+      "error": null
+    },
+    {
+      "node_id": "capt:seccomp",
+      "node_name": "Seccomp Profile",
+      "scale": "captain",
+      "intent": "fix security sandbox network",
+      "lineage": [
+        "root:human",
+        "exec:cage",
+        "dept:security",
+        "capt:seccomp"
+      ],
+      "status": "planned",
+      "started_at": null,
+      "completed_at": null,
+      "output": {
+        "plan": "Would execute: fix security sandbox network",
+        "files": [
+          "security/seccomp-default.json"
+        ],
+        "functions": [],
+        "rules_applied": [
+          "allowlist_only"
+        ]
+      },
+      "artifacts": [],
+      "error": null
+    },
+    {
+      "node_id": "capt:apparmor",
+      "node_name": "AppArmor Profile",
+      "scale": "captain",
+      "intent": "fix security sandbox network",
+      "lineage": [
+        "root:human",
+        "exec:cage",
+        "dept:security",
+        "capt:apparmor"
+      ],
+      "status": "planned",
+      "started_at": null,
+      "completed_at": null,
+      "output": {
+        "plan": "Would execute: fix security sandbox network",
+        "files": [
+          "security/apparmor-profile"
+        ],
+        "functions": [],
+        "rules_applied": [
+          "deny_mount",
+          "deny_ptrace",
+          "deny_raw_net"
+        ]
+      },
+      "artifacts": [],
+      "error": null
+    },
+    {
+      "node_id": "capt:network",
+      "node_name": "Network Filter",
+      "scale": "captain",
+      "intent": "fix security sandbox network",
+      "lineage": [
+        "root:human",
+        "exec:cage",
+        "dept:security",
+        "capt:network"
+      ],
+      "status": "planned",
+      "started_at": null,
+      "completed_at": null,
+      "output": {
+        "plan": "Would execute: fix security sandbox network",
+        "files": [
+          "lib/sandbox.sh"
+        ],
+        "functions": [
+          "sandbox_apply_network_filter"
+        ],
+        "rules_applied": [
+          "allowlist_only",
+          "icc_disabled"
+        ]
+      },
+      "artifacts": [],
+      "error": null
+    }
+  ],
+  "aggregated": {
+    "node_id": "root:human",
+    "node_name": "Human Architect",
+    "scale": "executive",
+    "status": "in_progress",
+    "lineage": [
+      "root:human"
+    ],
+    "children_results": [
+      {
+        "node_id": "exec:cage",
+        "node_name": "claude-cage System",
+        "scale": "executive",
+        "status": "in_progress",
+        "lineage": [
+          "root:human",
+          "exec:cage"
+        ],
+        "children_results": [
+          {
+            "node_id": "dept:security",
+            "node_name": "Security",
+            "scale": "department",
+            "status": "in_progress",
+            "lineage": [
+              "root:human",
+              "exec:cage",
+              "dept:security"
+            ],
+            "children_results": [
+              {
+                "node_id": "capt:sandbox",
+                "node_name": "Sandbox Flags",
+                "scale": "captain",
+                "intent": "fix security sandbox network",
+                "lineage": [
+                  "root:human",
+                  "exec:cage",
+                  "dept:security",
+                  "capt:sandbox"
+                ],
+                "status": "planned",
+                "started_at": null,
+                "completed_at": null,
+                "output": {
+                  "plan": "Would execute: fix security sandbox network",
+                  "files": [
+                    "lib/sandbox.sh"
+                  ],
+                  "functions": [
+                    "sandbox_build_flags",
+                    "sandbox_verify"
+                  ],
+                  "rules_applied": [
+                    "readonly_root",
+                    "cap_drop_all",
+                    "resource_limits"
+                  ]
+                },
+                "artifacts": [],
+                "error": null
+              },
+              {
+                "node_id": "capt:seccomp",
+                "node_name": "Seccomp Profile",
+                "scale": "captain",
+                "intent": "fix security sandbox network",
+                "lineage": [
+                  "root:human",
+                  "exec:cage",
+                  "dept:security",
+                  "capt:seccomp"
+                ],
+                "status": "planned",
+                "started_at": null,
+                "completed_at": null,
+                "output": {
+                  "plan": "Would execute: fix security sandbox network",
+                  "files": [
+                    "security/seccomp-default.json"
+                  ],
+                  "functions": [],
+                  "rules_applied": [
+                    "allowlist_only"
+                  ]
+                },
+                "artifacts": [],
+                "error": null
+              },
+              {
+                "node_id": "capt:apparmor",
+                "node_name": "AppArmor Profile",
+                "scale": "captain",
+                "intent": "fix security sandbox network",
+                "lineage": [
+                  "root:human",
+                  "exec:cage",
+                  "dept:security",
+                  "capt:apparmor"
+                ],
+                "status": "planned",
+                "started_at": null,
+                "completed_at": null,
+                "output": {
+                  "plan": "Would execute: fix security sandbox network",
+                  "files": [
+                    "security/apparmor-profile"
+                  ],
+                  "functions": [],
+                  "rules_applied": [
+                    "deny_mount",
+                    "deny_ptrace",
+                    "deny_raw_net"
+                  ]
+                },
+                "artifacts": [],
+                "error": null
+              },
+              {
+                "node_id": "capt:network",
+                "node_name": "Network Filter",
+                "scale": "captain",
+                "intent": "fix security sandbox network",
+                "lineage": [
+                  "root:human",
+                  "exec:cage",
+                  "dept:security",
+                  "capt:network"
+                ],
+                "status": "planned",
+                "started_at": null,
+                "completed_at": null,
+                "output": {
+                  "plan": "Would execute: fix security sandbox network",
+                  "files": [
+                    "lib/sandbox.sh"
+                  ],
+                  "functions": [
+                    "sandbox_apply_network_filter"
+                  ],
+                  "rules_applied": [
+                    "allowlist_only",
+                    "icc_disabled"
+                  ]
+                },
+                "artifacts": [],
+                "error": null
+              }
+            ],
+            "children_count": 4,
+            "completed": 0,
+            "failed": 0,
+            "blocked": false,
+            "escalated": false,
+            "escalation_target": null
+          }
+        ],
+        "children_count": 1,
+        "completed": 0,
+        "failed": 0,
+        "blocked": false,
+        "escalated": false,
+        "escalation_target": null
+      }
+    ],
+    "children_count": 1,
+    "completed": 0,
+    "failed": 0,
+    "blocked": false,
+    "escalated": false,
+    "escalation_target": null
+  },
+  "duration_ms": 101,
+  "timestamp": "2026-02-07T21:28:39.738185+00:00"
+}

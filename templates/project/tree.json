@@ -1,0 +1,38 @@
+{
+  "_meta": {
+    "title": "PROJECT_NAME Tree",
+    "description": "One pattern. Every scale. Same shape.",
+    "schema": "universal-node.schema.json",
+    "version": "1.0.0"
+  },
+  "nodes": [
+    {
+      "id": "root:architect",
+      "name": "Architect",
+      "scale": "executive",
+      "parent": null,
+      "children": [],
+      "inputs": [
+        {"name": "intent", "type": "task", "from": null}
+      ],
+      "outputs": [
+        {"name": "direction", "type": "decision", "to": null}
+      ],
+      "rules": [
+        {"name": "mvp_guard", "condition": "scope_creep detected", "action": "block"},
+        {"name": "quality_gate", "condition": "tests_failing", "action": "block"}
+      ],
+      "escalation": {"target": null, "threshold": 10, "cascade": []},
+      "metadata": {"project": "PROJECT_NAME"}
+    }
+  ],
+  "coordination": {
+    "phases": ["INTAKE", "TRIAGE", "PLAN", "REVIEW", "EXECUTE", "VERIFY", "INTEGRATE", "SHIP"],
+    "approval_cascade": {
+      "low_1_3": "captain approves",
+      "medium_4_6": "director approves",
+      "high_7_8": "CTO approves",
+      "critical_9_10": "human final call"
+    }
+  }
+}

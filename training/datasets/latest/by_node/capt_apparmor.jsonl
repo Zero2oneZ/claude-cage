@@ -1,0 +1,1 @@
+{"intent": "fix security sandbox network", "status": "planned", "output": {"plan": "Would execute: fix security sandbox network", "files": ["security/apparmor-profile"], "functions": [], "rules_applied": ["deny_mount", "deny_ptrace", "deny_raw_net"]}, "trace_id": "ptc-1770499719", "timestamp": "2026-02-07T21:28:39.738185+00:00"}

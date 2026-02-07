@@ -1,0 +1,175 @@
+{
+  "created": "2026-02-07T21:28:55.460346+00:00",
+  "total_traces": 3,
+  "filtered_traces": 3,
+  "formats": [
+    "alpaca",
+    "sharegpt",
+    "cot"
+  ],
+  "filters": {},
+  "files": {
+    "alpaca": {
+      "path": "alpaca.jsonl",
+      "count": 3
+    },
+    "sharegpt": {
+      "path": "sharegpt.jsonl",
+      "count": 3
+    },
+    "cot": {
+      "path": "cot.jsonl",
+      "count": 3
+    },
+    "node:capt:codie": {
+      "path": "by_node/capt_codie.jsonl",
+      "count": 1,
+      "total_runs": 1,
+      "completed": 1,
+      "failed": 0
+    },
+    "node:capt:sandbox": {
+      "path": "by_node/capt_sandbox.jsonl",
+      "count": 1,
+      "total_runs": 1,
+      "completed": 1,
+      "failed": 0
+    },
+    "node:capt:seccomp": {
+      "path": "by_node/capt_seccomp.jsonl",
+      "count": 1,
+      "total_runs": 1,
+      "completed": 1,
+      "failed": 0
+    },
+    "node:capt:apparmor": {
+      "path": "by_node/capt_apparmor.jsonl",
+      "count": 1,
+      "total_runs": 1,
+      "completed": 1,
+      "failed": 0
+    },
+    "node:capt:network": {
+      "path": "by_node/capt_network.jsonl",
+      "count": 1,
+      "total_runs": 1,
+      "completed": 1,
+      "failed": 0
+    },
+    "node:capt:cli-parse": {
+      "path": "by_node/capt_cli-parse.jsonl",
+      "count": 1,
+      "total_runs": 1,
+      "completed": 1,
+      "failed": 0
+    },
+    "node:capt:docker": {
+      "path": "by_node/capt_docker.jsonl",
+      "count": 1,
+      "total_runs": 1,
+      "completed": 1,
+      "failed": 0
+    },
+    "node:capt:frontend": {
+      "path": "by_node/capt_frontend.jsonl",
+      "count": 1,
+      "total_runs": 1,
+      "completed": 1,
+      "failed": 0
+    },
+    "node:capt:images": {
+      "path": "by_node/capt_images.jsonl",
+      "count": 1,
+      "total_runs": 1,
+      "completed": 1,
+      "failed": 0
+    },
+    "node:capt:metrics": {
+      "path": "by_node/capt_metrics.jsonl",
+      "count": 1,
+      "total_runs": 1,
+      "completed": 1,
+      "failed": 0
+    },
+    "node:capt:mongodb": {
+      "path": "by_node/capt_mongodb.jsonl",
+      "count": 1,
+      "total_runs": 1,
+      "completed": 1,
+      "failed": 0
+    },
+    "node:capt:tree-ops": {
+      "path": "by_node/capt_tree-ops.jsonl",
+      "count": 1,
+      "total_runs": 1,
+      "completed": 1,
+      "failed": 0
+    },
+    "dept:dept:orchestration": {
+      "path": "by_department/dept_orchestration.jsonl",
+      "count": 1,
+      "captains": [
+        "capt:codie"
+      ],
+      "total_tasks": 1
+    },
+    "dept:dept:security": {
+      "path": "by_department/dept_security.jsonl",
+      "count": 1,
+      "captains": [
+        "capt:apparmor",
+        "capt:network",
+        "capt:sandbox",
+        "capt:seccomp"
+      ],
+      "total_tasks": 4
+    },
+    "dept:dept:config": {
+      "path": "by_department/dept_config.jsonl",
+      "count": 1,
+      "captains": [
+        "capt:cli-parse"
+      ],
+      "total_tasks": 1
+    },
+    "dept:dept:runtime": {
+      "path": "by_department/dept_runtime.jsonl",
+      "count": 1,
+      "captains": [
+        "capt:docker",
+        "capt:images"
+      ],
+      "total_tasks": 2
+    },
+    "dept:dept:web": {
+      "path": "by_department/dept_web.jsonl",
+      "count": 1,
+      "captains": [
+        "capt:frontend"
+      ],
+      "total_tasks": 1
+    },
+    "dept:dept:observe": {
+      "path": "by_department/dept_observe.jsonl",
+      "count": 1,
+      "captains": [
+        "capt:metrics",
+        "capt:mongodb"
+      ],
+      "total_tasks": 2
+    },
+    "dept:dept:tree": {
+      "path": "by_department/dept_tree.jsonl",
+      "count": 1,
+      "captains": [
+        "capt:tree-ops"
+      ],
+      "total_tasks": 1
+    },
+    "scale:captain": {
+      "path": "by_scale/captain.jsonl",
+      "count": 12
+    }
+  },
+  "dataset_hash": "7673a7063d402aeb"
+}

@@ -79,6 +79,105 @@ gui: ## Launch interactive TUI dashboard
 	@chmod +x bin/claude-cage
 	@bin/claude-cage gui
 
+web: ## Launch web dashboard (http://localhost:5000)
+	@chmod +x bin/claude-cage
+	@bin/claude-cage web
+
+# ── MongoDB ─────────────────────────────────────────────────────
+
+.PHONY: mongo-install mongo-ping mongo-status
+mongo-install: ## Install MongoDB store dependencies
+	cd mongodb && npm install
+
+mongo-ping: ## Test MongoDB Atlas connectivity
+	node mongodb/store.js ping
+
+mongo-status: ## Show event counts in MongoDB
+	@node mongodb/store.js count events 2>/dev/null || echo "MongoDB not reachable"
+	@node mongodb/store.js count artifacts 2>/dev/null || echo ""
+
+mongo-seed: ## Seed all artifacts + project metadata into MongoDB
+	node mongodb/seed-artifacts.js
+
+mongo-search: ## Search MongoDB artifacts (usage: make mongo-search Q="query text")
+	node mongodb/store.js search artifacts "$(Q)" 10
+
+mongo-stats: ## Show full MongoDB statistics
+	@node mongodb/store.js stats 2>/dev/null || echo "MongoDB not reachable"
+
+mongo-events: ## Show recent events (usage: make mongo-events N=20)
+	@node mongodb/store.js get events '{}' $(or $(N),10)
+
+# ── Observability ────────────────────────────────────────────
+
+.PHONY: observe health metrics
+observe: ## Show observability dashboard for all running sessions
+	@chmod +x bin/claude-cage
+	@CAGE_ROOT="$(CAGE_ROOT)" bin/claude-cage observe
+
+health: ## Check health of running sessions
+	@docker ps --filter "label=managed-by=claude-cage" --format "{{.Names}}" | while read c; do \
+		name=$${c#cage-}; \
+		status=$$(docker inspect -f '{{.State.Status}}' "$$c" 2>/dev/null); \
+		mem=$$(docker stats --no-stream --format "{{.MemPerc}}" "$$c" 2>/dev/null); \
+		echo "  $$name: status=$$status mem=$$mem"; \
+	done || echo "No running sessions"
+
+# ── Memory ───────────────────────────────────────────────────
+
+.PHONY: memory memory-list memory-clean
+memory-list: ## List saved session memories
+	@ls -la $(HOME)/.local/share/claude-cage/memory/*.json 2>/dev/null || echo "No saved memories"
+
+memory-clean: ## Clean old session memories (30+ days)
+	@find $(HOME)/.local/share/claude-cage/memory -name "*.json" -mtime +30 -delete 2>/dev/null; echo "Cleaned"
+
+# ── Tree ──────────────────────────────────────────────────────
+
+.PHONY: tree cage-tree init
+tree: ## Show claude-cage's own architecture tree
+	@CAGE_ROOT="$(CAGE_ROOT)" bin/claude-cage tree show tree.json
+
+cage-tree: tree ## Alias for 'make tree'
+
+ptc: ## Run PTC dry-run (usage: make ptc INTENT="add GPU monitoring")
+	@chmod +x bin/claude-cage
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" bin/claude-cage ptc run "$(INTENT)" --verbose
+
+ptc-live: ## Run PTC live (usage: make ptc-live INTENT="verify sandbox")
+	@chmod +x bin/claude-cage
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" bin/claude-cage ptc run "$(INTENT)" --live --verbose
+
+ptc-leaves: ## Show all PTC leaf workers
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" bin/claude-cage ptc leaves
+
+# ── Training ─────────────────────────────────────────────────
+
+.PHONY: train-extract train-pipeline train-stack train-preview
+train-extract: ## Extract training data from PTC traces
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" bin/claude-cage train extract
+
+train-pipeline: ## Generate full LoRA pipeline from tree
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" bin/claude-cage train pipeline
+
+train-stack: ## Show LoRA stacking order
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" bin/claude-cage train stack
+
+train-preview: ## Preview training data format from latest trace
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" bin/claude-cage train preview
+
+init: ## Initialize new project with tree (usage: make init DIR=./myproject)
+	@chmod +x bin/claude-cage
+	@CAGE_ROOT="$(CAGE_ROOT)" bin/claude-cage init "$(DIR)" $(if $(NAME),--name $(NAME))
+
+# ── GentlyOS ─────────────────────────────────────────────────
+.PHONY: gentlyos-seed gentlyos-tree
+gentlyos-seed: ## Seed GentlyOS docs, tree, and nodes into MongoDB
+	node gentlyos/seed.js
+
+gentlyos-tree: ## Show the GentlyOS recursive tree hierarchy
+	@CAGE_ROOT="$(CAGE_ROOT)" bin/claude-cage tree show gentlyos/tree.json
+
 # ── Security ─────────────────────────────────────────────────────
 
 .PHONY: load-apparmor verify-sandbox
@@ -111,6 +210,15 @@ help: ## Show this help
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "Environment variables:"
-	@echo "  ANTHROPIC_API_KEY    Anthropic API key (required)"
+	@echo "  ANTHROPIC_API_KEY    Anthropic API key (optional for Max users)"
 	@echo "  CAGE_WORKSPACE       Host directory to mount (default: .)"
 	@echo "  CAGE_NOVNC_PORT      noVNC port for desktop mode (default: 6080)"
+	@echo ""
+	@echo "Slash commands (in Claude Code):"
+	@echo "  /atlas <cmd>         MongoDB Atlas management"
+	@echo "  /session <cmd>       Session lifecycle management"
+	@echo "  /mongo <cmd>         Query MongoDB store"
+	@echo "  /build [target]      Build container images"
+	@echo "  /status              System status overview"
+	@echo "  /security-audit      Run security audit"
+	@echo "  /gentlyos <cmd>      Tree orchestration (route, node, blast-radius, tree, seed)"

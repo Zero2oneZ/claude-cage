@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gentlyos.dev/schema/universal-node.json",
+  "title": "GentlyOS Universal Node",
+  "description": "One pattern. Every scale. Same shape. A node is a crate, a department, a sephira, a knowledge node, a CODIE primitive, a reasoning chain link. Parameterized by scale.",
+  "type": "object",
+  "required": ["id", "name", "scale", "inputs", "outputs", "rules", "escalation"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier. Convention: scale:name (e.g., dept:foundation, crate:crypto, sephira:tiferet)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name"
+    },
+    "scale": {
+      "type": "string",
+      "enum": ["executive", "department", "captain", "crate", "module", "sephira", "knowledge", "reasoning", "primitive"],
+      "description": "What level this node instantiates at. The struct is the same — only scale differs."
+    },
+    "parent": {
+      "type": ["string", "null"],
+      "description": "Parent node ID. null = root (Human Architect / Keter / workspace root)"
+    },
+    "children": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Child node IDs. A department's children are captains. A crate's children are modules. A sephira's children are its inner tree.",
+      "default": []
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["task", "data", "event", "dependency", "emanation"] },
+          "from": { "type": ["string", "null"] }
+        },
+        "required": ["name", "type"]
+      },
+      "description": "What flows INTO this node. Tasks from parent, dependencies from siblings, emanation from above."
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["result", "artifact", "event", "decision", "emanation"] },
+          "to": { "type": ["string", "null"] }
+        },
+        "required": ["name", "type"]
+      },
+      "description": "What flows OUT of this node. Results to parent, artifacts to siblings, decisions upward."
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "condition": { "type": "string" },
+          "action": { "type": "string", "enum": ["pass", "block", "transform", "escalate", "log"] }
+        },
+        "required": ["name", "action"]
+      },
+      "description": "Rules for what passes through this node. Build constraints, review criteria, security gates."
+    },
+    "escalation": {
+      "type": "object",
+      "properties": {
+        "target": {
+          "type": ["string", "null"],
+          "description": "Node ID to escalate to when this node can't decide"
+        },
+        "threshold": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Risk level that triggers escalation (1=always, 10=never)"
+        },
+        "cascade": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Full escalation path: captain → director → CTO → human"
+        }
+      },
+      "required": ["target"]
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "agent_id": { "type": "string", "description": "For agent nodes: the agent identifier" },
+        "crates_owned": { "type": "array", "items": { "type": "string" }, "description": "For dept/captain nodes: which crates they own" },
+        "sephira_mapping": { "type": "string", "description": "For sephira nodes: Kabbalistic name" },
+        "output_format": { "type": "string", "description": "Structured output template for this node" },
+        "performance_targets": { "type": "object", "description": "Key metrics this node must maintain" }
+      },
+      "additionalProperties": true,
+      "description": "Scale-specific metadata. The shape is the same — the contents adapt."
+    }
+  },
+  "additionalProperties": false
+}

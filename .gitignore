@@ -21,6 +21,14 @@ logs/
 *.pem
 credentials.json
 
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
 # Docker build cache
 docker/cli/.cache/
 docker/desktop/.cache/

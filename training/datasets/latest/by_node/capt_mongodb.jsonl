@@ -1,0 +1,1 @@
+{"intent": "add GPU monitoring to dashboard", "status": "planned", "output": {"plan": "Would execute: add GPU monitoring to dashboard", "files": ["lib/mongodb.sh", "mongodb/store.js", "mongodb/seed-artifacts.js"], "functions": [], "rules_applied": ["async_only", "never_block_cli"]}, "trace_id": "ptc-1770499719", "timestamp": "2026-02-07T21:28:39.194157+00:00"}

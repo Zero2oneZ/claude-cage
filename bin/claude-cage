@@ -13,6 +13,7 @@ source "$CAGE_ROOT/lib/docker.sh"
 source "$CAGE_ROOT/lib/session.sh"
 source "$CAGE_ROOT/lib/tui.sh"
 source "$CAGE_ROOT/lib/gui.sh"
+source "$CAGE_ROOT/lib/tree.sh"
 source "$CAGE_ROOT/lib/cli.sh"
 
 main() {
@@ -29,7 +30,13 @@ main() {
         destroy)    cmd_destroy "$@" ;;
         build)      cmd_build "$@" ;;
         config)     cmd_config "$@" ;;
+        init)       cmd_init "$@" ;;
+        tree)       cmd_tree "$@" ;;
+        ptc)        cmd_ptc "$@" ;;
+        train)      cmd_train "$@" ;;
         gui|ui|tui) gui_main "$@" ;;
+        web)        cmd_web "$@" ;;
+        observe)    cmd_observe "$@" ;;
         version)    echo "claude-cage $CAGE_VERSION" ;;
         help|-h|--help) cmd_help "$@" ;;
         *)

@@ -1,0 +1,469 @@
+{
+  "_meta": {
+    "title": "GentlyOS Recursive Tree",
+    "description": "One pattern. Every scale. Same shape. 34 agents, 17 crates, 10 sephirot — all instantiated from the same universal node.",
+    "schema": "./universal-node.schema.json",
+    "version": "1.0.0"
+  },
+
+  "nodes": [
+
+    {
+      "id": "root:human",
+      "name": "Human Architect (Tom)",
+      "scale": "executive",
+      "parent": null,
+      "children": ["exec:cto", "exec:vision"],
+      "inputs": [{ "name": "intent", "type": "task", "from": null }],
+      "outputs": [{ "name": "direction", "type": "decision", "to": "exec:cto" }],
+      "rules": [
+        { "name": "final_authority", "condition": "risk >= 9", "action": "pass" },
+        { "name": "mvp_guard", "condition": "scope_creep detected", "action": "block" }
+      ],
+      "escalation": { "target": null, "threshold": 10, "cascade": [] },
+      "metadata": { "agent_id": "human_architect" }
+    },
+
+    {
+      "id": "exec:cto",
+      "name": "CTO Agent",
+      "scale": "executive",
+      "parent": "root:human",
+      "children": ["dept:foundation", "dept:protocol", "dept:orchestration", "dept:runtime", "dept:tokenomics", "dept:security", "dept:interface", "dept:devops"],
+      "inputs": [
+        { "name": "cross_dept_change", "type": "task", "from": "root:human" },
+        { "name": "escalation", "type": "event", "from": null }
+      ],
+      "outputs": [
+        { "name": "decision", "type": "decision", "to": "root:human" },
+        { "name": "routed_task", "type": "task", "to": null }
+      ],
+      "rules": [
+        { "name": "blast_radius_check", "condition": "affected_crates > 3 depts", "action": "escalate" },
+        { "name": "breaking_change_gate", "condition": "api_breaking && no_migration", "action": "block" },
+        { "name": "mvp_scope", "condition": "not required for v1.0", "action": "block" },
+        { "name": "sovereignty_check", "condition": "centralizes control", "action": "escalate" }
+      ],
+      "escalation": { "target": "root:human", "threshold": 9, "cascade": ["root:human"] },
+      "metadata": {
+        "agent_id": "cto_agent",
+        "output_format": "DECISION: [APPROVE|REJECT|ESCALATE|DEFER]\nBLAST_RADIUS: [crates]\nRISK_LEVEL: [1-10]\nRATIONALE: [2-3 sentences]\nCONDITIONS: [if APPROVE]"
+      }
+    },
+
+    {
+      "id": "exec:vision",
+      "name": "Vision Alignment Agent",
+      "scale": "executive",
+      "parent": "root:human",
+      "children": [],
+      "inputs": [{ "name": "proposal", "type": "task", "from": "exec:cto" }],
+      "outputs": [{ "name": "alignment_score", "type": "decision", "to": "exec:cto" }],
+      "rules": [
+        { "name": "sovereignty_first", "condition": "user owns data, always", "action": "pass" },
+        { "name": "claude_as_interface", "condition": "AI is primary interaction layer", "action": "pass" },
+        { "name": "decentralized_default", "condition": "no single points of failure", "action": "pass" },
+        { "name": "proof_of_reasoning", "condition": "intelligence creates value", "action": "pass" }
+      ],
+      "escalation": { "target": "root:human", "threshold": 5, "cascade": ["root:human"] },
+      "metadata": {
+        "agent_id": "vision_agent",
+        "output_format": "ALIGNMENT_SCORE: [1-10]\nPRINCIPLE_VIOLATIONS: [list]\nRECOMMENDATION: [PROCEED|REVISE|REJECT]"
+      }
+    },
+
+    {
+      "id": "dept:foundation",
+      "name": "Foundation Department",
+      "scale": "department",
+      "parent": "exec:cto",
+      "children": ["capt:types", "capt:crypto", "capt:errors"],
+      "inputs": [{ "name": "foundation_task", "type": "task", "from": "exec:cto" }],
+      "outputs": [{ "name": "dept_result", "type": "result", "to": "exec:cto" }],
+      "rules": [
+        { "name": "api_stability", "condition": "public API change", "action": "escalate" },
+        { "name": "crypto_audit", "condition": "crypto algorithm change", "action": "escalate" },
+        { "name": "zero_cost", "condition": "abstraction adds runtime cost", "action": "block" }
+      ],
+      "escalation": { "target": "exec:cto", "threshold": 4, "cascade": ["exec:cto", "root:human"] },
+      "metadata": {
+        "agent_id": "foundation_director",
+        "crates_owned": ["gentlyos-core-types", "gentlyos-crypto", "gentlyos-errors"],
+        "sephira_mapping": "Malkuth",
+        "output_format": "DEPARTMENT: foundation\nAFFECTED_CRATES: [list]\nAPI_IMPACT: [NONE|ADDITIVE|BREAKING]\nSECURITY_REVIEW_REQUIRED: [bool]"
+      }
+    },
+
+    {
+      "id": "dept:protocol",
+      "name": "Protocol Department",
+      "scale": "department",
+      "parent": "exec:cto",
+      "children": ["capt:wire", "capt:p2p", "capt:alexandria"],
+      "inputs": [{ "name": "protocol_task", "type": "task", "from": "exec:cto" }],
+      "outputs": [{ "name": "dept_result", "type": "result", "to": "exec:cto" }],
+      "rules": [
+        { "name": "wire_compat", "condition": "removed field", "action": "block" },
+        { "name": "optional_fields", "condition": "new field must be optional", "action": "transform" },
+        { "name": "dag_integrity", "condition": "content addresses immutable", "action": "pass" },
+        { "name": "simulation_required", "condition": "topology change", "action": "escalate" }
+      ],
+      "escalation": { "target": "exec:cto", "threshold": 5, "cascade": ["exec:cto", "root:human"] },
+      "metadata": {
+        "agent_id": "protocol_director",
+        "crates_owned": ["gentlyos-wire", "gentlyos-p2p", "gentlyos-alexandria", "gentlyos-protocol"],
+        "sephira_mapping": "Chokmah/Binah"
+      }
+    },
+
+    {
+      "id": "dept:orchestration",
+      "name": "Orchestration Department",
+      "scale": "department",
+      "parent": "exec:cto",
+      "children": ["capt:codie", "capt:ptc", "capt:context"],
+      "inputs": [{ "name": "orchestration_task", "type": "task", "from": "exec:cto" }],
+      "outputs": [{ "name": "dept_result", "type": "result", "to": "exec:cto" }],
+      "rules": [
+        { "name": "compression_ratio", "condition": "CODIE ratio < 94%", "action": "block" },
+        { "name": "semantic_fidelity", "condition": "fidelity < 0.95", "action": "block" },
+        { "name": "context_budget", "condition": "switch cost > 100 tokens", "action": "escalate" },
+        { "name": "chain_immutable", "condition": "reasoning chains are append-only", "action": "pass" }
+      ],
+      "escalation": { "target": "exec:cto", "threshold": 5, "cascade": ["exec:cto", "root:human"] },
+      "metadata": {
+        "agent_id": "orchestration_director",
+        "crates_owned": ["gentlyos-codie", "gentlyos-ptc", "gentlyos-context", "gentlyos-orchestrator"],
+        "sephira_mapping": "Tiferet"
+      }
+    },
+
+    {
+      "id": "dept:runtime",
+      "name": "Runtime Department",
+      "scale": "department",
+      "parent": "exec:cto",
+      "children": ["capt:exec", "capt:state", "capt:memory"],
+      "inputs": [{ "name": "runtime_task", "type": "task", "from": "exec:cto" }],
+      "outputs": [{ "name": "dept_result", "type": "result", "to": "exec:cto" }],
+      "rules": [
+        { "name": "hot_path_latency", "condition": "p99 > 1ms", "action": "block" },
+        { "name": "memory_budget", "condition": "per context > 50MB", "action": "block" },
+        { "name": "no_blocking_async", "condition": "blocking call in async context", "action": "block" },
+        { "name": "unsafe_justified", "condition": "unsafe block without safety comment", "action": "block" }
+      ],
+      "escalation": { "target": "exec:cto", "threshold": 5, "cascade": ["exec:cto", "root:human"] },
+      "metadata": {
+        "agent_id": "runtime_director",
+        "crates_owned": ["gentlyos-runtime", "gentlyos-state", "gentlyos-memory", "gentlyos-executor"],
+        "sephira_mapping": "Netzach/Hod",
+        "performance_targets": { "hot_path_p99_ms": 1, "mem_per_context_mb": 50, "state_sync_ms": 10 }
+      }
+    },
+
+    {
+      "id": "dept:tokenomics",
+      "name": "Tokenomics Department",
+      "scale": "department",
+      "parent": "exec:cto",
+      "children": ["capt:rewards", "capt:proof", "capt:economics"],
+      "inputs": [{ "name": "tokenomics_task", "type": "task", "from": "exec:cto" }],
+      "outputs": [{ "name": "dept_result", "type": "result", "to": "exec:cto" }],
+      "rules": [
+        { "name": "emission_schedule", "condition": "total emission follows schedule", "action": "pass" },
+        { "name": "no_infinite_mint", "condition": "mint vector detected", "action": "block" },
+        { "name": "slash_bounded", "condition": "slashing > stake", "action": "block" },
+        { "name": "no_self_verify", "condition": "self-verification detected", "action": "block" }
+      ],
+      "escalation": { "target": "exec:cto", "threshold": 5, "cascade": ["exec:cto", "root:human"] },
+      "metadata": {
+        "agent_id": "tokenomics_director",
+        "crates_owned": ["gentlyos-synth", "gentlyos-proof", "gentlyos-rewards", "gentlyos-economics"],
+        "sephira_mapping": "Yesod"
+      }
+    },
+
+    {
+      "id": "dept:security",
+      "name": "Security Department",
+      "scale": "department",
+      "parent": "exec:cto",
+      "children": ["capt:audit", "capt:hardening", "capt:incident"],
+      "inputs": [{ "name": "security_task", "type": "task", "from": "exec:cto" }, { "name": "any_change", "type": "event", "from": null }],
+      "outputs": [{ "name": "security_verdict", "type": "decision", "to": "exec:cto" }],
+      "rules": [
+        { "name": "mandatory_crypto_review", "condition": "touches crypto code", "action": "block" },
+        { "name": "mandatory_unsafe_review", "condition": "contains unsafe block", "action": "block" },
+        { "name": "mandatory_network_review", "condition": "touches network/IPC code", "action": "block" },
+        { "name": "can_block_any_merge", "condition": "security concern identified", "action": "block" }
+      ],
+      "escalation": { "target": "exec:cto", "threshold": 3, "cascade": ["exec:cto", "root:human"] },
+      "metadata": {
+        "agent_id": "security_director",
+        "crates_owned": ["ALL"],
+        "sephira_mapping": "Daath",
+        "output_format": "THREAT_LEVEL: [CRITICAL|HIGH|MEDIUM|LOW|NONE]\nBLOCKS_MERGE: [bool]\nVULNERABILITIES: [list]"
+      }
+    },
+
+    {
+      "id": "dept:interface",
+      "name": "Interface Department",
+      "scale": "department",
+      "parent": "exec:cto",
+      "children": ["capt:api", "capt:claude", "capt:ux"],
+      "inputs": [{ "name": "interface_task", "type": "task", "from": "exec:cto" }],
+      "outputs": [{ "name": "dept_result", "type": "result", "to": "exec:cto" }],
+      "rules": [
+        { "name": "api_contracts", "condition": "breaking API change", "action": "escalate" },
+        { "name": "prompt_versioned", "condition": "claude prompt change", "action": "log" },
+        { "name": "error_clarity", "condition": "error message unclear", "action": "block" }
+      ],
+      "escalation": { "target": "exec:cto", "threshold": 5, "cascade": ["exec:cto", "root:human"] },
+      "metadata": {
+        "agent_id": "interface_director",
+        "crates_owned": ["gentlyos-api", "gentlyos-claude", "gentlyos-interface", "gentlyos-tools"],
+        "sephira_mapping": "Keter"
+      }
+    },
+
+    {
+      "id": "dept:devops",
+      "name": "DevOps Department",
+      "scale": "department",
+      "parent": "exec:cto",
+      "children": ["capt:build", "capt:release", "capt:infra"],
+      "inputs": [{ "name": "devops_task", "type": "task", "from": "exec:cto" }],
+      "outputs": [{ "name": "dept_result", "type": "result", "to": "exec:cto" }],
+      "rules": [
+        { "name": "secrets_never_in_code", "condition": "secret detected in source", "action": "block" },
+        { "name": "all_dept_signoffs", "condition": "release without all approvals", "action": "block" },
+        { "name": "environment_parity", "condition": "env drift detected", "action": "escalate" }
+      ],
+      "escalation": { "target": "exec:cto", "threshold": 5, "cascade": ["exec:cto", "root:human"] },
+      "metadata": {
+        "agent_id": "devops_director",
+        "crates_owned": ["gentlyos-build", "gentlyos-ci", "gentlyos-infra"],
+        "sephira_mapping": "Gevurah/Chesed"
+      }
+    },
+
+    {
+      "id": "capt:types", "name": "Types Captain", "scale": "captain", "parent": "dept:foundation",
+      "children": [], "inputs": [{ "name": "types_task", "type": "task", "from": "dept:foundation" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:foundation" }],
+      "rules": [{ "name": "type_safety", "condition": "type invariant violated", "action": "block" }, { "name": "backward_compat", "condition": "struct field removed", "action": "escalate" }],
+      "escalation": { "target": "dept:foundation", "threshold": 3, "cascade": ["dept:foundation", "exec:cto", "root:human"] },
+      "metadata": { "agent_id": "types_captain", "crates_owned": ["gentlyos-core-types"] }
+    },
+    {
+      "id": "capt:crypto", "name": "Crypto Captain", "scale": "captain", "parent": "dept:foundation",
+      "children": [], "inputs": [{ "name": "crypto_task", "type": "task", "from": "dept:foundation" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:foundation" }],
+      "rules": [{ "name": "constant_time", "condition": "timing side-channel possible", "action": "block" }, { "name": "key_protection", "condition": "key material exposed", "action": "block" }],
+      "escalation": { "target": "dept:foundation", "threshold": 2, "cascade": ["dept:foundation", "dept:security", "exec:cto", "root:human"] },
+      "metadata": { "agent_id": "crypto_captain", "crates_owned": ["gentlyos-crypto"] }
+    },
+    {
+      "id": "capt:errors", "name": "Error Captain", "scale": "captain", "parent": "dept:foundation",
+      "children": [], "inputs": [{ "name": "error_task", "type": "task", "from": "dept:foundation" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:foundation" }],
+      "rules": [{ "name": "no_swallowed_errors", "condition": "error not propagated", "action": "block" }, { "name": "panic_justified", "condition": "panic without justification", "action": "block" }],
+      "escalation": { "target": "dept:foundation", "threshold": 4, "cascade": ["dept:foundation", "exec:cto"] },
+      "metadata": { "agent_id": "error_captain", "crates_owned": ["gentlyos-errors"] }
+    },
+    {
+      "id": "capt:wire", "name": "Wire Captain", "scale": "captain", "parent": "dept:protocol",
+      "children": [], "inputs": [{ "name": "wire_task", "type": "task", "from": "dept:protocol" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:protocol" }],
+      "rules": [{ "name": "schema_compat", "condition": "wire schema breaking change", "action": "block" }, { "name": "fuzz_coverage", "condition": "fuzz coverage inadequate", "action": "escalate" }],
+      "escalation": { "target": "dept:protocol", "threshold": 3, "cascade": ["dept:protocol", "exec:cto"] },
+      "metadata": { "agent_id": "wire_captain", "crates_owned": ["gentlyos-wire"] }
+    },
+    {
+      "id": "capt:p2p", "name": "P2P Captain", "scale": "captain", "parent": "dept:protocol",
+      "children": [], "inputs": [{ "name": "p2p_task", "type": "task", "from": "dept:protocol" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:protocol" }],
+      "rules": [{ "name": "timeouts_present", "condition": "connection without timeout", "action": "block" }, { "name": "peer_trust", "condition": "peer not validated", "action": "block" }],
+      "escalation": { "target": "dept:protocol", "threshold": 3, "cascade": ["dept:protocol", "exec:cto"] },
+      "metadata": { "agent_id": "p2p_captain", "crates_owned": ["gentlyos-p2p"] }
+    },
+    {
+      "id": "capt:alexandria", "name": "Alexandria Captain", "scale": "captain", "parent": "dept:protocol",
+      "children": [], "inputs": [{ "name": "alexandria_task", "type": "task", "from": "dept:protocol" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:protocol" }],
+      "rules": [{ "name": "dag_acyclic", "condition": "cycle detected in DAG", "action": "block" }, { "name": "content_immutable", "condition": "content address modified", "action": "block" }],
+      "escalation": { "target": "dept:protocol", "threshold": 2, "cascade": ["dept:protocol", "exec:cto"] },
+      "metadata": { "agent_id": "alexandria_captain", "crates_owned": ["gentlyos-alexandria"] }
+    },
+    {
+      "id": "capt:codie", "name": "CODIE Captain", "scale": "captain", "parent": "dept:orchestration",
+      "children": [], "inputs": [{ "name": "codie_task", "type": "task", "from": "dept:orchestration" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:orchestration" }],
+      "rules": [{ "name": "compression_94", "condition": "ratio < 94%", "action": "block" }, { "name": "fidelity_95", "condition": "semantic fidelity < 0.95", "action": "block" }, { "name": "round_trip_99", "condition": "round-trip < 0.99", "action": "block" }],
+      "escalation": { "target": "dept:orchestration", "threshold": 3, "cascade": ["dept:orchestration", "exec:cto"] },
+      "metadata": { "agent_id": "codie_captain", "crates_owned": ["gentlyos-codie"], "performance_targets": { "compression_ratio": 0.947, "semantic_fidelity": 0.95, "latency_ms": 100 } }
+    },
+    {
+      "id": "capt:ptc", "name": "PTC Captain", "scale": "captain", "parent": "dept:orchestration",
+      "children": [], "inputs": [{ "name": "ptc_task", "type": "task", "from": "dept:orchestration" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:orchestration" }],
+      "rules": [{ "name": "ownership_atomic", "condition": "task has multiple owners", "action": "block" }, { "name": "chain_immutable", "condition": "chain modified after creation", "action": "block" }],
+      "escalation": { "target": "dept:orchestration", "threshold": 3, "cascade": ["dept:orchestration", "exec:cto"] },
+      "metadata": { "agent_id": "ptc_captain", "crates_owned": ["gentlyos-ptc"] }
+    },
+    {
+      "id": "capt:context", "name": "Context Captain", "scale": "captain", "parent": "dept:orchestration",
+      "children": [], "inputs": [{ "name": "context_task", "type": "task", "from": "dept:orchestration" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:orchestration" }],
+      "rules": [{ "name": "budget_correct", "condition": "budget calculation error", "action": "block" }, { "name": "no_leaks", "condition": "context leak detected", "action": "block" }],
+      "escalation": { "target": "dept:orchestration", "threshold": 4, "cascade": ["dept:orchestration", "exec:cto"] },
+      "metadata": { "agent_id": "context_captain", "crates_owned": ["gentlyos-context"] }
+    },
+    {
+      "id": "capt:exec", "name": "Exec Captain", "scale": "captain", "parent": "dept:runtime",
+      "children": [], "inputs": [{ "name": "exec_task", "type": "task", "from": "dept:runtime" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:runtime" }],
+      "rules": [{ "name": "hot_path_1ms", "condition": "p99 latency > 1ms", "action": "block" }, { "name": "no_blocking", "condition": "blocking in async context", "action": "block" }],
+      "escalation": { "target": "dept:runtime", "threshold": 3, "cascade": ["dept:runtime", "exec:cto"] },
+      "metadata": { "agent_id": "exec_captain", "crates_owned": ["gentlyos-runtime"] }
+    },
+    {
+      "id": "capt:state", "name": "State Captain", "scale": "captain", "parent": "dept:runtime",
+      "children": [], "inputs": [{ "name": "state_task", "type": "task", "from": "dept:runtime" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:runtime" }],
+      "rules": [{ "name": "mutations_auditable", "condition": "state mutation without audit trail", "action": "block" }, { "name": "acid_where_required", "condition": "non-atomic state update", "action": "escalate" }],
+      "escalation": { "target": "dept:runtime", "threshold": 4, "cascade": ["dept:runtime", "exec:cto"] },
+      "metadata": { "agent_id": "state_captain", "crates_owned": ["gentlyos-state"] }
+    },
+    {
+      "id": "capt:memory", "name": "Memory Captain", "scale": "captain", "parent": "dept:runtime",
+      "children": [], "inputs": [{ "name": "memory_task", "type": "task", "from": "dept:runtime" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:runtime" }],
+      "rules": [{ "name": "no_leaks", "condition": "memory leak detected", "action": "block" }, { "name": "bounded_alloc", "condition": "unbounded allocation", "action": "block" }],
+      "escalation": { "target": "dept:runtime", "threshold": 3, "cascade": ["dept:runtime", "exec:cto"] },
+      "metadata": { "agent_id": "memory_captain", "crates_owned": ["gentlyos-memory"] }
+    },
+    {
+      "id": "capt:rewards", "name": "Rewards Captain", "scale": "captain", "parent": "dept:tokenomics",
+      "children": [], "inputs": [{ "name": "rewards_task", "type": "task", "from": "dept:tokenomics" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:tokenomics" }],
+      "rules": [{ "name": "emission_math", "condition": "emission calculation error", "action": "block" }, { "name": "no_gaming", "condition": "gaming vector detected", "action": "block" }],
+      "escalation": { "target": "dept:tokenomics", "threshold": 3, "cascade": ["dept:tokenomics", "exec:cto"] },
+      "metadata": { "agent_id": "rewards_captain", "crates_owned": ["gentlyos-synth"] }
+    },
+    {
+      "id": "capt:proof", "name": "Proof Captain", "scale": "captain", "parent": "dept:tokenomics",
+      "children": [], "inputs": [{ "name": "proof_task", "type": "task", "from": "dept:tokenomics" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:tokenomics" }],
+      "rules": [{ "name": "deterministic_gen", "condition": "non-deterministic proof generation", "action": "block" }, { "name": "no_self_verify", "condition": "self-verification attempted", "action": "block" }],
+      "escalation": { "target": "dept:tokenomics", "threshold": 2, "cascade": ["dept:tokenomics", "exec:cto"] },
+      "metadata": { "agent_id": "proof_captain", "crates_owned": ["gentlyos-proof"] }
+    },
+    {
+      "id": "capt:economics", "name": "Economics Captain", "scale": "captain", "parent": "dept:tokenomics",
+      "children": [], "inputs": [{ "name": "economics_task", "type": "task", "from": "dept:tokenomics" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:tokenomics" }],
+      "rules": [{ "name": "game_theory_sound", "condition": "incentive misalignment", "action": "escalate" }, { "name": "slash_bounded", "condition": "slashing exceeds stake", "action": "block" }],
+      "escalation": { "target": "dept:tokenomics", "threshold": 4, "cascade": ["dept:tokenomics", "exec:cto"] },
+      "metadata": { "agent_id": "economics_captain", "crates_owned": ["gentlyos-economics"] }
+    },
+    {
+      "id": "capt:audit", "name": "Audit Captain", "scale": "captain", "parent": "dept:security",
+      "children": [], "inputs": [{ "name": "audit_task", "type": "task", "from": "dept:security" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:security" }],
+      "rules": [{ "name": "no_known_vulns", "condition": "known vulnerability present", "action": "block" }, { "name": "all_prs_reviewed", "condition": "PR without security review", "action": "block" }],
+      "escalation": { "target": "dept:security", "threshold": 2, "cascade": ["dept:security", "exec:cto", "root:human"] },
+      "metadata": { "agent_id": "audit_captain", "crates_owned": ["gentlyos-audit"] }
+    },
+    {
+      "id": "capt:hardening", "name": "Hardening Captain", "scale": "captain", "parent": "dept:security",
+      "children": [], "inputs": [{ "name": "hardening_task", "type": "task", "from": "dept:security" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:security" }],
+      "rules": [{ "name": "least_privilege", "condition": "excess capabilities", "action": "block" }, { "name": "ipc_audited", "condition": "IPC without audit", "action": "block" }],
+      "escalation": { "target": "dept:security", "threshold": 3, "cascade": ["dept:security", "exec:cto"] },
+      "metadata": { "agent_id": "hardening_captain", "crates_owned": ["gentlyos-hardening"] }
+    },
+    {
+      "id": "capt:incident", "name": "Incident Captain", "scale": "captain", "parent": "dept:security",
+      "children": [], "inputs": [{ "name": "incident_task", "type": "task", "from": "dept:security" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:security" }],
+      "rules": [{ "name": "playbooks_current", "condition": "outdated playbook", "action": "escalate" }, { "name": "forensics_ready", "condition": "forensics tools missing", "action": "block" }],
+      "escalation": { "target": "dept:security", "threshold": 3, "cascade": ["dept:security", "exec:cto"] },
+      "metadata": { "agent_id": "incident_captain", "crates_owned": [] }
+    },
+    {
+      "id": "capt:api", "name": "API Captain", "scale": "captain", "parent": "dept:interface",
+      "children": [], "inputs": [{ "name": "api_task", "type": "task", "from": "dept:interface" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:interface" }],
+      "rules": [{ "name": "contracts_stable", "condition": "contract broken", "action": "block" }, { "name": "openapi_current", "condition": "spec out of date", "action": "escalate" }],
+      "escalation": { "target": "dept:interface", "threshold": 4, "cascade": ["dept:interface", "exec:cto"] },
+      "metadata": { "agent_id": "api_captain", "crates_owned": ["gentlyos-api"] }
+    },
+    {
+      "id": "capt:claude", "name": "Claude Captain", "scale": "captain", "parent": "dept:interface",
+      "children": [], "inputs": [{ "name": "claude_task", "type": "task", "from": "dept:interface" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:interface" }],
+      "rules": [{ "name": "prompts_versioned", "condition": "prompt change without version", "action": "block" }, { "name": "tool_schemas_compat", "condition": "tool schema breaking change", "action": "escalate" }],
+      "escalation": { "target": "dept:interface", "threshold": 4, "cascade": ["dept:interface", "exec:cto"] },
+      "metadata": { "agent_id": "claude_captain", "crates_owned": ["gentlyos-claude"] }
+    },
+    {
+      "id": "capt:ux", "name": "UX Captain", "scale": "captain", "parent": "dept:interface",
+      "children": [], "inputs": [{ "name": "ux_task", "type": "task", "from": "dept:interface" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:interface" }],
+      "rules": [{ "name": "consistency", "condition": "UI inconsistency", "action": "escalate" }, { "name": "accessibility", "condition": "accessibility failure", "action": "block" }],
+      "escalation": { "target": "dept:interface", "threshold": 5, "cascade": ["dept:interface", "exec:cto"] },
+      "metadata": { "agent_id": "ux_captain", "crates_owned": ["gentlyos-interface"] }
+    },
+    {
+      "id": "capt:build", "name": "Build Captain", "scale": "captain", "parent": "dept:devops",
+      "children": [], "inputs": [{ "name": "build_task", "type": "task", "from": "dept:devops" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:devops" }],
+      "rules": [{ "name": "build_times", "condition": "build time regression", "action": "escalate" }, { "name": "deterministic", "condition": "non-deterministic build", "action": "block" }],
+      "escalation": { "target": "dept:devops", "threshold": 4, "cascade": ["dept:devops", "exec:cto"] },
+      "metadata": { "agent_id": "build_captain", "crates_owned": ["gentlyos-build"] }
+    },
+    {
+      "id": "capt:release", "name": "Release Captain", "scale": "captain", "parent": "dept:devops",
+      "children": [], "inputs": [{ "name": "release_task", "type": "task", "from": "dept:devops" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:devops" }],
+      "rules": [{ "name": "semver_correct", "condition": "version bump incorrect", "action": "block" }, { "name": "changelog_complete", "condition": "missing changelog entry", "action": "escalate" }],
+      "escalation": { "target": "dept:devops", "threshold": 4, "cascade": ["dept:devops", "exec:cto"] },
+      "metadata": { "agent_id": "release_captain", "crates_owned": [] }
+    },
+    {
+      "id": "capt:infra", "name": "Infra Captain", "scale": "captain", "parent": "dept:devops",
+      "children": [], "inputs": [{ "name": "infra_task", "type": "task", "from": "dept:devops" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:devops" }],
+      "rules": [{ "name": "env_parity", "condition": "environment drift", "action": "escalate" }, { "name": "secrets_secured", "condition": "secret exposed", "action": "block" }],
+      "escalation": { "target": "dept:devops", "threshold": 3, "cascade": ["dept:devops", "exec:cto", "root:human"] },
+      "metadata": { "agent_id": "infra_captain", "crates_owned": ["gentlyos-infra"] }
+    }
+  ],
+
+  "sephirot_mapping": {
+    "_note": "Each sephira IS a node with the same shape. The tree of departments IS the Tree of Life.",
+    "Keter": "dept:interface",
+    "Chokmah": "dept:protocol",
+    "Binah": "dept:protocol",
+    "Daath": "dept:security",
+    "Chesed": "dept:devops",
+    "Gevurah": "dept:devops",
+    "Tiferet": "dept:orchestration",
+    "Netzach": "dept:runtime",
+    "Hod": "dept:runtime",
+    "Yesod": "dept:tokenomics",
+    "Malkuth": "dept:foundation"
+  },
+
+  "coordination": {
+    "phases": ["INTAKE", "TRIAGE", "PLAN", "REVIEW", "EXECUTE", "VERIFY", "INTEGRATE", "SHIP"],
+    "approval_cascade": {
+      "low_1_3": "captain approves",
+      "medium_4_6": "director approves after captain",
+      "high_7_8": "CTO approves after director + captain",
+      "critical_9_10": "human architect final call"
+    }
+  }
+}

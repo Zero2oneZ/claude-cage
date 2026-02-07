@@ -1,0 +1,1 @@
+{"intent": "add GPU monitoring to dashboard", "status": "planned", "output": {"plan": "Would execute: add GPU monitoring to dashboard", "files": ["docker/cli/Dockerfile", "docker/desktop/Dockerfile", "docker/desktop/entrypoint-desktop.sh"], "functions": [], "rules_applied": ["dockerfile_valid"]}, "trace_id": "ptc-1770499719", "timestamp": "2026-02-07T21:28:39.194157+00:00"}
