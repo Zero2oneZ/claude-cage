@@ -1,0 +1,35 @@
+{
+  "node_id": "capt:memory",
+  "title": "Session Memory",
+  "scale": "captain",
+  "description": "Session Memory (captain)",
+  "what_it_does": [
+    "Rule: ttl_30d \u2014 memory older than 30 days \u2192 transform"
+  ],
+  "owned_files": [],
+  "entry_points": [],
+  "key_concepts": [
+    "memory",
+    "ttl_30d"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:sessions",
+      "children": [],
+      "siblings": [
+        "capt:lifecycle"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.594927+00:00"
+  },
+  "content_hash": "sha256:506aff5c4b75ad065a48fb20a4de8244bc2bdc4ff3581f882f6805ac65f9e2dd",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.594927+00:00"
+}

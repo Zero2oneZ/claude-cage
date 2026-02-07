@@ -1,0 +1,59 @@
+{
+  "node_id": "capt:sandbox",
+  "title": "Sandbox Flags",
+  "scale": "captain",
+  "description": "Sandbox Flags (captain)",
+  "what_it_does": [
+    "Rule: readonly_root \u2014 always \u2192 pass",
+    "Rule: cap_drop_all \u2014 always \u2192 pass",
+    "Rule: resource_limits \u2014 always \u2192 pass"
+  ],
+  "owned_files": [
+    "lib/sandbox.sh"
+  ],
+  "entry_points": [
+    "sandbox_build_flags",
+    "sandbox_verify"
+  ],
+  "key_concepts": [
+    "readonly_root",
+    "resource_limits",
+    "sandbox",
+    "cap_drop_all"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:security",
+      "children": [],
+      "siblings": [
+        "capt:seccomp",
+        "capt:apparmor",
+        "capt:network"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:security",
+        "files": [
+          "lib/sandbox.sh"
+        ]
+      },
+      {
+        "node": "capt:network",
+        "files": [
+          "lib/sandbox.sh"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:f102a7543d6c3de8ce19a32132076ac1f1644e0ccf85e2969929a7f522d2b5b3",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.594526+00:00"
+  },
+  "content_hash": "sha256:f2cdc5bc1cfe379a483cc48b3d677163fdfd38fa71362e4554c69036d8ca8b8a",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.594526+00:00"
+}

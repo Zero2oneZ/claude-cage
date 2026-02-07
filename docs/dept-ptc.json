@@ -1,0 +1,68 @@
+{
+  "node_id": "dept:ptc",
+  "title": "Pass-Through Coordination",
+  "scale": "department",
+  "description": "The machine. Intent flows down. Artifacts flow up.",
+  "what_it_does": [
+    "The machine. Intent flows down. Artifacts flow up.",
+    "Rule: decompose_first \u2014 intent received \u2192 pass",
+    "Rule: aggregate_all \u2014 all leaves complete \u2192 pass"
+  ],
+  "owned_files": [
+    "ptc/engine.py",
+    "ptc/executor.py"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "ptc",
+    "aggregate_all",
+    "decompose_first",
+    "executor",
+    "engine"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "root:cage",
+      "children": [
+        "capt:engine",
+        "capt:executor"
+      ],
+      "siblings": [
+        "dept:runtime",
+        "dept:security",
+        "dept:sessions",
+        "dept:config",
+        "dept:observe",
+        "dept:web",
+        "dept:tree",
+        "dept:training",
+        "dept:architect",
+        "project:gentlyos"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "capt:engine",
+        "files": [
+          "ptc/engine.py"
+        ]
+      },
+      {
+        "node": "capt:executor",
+        "files": [
+          "ptc/executor.py"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:3dbf206f16e215983ea621bd4a51568b61f556761dc674f911cf52fb750bde5e",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.596676+00:00"
+  },
+  "content_hash": "sha256:97bde5cc2b7da33c5ca4491c7f4a3ad934a595186252e41641fdb07abbcefa24",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.596676+00:00"
+}

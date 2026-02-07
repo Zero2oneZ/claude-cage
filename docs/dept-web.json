@@ -1,0 +1,64 @@
+{
+  "node_id": "dept:web",
+  "title": "Web Dashboard",
+  "scale": "department",
+  "description": "Web Dashboard (department)",
+  "what_it_does": [
+    "Rule: localhost_only \u2014 always \u2192 pass"
+  ],
+  "owned_files": [
+    "web/app.py",
+    "web/templates/index.html"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "dashboard",
+    "localhost_only",
+    "web"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "root:cage",
+      "children": [
+        "capt:flask",
+        "capt:frontend"
+      ],
+      "siblings": [
+        "dept:runtime",
+        "dept:security",
+        "dept:sessions",
+        "dept:config",
+        "dept:observe",
+        "dept:tree",
+        "dept:ptc",
+        "dept:training",
+        "dept:architect",
+        "project:gentlyos"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "capt:flask",
+        "files": [
+          "web/app.py"
+        ]
+      },
+      {
+        "node": "capt:frontend",
+        "files": [
+          "web/templates/index.html"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:5dfb5f9d621765a4cfc41adf3b082b46597ffbfb6b79f193f851cfbe977371d4",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.595494+00:00"
+  },
+  "content_hash": "sha256:164519e2ecd6432a2f6d1f23ae7cd02ca5938e288fcd4f627f0328d9ec21cb8a",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.595494+00:00"
+}

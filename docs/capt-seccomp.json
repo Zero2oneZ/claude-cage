@@ -1,0 +1,46 @@
+{
+  "node_id": "capt:seccomp",
+  "title": "Seccomp Profile",
+  "scale": "captain",
+  "description": "Seccomp Profile (captain)",
+  "what_it_does": [
+    "Rule: allowlist_only \u2014 syscall not in list \u2192 block"
+  ],
+  "owned_files": [
+    "security/seccomp-default.json"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "seccomp",
+    "allowlist_only"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:security",
+      "children": [],
+      "siblings": [
+        "capt:sandbox",
+        "capt:apparmor",
+        "capt:network"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:security",
+        "files": [
+          "security/seccomp-default.json"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:cffa9aff28aaa6401e3c31fc8742c4c4371deb8433cd463a90f19ee5e1e46f26",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.594604+00:00"
+  },
+  "content_hash": "sha256:a58222028b201a0d2826df5a6d1cae50c9b9bf4fbaf54de5d7573cfde30b51a0",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.594604+00:00"
+}

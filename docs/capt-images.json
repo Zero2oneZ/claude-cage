@@ -1,0 +1,47 @@
+{
+  "node_id": "capt:images",
+  "title": "Image Builder",
+  "scale": "captain",
+  "description": "Image Builder (captain)",
+  "what_it_does": [
+    "Rule: dockerfile_valid \u2014 syntax error \u2192 block"
+  ],
+  "owned_files": [
+    "docker/cli/Dockerfile",
+    "docker/desktop/Dockerfile"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "images",
+    "dockerfile_valid"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:runtime",
+      "children": [],
+      "siblings": [
+        "capt:docker",
+        "capt:compose"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:runtime",
+        "files": [
+          "docker/cli/Dockerfile",
+          "docker/desktop/Dockerfile"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:0579314ff7b3474715b839cbc922eb127fde54efe7040a208e4d3f6b4ff0edf1",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.594258+00:00"
+  },
+  "content_hash": "sha256:cf8a654b0bebaaa10a1a1797cfc8d13d7b467132860148aa1522ff88ed0168f8",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.594258+00:00"
+}

@@ -1,0 +1,83 @@
+{
+  "node_id": "dept:security",
+  "title": "Security",
+  "scale": "department",
+  "description": "Security (department)",
+  "what_it_does": [
+    "Rule: defense_in_depth \u2014 layer missing \u2192 block",
+    "Rule: no_escalation \u2014 no-new-privileges violated \u2192 block"
+  ],
+  "owned_files": [
+    "lib/sandbox.sh",
+    "security/apparmor-profile",
+    "security/seccomp-default.json"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "network-filter",
+    "defense_in_depth",
+    "sandbox",
+    "seccomp",
+    "no_escalation",
+    "apparmor"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "root:cage",
+      "children": [
+        "capt:sandbox",
+        "capt:seccomp",
+        "capt:apparmor",
+        "capt:network"
+      ],
+      "siblings": [
+        "dept:runtime",
+        "dept:sessions",
+        "dept:config",
+        "dept:observe",
+        "dept:web",
+        "dept:tree",
+        "dept:ptc",
+        "dept:training",
+        "dept:architect",
+        "project:gentlyos"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "capt:sandbox",
+        "files": [
+          "lib/sandbox.sh"
+        ]
+      },
+      {
+        "node": "capt:seccomp",
+        "files": [
+          "security/seccomp-default.json"
+        ]
+      },
+      {
+        "node": "capt:apparmor",
+        "files": [
+          "security/apparmor-profile"
+        ]
+      },
+      {
+        "node": "capt:network",
+        "files": [
+          "lib/sandbox.sh"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:bed44368dd785e3781661953e1583c29894e7ca7354db8a30c6f362471c628ca",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.594378+00:00"
+  },
+  "content_hash": "sha256:a185db520a096ced8b7f3ad513b38ec621d3fb1e4656e42d049bca78c478130b",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.594378+00:00"
+}

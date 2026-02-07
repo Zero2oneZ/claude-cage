@@ -410,6 +410,97 @@ def api_verify_blueprint(bp_id):
     return jsonify(data)
 
 
+# ── Documentation Circle ───────────────────────────────────────
+
+
+def _run_docs(args):
+    """Run ptc.docs as subprocess, return parsed JSON or error."""
+    cmd = [sys.executable, "-m", "ptc.docs"] + args
+    env = {**os.environ, "CAGE_ROOT": CAGE_ROOT, "PYTHONPATH": CAGE_ROOT}
+    try:
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=30, env=env,
+        )
+        out = result.stdout.strip()
+        if out:
+            try:
+                return json.loads(out), None
+            except json.JSONDecodeError:
+                return {"output": out}, None
+        if result.returncode != 0:
+            return None, result.stderr.strip() or "Command failed"
+        return {"output": ""}, None
+    except subprocess.TimeoutExpired:
+        return None, "Timeout"
+    except Exception as e:
+        return None, str(e)
+
+
+@app.route("/api/docs/status")
+def api_docs_status():
+    data, err = _run_docs(["status"])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+@app.route("/api/docs/node/<node_id>")
+def api_docs_node(node_id):
+    data, err = _run_docs(["show", node_id])
+    if err:
+        return jsonify({"error": err}), 404
+    return jsonify(data)
+
+
+@app.route("/api/docs/generate", methods=["POST"])
+def api_docs_generate():
+    body = request.get_json(force=True) if request.is_json else {}
+    node_id = body.get("node_id")
+    if node_id:
+        data, err = _run_docs(["generate", node_id])
+    else:
+        data, err = _run_docs(["generate-all"])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data), 201
+
+
+@app.route("/api/docs/graph")
+def api_docs_graph():
+    data, err = _run_docs(["graph"])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+@app.route("/api/docs/search")
+def api_docs_search():
+    query = request.args.get("q", "")
+    limit = request.args.get("limit", "10")
+    if not query:
+        return jsonify({"error": "q parameter required"}), 400
+    data, err = _run_docs(["search", query, limit])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+@app.route("/api/docs/stale")
+def api_docs_stale():
+    data, err = _run_docs(["check-stale"])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+@app.route("/api/docs/interconnect", methods=["POST"])
+def api_docs_interconnect():
+    data, err = _run_docs(["interconnect"])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
 # ── Semantic Search ─────────────────────────────────────────────
 
 

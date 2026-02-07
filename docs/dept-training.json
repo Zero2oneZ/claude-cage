@@ -1,0 +1,67 @@
+{
+  "node_id": "dept:training",
+  "title": "Training Pipeline",
+  "scale": "department",
+  "description": "The Hopf sphere. Build out to feed in. Every trace makes the next run smarter.",
+  "what_it_does": [
+    "The Hopf sphere. Build out to feed in. Every trace makes the next run smarter.",
+    "Rule: correct_only \u2014 failed traces \u2192 transform",
+    "Rule: accumulate \u2014 threshold reached \u2192 pass"
+  ],
+  "owned_files": [
+    "ptc/training.py"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "lora",
+    "correct_only",
+    "accumulate",
+    "extraction",
+    "training"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "root:cage",
+      "children": [
+        "capt:extract",
+        "capt:lora"
+      ],
+      "siblings": [
+        "dept:runtime",
+        "dept:security",
+        "dept:sessions",
+        "dept:config",
+        "dept:observe",
+        "dept:web",
+        "dept:tree",
+        "dept:ptc",
+        "dept:architect",
+        "project:gentlyos"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "capt:extract",
+        "files": [
+          "ptc/training.py"
+        ]
+      },
+      {
+        "node": "capt:lora",
+        "files": [
+          "ptc/training.py"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:ed31f774f9d65bf55dbcdb80eb0931828a5c9e246a8f7a43bf03490b14f9125a",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.597094+00:00"
+  },
+  "content_hash": "sha256:4356d4663c8d1a6db53678ae0382d8a500febf8cf1a9e6a5def96553f6c13584",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.597094+00:00"
+}

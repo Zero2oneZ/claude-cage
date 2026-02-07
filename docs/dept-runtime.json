@@ -1,0 +1,82 @@
+{
+  "node_id": "dept:runtime",
+  "title": "Container Runtime",
+  "scale": "department",
+  "description": "Container Runtime (department)",
+  "what_it_does": [
+    "Rule: image_required \u2014 image not built \u2192 block",
+    "Rule: api_key_warn \u2014 no api key and not max user \u2192 log"
+  ],
+  "owned_files": [
+    "lib/docker.sh",
+    "lib/session.sh",
+    "docker/cli/Dockerfile",
+    "docker/desktop/Dockerfile"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "docker",
+    "compose",
+    "image_required",
+    "api_key_warn"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "root:cage",
+      "children": [
+        "capt:docker",
+        "capt:compose",
+        "capt:images"
+      ],
+      "siblings": [
+        "dept:security",
+        "dept:sessions",
+        "dept:config",
+        "dept:observe",
+        "dept:web",
+        "dept:tree",
+        "dept:ptc",
+        "dept:training",
+        "dept:architect",
+        "project:gentlyos"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "capt:docker",
+        "files": [
+          "lib/docker.sh"
+        ]
+      },
+      {
+        "node": "capt:images",
+        "files": [
+          "docker/cli/Dockerfile",
+          "docker/desktop/Dockerfile"
+        ]
+      },
+      {
+        "node": "dept:sessions",
+        "files": [
+          "lib/session.sh"
+        ]
+      },
+      {
+        "node": "capt:lifecycle",
+        "files": [
+          "lib/session.sh"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:e9c694f0b53a5c30bb497148b29d894e0a60d3254e317eff22648f4beee2d043",
+    "is_stale": false,
+    "last_verified": "2026-02-07T22:45:27.579469+00:00"
+  },
+  "content_hash": "sha256:55bd0e51667531e07c33c6e1d037e46b59a202b0d6b6a4220698fc9db1c67e72",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T22:45:27.579469+00:00"
+}
