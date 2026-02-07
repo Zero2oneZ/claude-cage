@@ -529,6 +529,78 @@ tbody tr:hover { background: var(--bg-tertiary); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
 
+/* ── Blueprint Cards ───────────────────────────────────────── */
+.blueprint-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; margin-bottom: 24px; }
+
+.blueprint-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    transition: border-color 0.15s;
+    cursor: pointer;
+}
+
+.blueprint-card:hover { border-color: var(--accent-blue); }
+
+.blueprint-card .bp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.blueprint-card .bp-name { font-weight: 600; font-size: 14px; flex: 1; min-width: 0; }
+.blueprint-card .bp-id { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.blueprint-card .bp-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.4; }
+.blueprint-card .bp-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-dim); }
+.blueprint-card .bp-meta span { display: flex; align-items: center; gap: 4px; }
+
+.bp-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+}
+
+.bp-status.draft { background: rgba(88,166,255,0.15); color: var(--accent-blue); }
+.bp-status.building { background: rgba(210,153,34,0.15); color: var(--accent-yellow); }
+.bp-status.verified { background: rgba(63,185,80,0.15); color: var(--accent-green); }
+.bp-status.failed { background: rgba(248,81,73,0.15); color: var(--accent-red); }
+.bp-status.cached { background: rgba(188,140,255,0.15); color: var(--accent-purple); }
+
+/* ── Search ────────────────────────────────────────────────── */
+.search-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 10px 16px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-size: 15px;
+    font-family: var(--font-sans);
+    outline: none;
+}
+
+.search-bar input:focus { border-color: var(--accent-blue); }
+
+.search-result {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin-bottom: 8px;
+    transition: border-color 0.15s;
+}
+
+.search-result:hover { border-color: var(--accent-cyan); }
+.search-result .sr-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.search-result .sr-type { font-family: var(--font-mono); font-size: 11px; padding: 1px 6px; border-radius: 3px; background: var(--bg-tertiary); color: var(--text-dim); }
+.search-result .sr-score { font-family: var(--font-mono); font-size: 12px; color: var(--accent-cyan); float: right; }
+.search-result .sr-snippet { font-size: 13px; color: var(--text-secondary); margin-top: 6px; line-height: 1.4; }
+
 /* ── Spinner ────────────────────────────────────────────────── */
 .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent-blue); border-radius: 50%; animation: spin 0.6s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -547,6 +619,14 @@ tbody tr:hover { background: var(--bg-tertiary); }
         <div class="nav-item" data-view="projects" onclick="navigate('projects')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
             Projects
+        </div>
+        <div class="nav-item" data-view="blueprints" onclick="navigate('blueprints')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+            Blueprints
+        </div>
+        <div class="nav-item" data-view="search" onclick="navigate('search')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Search
         </div>
         <div class="nav-item" data-view="gentlyos" onclick="navigate('gentlyos')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
@@ -695,6 +775,8 @@ function render() {
     switch (currentView) {
         case 'dashboard': renderDashboard(el); break;
         case 'projects': renderProjects(el); break;
+        case 'blueprints': renderBlueprints(el); break;
+        case 'search': renderSearch(el); break;
         case 'gentlyos': renderGentlyOS(el); break;
         case 'config': renderConfig(el); break;
         case 'detail': renderDetail(); break;
@@ -811,6 +893,197 @@ async function showNodeDetail(nid) {
             ${data.metadata?.output_format ? `<h3 style="margin-top:12px">Output Format</h3><pre style="background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px;font-size:12px;color:var(--text-secondary);white-space:pre-wrap">${escHtml(data.metadata.output_format)}</pre>` : ''}
         </div>`;
     panel.scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ── Blueprints ─────────────────────────────────────────────── */
+let blueprintsData = null;
+
+async function renderBlueprints(el) {
+    if (!blueprintsData) {
+        el.innerHTML = `<div class="page-title">Blueprints</div><p style="color:var(--text-secondary)"><span class="spinner"></span> Loading...</p>`;
+        blueprintsData = await api('/api/blueprints');
+    }
+
+    const bps = Array.isArray(blueprintsData) ? blueprintsData : (blueprintsData?.blueprints || blueprintsData?.output ? [] : []);
+
+    // Stats
+    const draft = bps.filter(b => b.status === 'draft').length;
+    const building = bps.filter(b => b.status === 'building').length;
+    const verified = bps.filter(b => b.status === 'verified').length;
+
+    let cards = '';
+    if (bps.length === 0) {
+        cards = `<div class="empty-state">
+            <p>No blueprints yet. Claude designs — PTC decomposes — builders execute.</p>
+            <button class="btn primary" onclick="promptCreateBlueprint()">Create Blueprint</button>
+        </div>`;
+    } else {
+        bps.forEach(bp => {
+            const content = bp.content || bp.artifacts?.[0]?.content || {};
+            const taskCount = (content.builder_tasks || []).length;
+            const what = content.what || bp.description || '';
+            const shortWhat = what.length > 120 ? what.slice(0, 120) + '...' : what;
+            cards += `<div class="blueprint-card" onclick="showBlueprintDetail('${escAttr(bp.id || '')}')">
+                <div class="bp-header">
+                    <div>
+                        <div class="bp-name">${escHtml(bp.name || bp.id || 'Untitled')}</div>
+                        <div class="bp-id">${escHtml(bp.id || '')}</div>
+                    </div>
+                    <span class="bp-status ${bp.status || 'draft'}">${bp.status || 'draft'}</span>
+                </div>
+                <div class="bp-desc">${escHtml(shortWhat)}</div>
+                <div class="bp-meta">
+                    <span>${taskCount} task${taskCount !== 1 ? 's' : ''}</span>
+                    ${bp.hash ? `<span style="font-family:var(--font-mono)">sha:${escHtml((bp.hash || '').slice(0, 8))}</span>` : ''}
+                    ${bp.cached ? '<span style="color:var(--accent-purple)">cached</span>' : ''}
+                </div>
+            </div>`;
+        });
+    }
+
+    el.innerHTML = `
+        <div class="page-title">Blueprints <span style="font-size:14px;color:var(--text-dim);font-weight:400">Architect Mode</span></div>
+        <div class="stats-row">
+            <div class="stat-card"><div class="label">Total</div><div class="value" style="color:var(--accent-cyan)">${bps.length}</div></div>
+            <div class="stat-card"><div class="label">Draft</div><div class="value" style="color:var(--accent-blue)">${draft}</div></div>
+            <div class="stat-card"><div class="label">Building</div><div class="value" style="color:var(--accent-yellow)">${building}</div></div>
+            <div class="stat-card"><div class="label">Verified</div><div class="value" style="color:var(--accent-green)">${verified}</div></div>
+        </div>
+        <div class="quick-actions">
+            <button class="btn primary" onclick="promptCreateBlueprint()">+ New Blueprint</button>
+            <button class="btn" onclick="blueprintsData=null;renderBlueprints(document.getElementById('mainContent'))">Refresh</button>
+        </div>
+        <div class="blueprint-cards">${cards}</div>
+        <div id="blueprintDetailPanel"></div>`;
+}
+
+async function promptCreateBlueprint() {
+    const intent = prompt('Design intent (what should be built?):');
+    if (!intent) return;
+    toast('Creating blueprint...', 'info');
+    const r = await api('/api/blueprints', { method: 'POST', body: JSON.stringify({ intent }) });
+    if (r && !r.error) {
+        toast('Blueprint created', 'success');
+        blueprintsData = null;
+        renderBlueprints(document.getElementById('mainContent'));
+    } else {
+        toast('Failed: ' + (r?.error || 'unknown'), 'error');
+    }
+}
+
+async function showBlueprintDetail(bpId) {
+    const data = await api('/api/blueprints/' + encodeURIComponent(bpId));
+    if (!data || data.error) { toast('Blueprint not found', 'error'); return; }
+
+    const panel = document.getElementById('blueprintDetailPanel');
+    const content = data.content || data.artifacts?.[0]?.content || {};
+    const tasks = content.builder_tasks || [];
+    const where = content.where || {};
+    const interconnections = content.interconnections || [];
+
+    let tasksHtml = tasks.map(t => `
+        <div style="padding:8px 12px;border-bottom:1px solid var(--border);font-size:13px">
+            <div style="font-weight:600;color:var(--accent-cyan)">${escHtml(t.task_id || '')}</div>
+            <div style="color:var(--text-secondary);margin-top:2px">${escHtml(t.intent || '')}</div>
+            <div style="color:var(--text-dim);font-family:var(--font-mono);font-size:11px;margin-top:2px">
+                target: ${escHtml(t.target_node || '')} | files: ${(t.files || []).join(', ')}
+            </div>
+        </div>
+    `).join('');
+
+    let interHtml = interconnections.map(ic => `
+        <div style="padding:4px 0;font-size:12px;font-family:var(--font-mono)">
+            <span style="color:var(--accent-blue)">${escHtml(ic.from || '')}</span>
+            <span style="color:var(--text-dim)"> → </span>
+            <span style="color:var(--accent-green)">${escHtml(ic.to || '')}</span>
+            <span style="color:var(--text-dim);margin-left:8px">[${ic.type || ''}] ${escHtml(ic.description || '')}</span>
+        </div>
+    `).join('');
+
+    panel.innerHTML = `
+        <div class="detail-card" style="margin-top:16px">
+            <h3>${escHtml(data.name || data.id || '')} <span class="bp-status ${data.status || 'draft'}">${data.status || 'draft'}</span></h3>
+            <div class="detail-row"><span class="key">What</span><span class="val" style="white-space:pre-wrap">${escHtml(content.what || '')}</span></div>
+            <div class="detail-row"><span class="key">Why</span><span class="val">${escHtml(content.why || '')}</span></div>
+            <div class="detail-row"><span class="key">How</span><span class="val">${escHtml(typeof content.how === 'object' ? (content.how.approach || JSON.stringify(content.how)) : (content.how || ''))}</span></div>
+            <div class="detail-row"><span class="key">Files</span><span class="val" style="font-family:var(--font-mono);font-size:12px">${(where.files || []).join(', ') || 'none'}</span></div>
+            <div class="detail-row"><span class="key">Modules</span><span class="val">${(where.modules || []).join(', ') || 'none'}</span></div>
+            ${content.gui_spec ? `<div class="detail-row"><span class="key">GUI Views</span><span class="val">${(content.gui_spec.views || []).join(', ')}</span></div>` : ''}
+            <h3 style="margin-top:16px">Builder Tasks (${tasks.length})</h3>
+            <div class="table-wrap" style="margin-top:8px">${tasksHtml || '<div style="padding:12px;color:var(--text-dim)">No tasks</div>'}</div>
+            ${interconnections.length ? `<h3 style="margin-top:16px">Interconnections</h3><div style="margin-top:8px">${interHtml}</div>` : ''}
+            <div style="margin-top:16px;display:flex;gap:8px">
+                <button class="btn primary" onclick="buildBlueprint('${escAttr(data.id || '')}')">Build</button>
+                <button class="btn" onclick="verifyBlueprint('${escAttr(data.id || '')}')">Verify</button>
+            </div>
+        </div>`;
+    panel.scrollIntoView({ behavior: 'smooth' });
+}
+
+async function buildBlueprint(bpId) {
+    toast('Decomposing blueprint to PTC tasks...', 'info');
+    const r = await api('/api/blueprints/' + encodeURIComponent(bpId) + '/build', { method: 'POST' });
+    if (r && !r.error) {
+        toast('Tasks generated', 'success');
+    } else {
+        toast('Failed: ' + (r?.error || 'unknown'), 'error');
+    }
+}
+
+async function verifyBlueprint(bpId) {
+    toast('Verifying blueprint...', 'info');
+    const r = await api('/api/blueprints/' + encodeURIComponent(bpId) + '/verify', { method: 'POST' });
+    if (r && !r.error) {
+        toast('Verification complete', 'success');
+    } else {
+        toast('Verification failed: ' + (r?.error || 'unknown'), 'error');
+    }
+}
+
+/* ── Search ─────────────────────────────────────────────────── */
+let searchResults = null;
+
+async function renderSearch(el) {
+    const resultsHtml = searchResults ? renderSearchResults(searchResults) : '<div class="empty-state"><p>Search across all artifacts, traces, commits, and blueprints using semantic similarity.</p><p style="color:var(--text-dim);font-size:13px">Powered by vector embeddings (all-MiniLM-L6-v2)</p></div>';
+
+    el.innerHTML = `
+        <div class="page-title">Semantic Search</div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search artifacts, blueprints, traces, commits..." onkeydown="if(event.key==='Enter')doSearch()">
+            <button class="btn primary" onclick="doSearch()">Search</button>
+        </div>
+        <div id="searchResults">${resultsHtml}</div>`;
+
+    // Focus the input
+    setTimeout(() => { const inp = document.getElementById('searchInput'); if (inp) inp.focus(); }, 50);
+}
+
+function renderSearchResults(data) {
+    const results = Array.isArray(data) ? data : (data?.results || []);
+    if (typeof results === 'string') {
+        return `<div class="detail-card"><pre style="white-space:pre-wrap;font-size:13px;color:var(--text-secondary)">${escHtml(results)}</pre></div>`;
+    }
+    if (results.length === 0) {
+        return '<div class="empty-state"><p>No results found</p></div>';
+    }
+    return results.map(r => {
+        const score = r.score ? (r.score * 100).toFixed(1) + '%' : '';
+        return `<div class="search-result">
+            <div class="sr-title">${escHtml(r.name || r.title || r.doc_id || 'Result')}</div>
+            <span class="sr-type">${escHtml(r.type || r.source_type || 'artifact')}</span>
+            ${score ? `<span class="sr-score">${score} match</span>` : ''}
+            ${r.text || r.snippet ? `<div class="sr-snippet">${escHtml((r.text || r.snippet || '').slice(0, 200))}</div>` : ''}
+        </div>`;
+    }).join('');
+}
+
+async function doSearch() {
+    const input = document.getElementById('searchInput');
+    const query = input ? input.value.trim() : '';
+    if (!query) return;
+    document.getElementById('searchResults').innerHTML = '<p style="color:var(--text-secondary)"><span class="spinner"></span> Searching...</p>';
+    searchResults = await api('/api/search?q=' + encodeURIComponent(query));
+    document.getElementById('searchResults').innerHTML = renderSearchResults(searchResults);
 }
 
 /* ── Dashboard ──────────────────────────────────────────────── */

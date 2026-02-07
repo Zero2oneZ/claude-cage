@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://claude-cage.dev/schema/blueprint.json",
+  "title": "Blueprint Content",
+  "description": "The content structure of a blueprint artifact. A blueprint IS a node — same pattern, blueprint scale. Claude designs, PTC decomposes, builders execute.",
+  "type": "object",
+  "required": ["what", "where", "how", "builder_tasks", "acceptance"],
+  "properties": {
+    "what": {
+      "type": "string",
+      "description": "What this blueprint builds. Clear, concise description of the feature/system."
+    },
+    "where": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Files to create or modify"
+        },
+        "modules": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Modules/packages affected"
+        },
+        "endpoints": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "API endpoints to add or change"
+        }
+      },
+      "description": "WHERE in the codebase this lives"
+    },
+    "how": {
+      "type": "object",
+      "properties": {
+        "approach": {
+          "type": "string",
+          "description": "Implementation approach — the architectural decision"
+        },
+        "patterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Design patterns to follow (e.g., fire-and-forget, dual-write)"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "External dependencies needed (packages, services)"
+        }
+      },
+      "description": "HOW to build it — approach, patterns, dependencies"
+    },
+    "why": {
+      "type": "string",
+      "description": "WHY this design. Rationale, tradeoffs, alternatives considered."
+    },
+    "gui_spec": {
+      "type": "object",
+      "properties": {
+        "views": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "UI views/screens to add or modify"
+        },
+        "flows": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "User interaction flows (click → navigate → result)"
+        },
+        "interactions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Interactive elements (buttons, forms, keybindings)"
+        },
+        "data_bindings": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "What data drives each UI element"
+        }
+      },
+      "description": "GUI specification — what the user sees and how they interact"
+    },
+    "data_flow": {
+      "type": "object",
+      "properties": {
+        "inputs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Data inputs to this feature"
+        },
+        "transforms": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Transformations applied to data"
+        },
+        "outputs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Data outputs produced"
+        },
+        "stores": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Where data is persisted (MongoDB, IPFS, local, git)"
+        }
+      },
+      "description": "Data flow specification — inputs, transforms, outputs, storage"
+    },
+    "interconnections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": { "type": "string", "description": "Source node/module/file" },
+          "to": { "type": "string", "description": "Target node/module/file" },
+          "type": { "type": "string", "enum": ["data", "signal", "dependency", "import", "api_call"] },
+          "description": { "type": "string" }
+        },
+        "required": ["from", "to", "type"]
+      },
+      "description": "Interconnection map — what connects to what. The architecture."
+    },
+    "builder_tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "task_id": { "type": "string", "description": "Unique task identifier" },
+          "target_node": { "type": "string", "description": "Tree node that should execute this task" },
+          "intent": { "type": "string", "description": "What the builder should do" },
+          "files": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Files to create or modify"
+          },
+          "acceptance": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "How to verify this task is done correctly"
+          },
+          "depends_on": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Task IDs that must complete before this one"
+          }
+        },
+        "required": ["task_id", "intent"]
+      },
+      "description": "Builder tasks — JSONL that PTC decomposes to leaf workers"
+    },
+    "acceptance": {
+      "type": "object",
+      "properties": {
+        "criteria": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Success criteria for the whole blueprint"
+        },
+        "verification_intent": {
+          "type": "string",
+          "description": "PTC intent to run for verification"
+        }
+      },
+      "required": ["criteria"],
+      "description": "How to verify the entire blueprint is complete"
+    }
+  },
+  "additionalProperties": true
+}

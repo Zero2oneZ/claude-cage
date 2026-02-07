@@ -16,7 +16,7 @@
     },
     "scale": {
       "type": "string",
-      "enum": ["executive", "department", "captain", "crate", "module", "sephira", "knowledge", "reasoning", "primitive"],
+      "enum": ["executive", "department", "captain", "crate", "module", "sephira", "knowledge", "reasoning", "primitive", "blueprint"],
       "description": "What level this node instantiates at. The struct is the same — only scale differs."
     },
     "parent": {
@@ -118,7 +118,7 @@
         "type": "object",
         "properties": {
           "name": { "type": "string" },
-          "type": { "type": "string", "enum": ["code", "config", "doc", "output", "decision", "trace"] },
+          "type": { "type": "string", "enum": ["code", "config", "doc", "output", "decision", "trace", "blueprint", "design", "embedding"] },
           "hash": { "type": "string", "description": "Content hash for dedup and IPFS addressing" },
           "timestamp": { "type": "string", "format": "date-time" },
           "storage": { "type": "string", "enum": ["mongodb", "ipfs", "local", "inline"], "default": "mongodb" }

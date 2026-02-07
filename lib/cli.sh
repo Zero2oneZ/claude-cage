@@ -22,6 +22,9 @@ COMMANDS
     tree        Inspect and operate on a project tree
     ptc         Pass-Through Coordination — intent down, artifacts up
     train       Training data extraction and LoRA pipeline
+    design      Architect-mode blueprint system
+    ipfs        IPFS content-addressed storage
+    vsearch     Semantic vector search across everything
     gui         Launch interactive TUI dashboard
     web         Launch web dashboard (http://localhost:5000)
     observe     Show observability dashboard for running sessions
@@ -44,6 +47,21 @@ PTC (Pass-Through Coordination)
     claude-cage ptc exec <node> "task" [--live]           Execute at a specific leaf
     claude-cage ptc leaves [tree.json]                    Show all worker nodes
     claude-cage ptc tree [tree.json]                      Show tree structure
+
+DESIGN (Architect Mode)
+    claude-cage design create "intent"           Create a new blueprint
+    claude-cage design list [--status X]         List all blueprints
+    claude-cage design show <blueprint-id>       Show blueprint detail
+    claude-cage design build <id> [--live]       Decompose to PTC builders
+    claude-cage design verify <id>               Verify against acceptance criteria
+    claude-cage design search "query"            Vector search blueprints
+
+IPFS
+    claude-cage ipfs status                      Check IPFS daemon connectivity
+    claude-cage ipfs migrate                     Backfill IPFS CIDs for artifacts
+
+VECTOR SEARCH
+    claude-cage vsearch "query"                  Semantic search across everything
 
 START OPTIONS
     claude-cage start [options]
@@ -663,4 +681,147 @@ cmd_observe() {
     echo ""
     echo "RESOURCE USAGE:"
     docker stats --no-stream --filter "label=managed-by=claude-cage" --format "  {{.Name}}: CPU={{.CPUPerc}} MEM={{.MemUsage}} NET={{.NetIO}}" 2>/dev/null || echo "  (no containers running)"
+}
+
+# ── Design: architect-mode blueprint system ────────────────────
+cmd_design() {
+    local action="${1:-help}"
+    shift || true
+
+    case "$action" in
+        create)
+            local intent="$*"
+            if [[ -z "$intent" ]]; then
+                echo "Usage: claude-cage design create \"intent\"" >&2
+                exit 1
+            fi
+            architect_create "$intent"
+            ;;
+        list)
+            local status_filter=""
+            while [[ $# -gt 0 ]]; do
+                case "$1" in
+                    --status) status_filter="$2"; shift 2 ;;
+                    *) shift ;;
+                esac
+            done
+            architect_list "$status_filter"
+            ;;
+        show)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage design show <blueprint-id>" >&2
+                exit 1
+            fi
+            architect_show "$1"
+            ;;
+        build)
+            local bp_id="${1:-}"
+            shift || true
+            if [[ -z "$bp_id" ]]; then
+                echo "Usage: claude-cage design build <blueprint-id> [--live]" >&2
+                exit 1
+            fi
+            # Get tasks from blueprint, then run them through PTC
+            CAGE_ROOT="$CAGE_ROOT" PYTHONPATH="$CAGE_ROOT" \
+                python3 -m ptc.architect tasks "$bp_id"
+            ;;
+        verify)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage design verify <blueprint-id>" >&2
+                exit 1
+            fi
+            architect_validate "$1"
+            ;;
+        search)
+            local query="$*"
+            if [[ -z "$query" ]]; then
+                echo "Usage: claude-cage design search \"query\"" >&2
+                exit 1
+            fi
+            architect_search "$query"
+            ;;
+        cache)
+            local sub="${1:-stats}"
+            case "$sub" in
+                stats)
+                    echo "BLUEPRINT CACHE"
+                    echo "═══════════════════════════════════════"
+                    architect_list
+                    ;;
+                *)
+                    echo "Usage: claude-cage design cache stats" >&2
+                    exit 1
+                    ;;
+            esac
+            ;;
+        help|"")
+            cat <<'DESIGNHELP'
+DESIGN — Architect Mode Blueprint System
+
+  Claude designs. PTC decomposes. Builders execute.
+  The architect doesn't pick up hammers. The architect designs them.
+
+USAGE
+    claude-cage design create "intent"            Create a new blueprint
+    claude-cage design list [--status X]          List all blueprints
+    claude-cage design show <blueprint-id>        Show blueprint detail
+    claude-cage design build <id> [--live]        Decompose to PTC builders
+    claude-cage design verify <id>                Check results vs acceptance
+    claude-cage design search "query"             Vector search blueprints
+    claude-cage design cache stats                Show cache statistics
+
+EXAMPLES
+    # Design a new feature
+    claude-cage design create "add webhook notification system"
+
+    # Find existing designs
+    claude-cage design search "webhook"
+
+    # Check what a blueprint will build
+    claude-cage design show blueprint:add-webhook-abc123
+
+    # Send to builders
+    claude-cage design build blueprint:add-webhook-abc123 --live
+
+DESIGNHELP
+            ;;
+        *)
+            echo "Error: unknown design action '$action'" >&2
+            echo "Run 'claude-cage design help' for usage." >&2
+            exit 1
+            ;;
+    esac
+}
+
+# ── IPFS: content-addressed storage ────────────────────────────
+cmd_ipfs() {
+    local action="${1:-status}"
+    shift || true
+
+    case "$action" in
+        status)  ipfs_status ;;
+        migrate) ipfs_migrate ;;
+        help|"")
+            echo "IPFS — Content-Addressed Artifact Storage"
+            echo ""
+            echo "  claude-cage ipfs status    Check IPFS daemon connectivity"
+            echo "  claude-cage ipfs migrate   Backfill IPFS CIDs for existing artifacts"
+            ;;
+        *)
+            echo "Error: unknown ipfs action '$action'" >&2
+            exit 1
+            ;;
+    esac
+}
+
+# ── Vector Search: semantic search across everything ───────────
+cmd_vsearch() {
+    local query="$*"
+    if [[ -z "$query" ]]; then
+        echo "Usage: claude-cage vsearch \"query\"" >&2
+        echo ""
+        echo "Semantic search across all artifacts, traces, commits, and blueprints."
+        exit 1
+    fi
+    vsearch "$query"
 }

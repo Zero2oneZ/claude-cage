@@ -6,6 +6,7 @@ for container lifecycle, workspace management, and configuration.
 
 import json
 import os
+import subprocess
 import sys
 import threading
 
@@ -333,6 +334,150 @@ def api_gentlyos_blast_radius():
         "departments": sorted(depts),
         "risk_level": risk,
     })
+
+
+# ── Blueprints (Architect Mode) ─────────────────────────────────
+
+
+def _run_architect(args):
+    """Run ptc.architect as subprocess, return parsed JSON or error."""
+    cmd = [sys.executable, "-m", "ptc.architect"] + args
+    env = {**os.environ, "CAGE_ROOT": CAGE_ROOT, "PYTHONPATH": CAGE_ROOT}
+    try:
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=30, env=env,
+        )
+        out = result.stdout.strip()
+        if out:
+            try:
+                return json.loads(out), None
+            except json.JSONDecodeError:
+                return {"output": out}, None
+        if result.returncode != 0:
+            return None, result.stderr.strip() or "Command failed"
+        return {"output": ""}, None
+    except subprocess.TimeoutExpired:
+        return None, "Timeout"
+    except Exception as e:
+        return None, str(e)
+
+
+@app.route("/api/blueprints")
+def api_list_blueprints():
+    status_filter = request.args.get("status")
+    args = ["list"]
+    if status_filter:
+        args += ["--status", status_filter]
+    data, err = _run_architect(args)
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+@app.route("/api/blueprints", methods=["POST"])
+def api_create_blueprint():
+    body = request.get_json(force=True)
+    intent = body.get("intent", "")
+    if not intent:
+        return jsonify({"error": "intent required"}), 400
+    data, err = _run_architect(["create", intent])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data), 201
+
+
+@app.route("/api/blueprints/<bp_id>")
+def api_get_blueprint(bp_id):
+    data, err = _run_architect(["show", bp_id])
+    if err:
+        return jsonify({"error": err}), 404
+    return jsonify(data)
+
+
+@app.route("/api/blueprints/<bp_id>/build", methods=["POST"])
+def api_build_blueprint(bp_id):
+    data, err = _run_architect(["tasks", bp_id])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+@app.route("/api/blueprints/<bp_id>/verify", methods=["POST"])
+def api_verify_blueprint(bp_id):
+    data, err = _run_architect(["validate", bp_id])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+# ── Semantic Search ─────────────────────────────────────────────
+
+
+@app.route("/api/search")
+def api_search():
+    query = request.args.get("q", "")
+    if not query:
+        return jsonify({"error": "q parameter required"}), 400
+    cmd = [sys.executable, "-m", "ptc.embeddings", "search", query]
+    env = {**os.environ, "CAGE_ROOT": CAGE_ROOT, "PYTHONPATH": CAGE_ROOT}
+    try:
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=30, env=env,
+        )
+        out = result.stdout.strip()
+        if out:
+            try:
+                return jsonify(json.loads(out))
+            except json.JSONDecodeError:
+                return jsonify({"results": out})
+        return jsonify({"results": []})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── IPFS Status ─────────────────────────────────────────────────
+
+
+@app.route("/api/ipfs/status")
+def api_ipfs_status():
+    cmd = [sys.executable, "-m", "ptc.ipfs", "status"]
+    env = {**os.environ, "CAGE_ROOT": CAGE_ROOT, "PYTHONPATH": CAGE_ROOT}
+    try:
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=10, env=env,
+        )
+        out = result.stdout.strip()
+        if out:
+            try:
+                return jsonify(json.loads(out))
+            except json.JSONDecodeError:
+                return jsonify({"status": out})
+        return jsonify({"status": "unknown"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ── Git Branches ────────────────────────────────────────────────
+
+
+@app.route("/api/git/branches")
+def api_git_branches():
+    cmd = [sys.executable, "-m", "ptc.git_ops", "branches"]
+    env = {**os.environ, "CAGE_ROOT": CAGE_ROOT, "PYTHONPATH": CAGE_ROOT}
+    try:
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=10, env=env,
+            cwd=CAGE_ROOT,
+        )
+        out = result.stdout.strip()
+        if out:
+            try:
+                return jsonify(json.loads(out))
+            except json.JSONDecodeError:
+                return jsonify({"branches": out.split("\n")})
+        return jsonify({"branches": []})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # ── Main ────────────────────────────────────────────────────────

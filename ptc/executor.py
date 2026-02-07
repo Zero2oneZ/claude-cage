@@ -5,10 +5,11 @@ Each leaf node receives a task and DOES THE WORK.
 Results flow back up. Artifacts get stored.
 
 Execution modes:
-1. claude   — Invoke Claude Code to do the work (default)
-2. shell    — Run a shell command
-3. inspect  — Read files, analyze, report
-4. compose  — Combine multiple outputs
+1. design   — Architect mode: produce a blueprint, not code
+2. claude   — Invoke Claude Code to do the work
+3. shell    — Run a shell command
+4. inspect  — Read files, analyze, report
+5. compose  — Combine multiple outputs
 
 The executor doesn't know about the tree.
 It receives a task, executes it, returns results.
@@ -46,7 +47,9 @@ def execute(task):
     # Determine execution mode from intent and node metadata
     mode = _detect_mode(task)
 
-    if mode == "inspect":
+    if mode == "design":
+        return _execute_design(task)
+    elif mode == "inspect":
         return _execute_inspect(task)
     elif mode == "shell":
         return _execute_shell(task)
@@ -62,6 +65,11 @@ def _detect_mode(task):
     """Detect execution mode from task context."""
     intent = task.get("intent", "").lower()
     files = task.get("files", [])
+
+    # Keywords that suggest architect/design mode
+    design_words = ["design", "architect", "blueprint", "specify", "plan architecture", "draft"]
+    if any(w in intent for w in design_words):
+        return "design"
 
     # Keywords that suggest inspection/analysis
     inspect_words = ["show", "list", "check", "verify", "audit", "status", "inspect", "read"]
@@ -80,6 +88,49 @@ def _detect_mode(task):
 
     # Default to planning
     return "plan"
+
+
+def _execute_design(task):
+    """Design mode: produce a blueprint, not code.
+
+    This is the architect speaking. No hammers.
+    Returns a blueprint node that can be decomposed into builder tasks.
+    """
+    try:
+        from ptc.architect import create_blueprint
+
+        blueprint = create_blueprint(
+            intent=task.get("intent", ""),
+            context={
+                "node_id": task.get("node_id"),
+                "files": task.get("files", []),
+                "functions": task.get("functions", []),
+                "rules": task.get("rules", []),
+                "lineage": task.get("lineage", []),
+            }
+        )
+
+        content = {}
+        for artifact in blueprint.get("artifacts", []):
+            if artifact.get("type") == "blueprint":
+                content = artifact.get("content", {})
+                break
+
+        return {
+            "mode": "design",
+            "blueprint_id": blueprint.get("id"),
+            "blueprint_name": blueprint.get("name"),
+            "cached": blueprint.get("metadata", {}).get("cached", False),
+            "task_count": len(content.get("builder_tasks", [])),
+            "status": blueprint.get("metadata", {}).get("status", "draft"),
+            "hash": blueprint.get("metadata", {}).get("content_hash", "")[:20],
+        }
+    except ImportError:
+        return {
+            "mode": "design",
+            "error": "architect module not available",
+            "plan": f"Would design: {task.get('intent', '')}",
+        }
 
 
 def _execute_inspect(task):

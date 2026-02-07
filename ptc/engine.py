@@ -370,7 +370,19 @@ def store_event(event_type, key, value=None):
 
 
 def store_artifact(name, artifact_type, content, project="claude-cage"):
-    """Store an artifact in MongoDB."""
+    """Store an artifact — dual-write to MongoDB + IPFS.
+
+    Always computes content hash. IPFS add runs in background if enabled.
+    Falls back to MongoDB-only if IPFS unavailable. Fire-and-forget either way.
+    """
+    try:
+        from ptc.ipfs import dual_store
+        result = dual_store(name, artifact_type, content, project)
+        return result
+    except ImportError:
+        pass
+
+    # Fallback: MongoDB-only (original behavior)
     store_js = os.path.join(CAGE_ROOT, "mongodb", "store.js")
     if not os.path.exists(store_js):
         return

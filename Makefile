@@ -170,6 +170,43 @@ init: ## Initialize new project with tree (usage: make init DIR=./myproject)
 	@chmod +x bin/claude-cage
 	@CAGE_ROOT="$(CAGE_ROOT)" bin/claude-cage init "$(DIR)" $(if $(NAME),--name $(NAME))
 
+# ── Architect Mode ────────────────────────────────────────────
+
+.PHONY: design design-list design-build design-verify
+design: ## Create a design blueprint (usage: make design INTENT="add feature")
+	@chmod +x bin/claude-cage
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" bin/claude-cage design create "$(INTENT)"
+
+design-list: ## List all blueprints
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" bin/claude-cage design list
+
+design-build: ## Build from blueprint (usage: make design-build ID=blueprint:xyz)
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" bin/claude-cage design build "$(ID)"
+
+design-verify: ## Verify blueprint implementation (usage: make design-verify ID=blueprint:xyz)
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" bin/claude-cage design verify "$(ID)"
+
+# ── IPFS ─────────────────────────────────────────────────────
+
+.PHONY: ipfs-status ipfs-migrate
+ipfs-status: ## Check IPFS daemon connectivity
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" bin/claude-cage ipfs status
+
+ipfs-migrate: ## Migrate existing artifacts to IPFS
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" bin/claude-cage ipfs migrate
+
+# ── Vector Search ────────────────────────────────────────────
+
+.PHONY: vsearch embed-all vector-setup
+vsearch: ## Semantic search (usage: make vsearch Q="query text")
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" bin/claude-cage vsearch "$(Q)"
+
+embed-all: ## Generate embeddings for all artifacts
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.embeddings embed-all
+
+vector-setup: ## Create MongoDB Atlas vector search indexes
+	node mongodb/vector-setup.js
+
 # ── GentlyOS ─────────────────────────────────────────────────
 .PHONY: gentlyos-seed gentlyos-tree
 gentlyos-seed: ## Seed GentlyOS docs, tree, and nodes into MongoDB

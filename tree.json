@@ -3,7 +3,7 @@
     "title": "claude-cage Root Tree",
     "description": "claude-cage IS root. Every project is a branch. Every trace flows back. The tree of trees.",
     "schema": "universal-node.schema.json",
-    "version": "2.0.0"
+    "version": "3.0.0"
   },
   "nodes": [
     {
@@ -21,6 +21,7 @@
         "dept:tree",
         "dept:ptc",
         "dept:training",
+        "dept:architect",
         "project:gentlyos"
       ],
       "inputs": [
@@ -740,6 +741,110 @@
         "files": ["ptc/lora.py"],
         "levels": ["L0:base", "L1:scale", "L2:department", "L3:captain"],
         "hardware": "2x RTX 3090 24GB, QLoRA NF4"
+      }
+    },
+
+    {
+      "id": "dept:architect",
+      "name": "Architect System",
+      "scale": "department",
+      "parent": "root:cage",
+      "children": ["capt:blueprints", "capt:ipfs", "capt:vectors"],
+      "inputs": [
+        {"name": "design_intent", "type": "task", "from": "root:cage"},
+        {"name": "verification_result", "type": "result", "from": "dept:ptc"}
+      ],
+      "outputs": [
+        {"name": "blueprint", "type": "artifact", "to": "dept:ptc"},
+        {"name": "cached_design", "type": "artifact", "to": null},
+        {"name": "builder_tasks", "type": "task", "to": "dept:ptc"}
+      ],
+      "rules": [
+        {"name": "cache_first", "condition": "intent matches existing blueprint", "action": "pass"},
+        {"name": "design_only", "condition": "no implementation in blueprints", "action": "block"},
+        {"name": "embed_all", "condition": "artifact created", "action": "log"}
+      ],
+      "escalation": {"target": "root:cage", "threshold": 6, "cascade": ["root:cage"]},
+      "metadata": {
+        "crates_owned": ["architect", "blueprints", "ipfs", "vectors", "design"],
+        "sephira_mapping": "Chokmah",
+        "files": ["ptc/architect.py", "ptc/ipfs.py", "ptc/embeddings.py", "ptc/git_ops.py"],
+        "role": "The brain. Designs hammers, does not pick them up."
+      }
+    },
+    {
+      "id": "capt:blueprints",
+      "name": "Blueprint Manager",
+      "scale": "captain",
+      "parent": "dept:architect",
+      "children": [],
+      "inputs": [
+        {"name": "design_intent", "type": "task", "from": "dept:architect"},
+        {"name": "cache_query", "type": "data", "from": "dept:architect"}
+      ],
+      "outputs": [
+        {"name": "blueprint", "type": "artifact", "to": "dept:architect"},
+        {"name": "builder_tasks", "type": "task", "to": "dept:ptc"}
+      ],
+      "rules": [
+        {"name": "validate_schema", "condition": "blueprint created", "action": "pass"},
+        {"name": "require_acceptance", "condition": "no acceptance criteria", "action": "block"}
+      ],
+      "escalation": {"target": "dept:architect", "threshold": 4, "cascade": ["dept:architect", "root:cage"]},
+      "metadata": {
+        "crates_owned": ["blueprints"],
+        "files": ["ptc/architect.py", "schemas/blueprint.schema.json"],
+        "functions": ["create_blueprint", "cache_check", "blueprint_to_tasks", "validate_blueprint", "verify_blueprint"]
+      }
+    },
+    {
+      "id": "capt:ipfs",
+      "name": "IPFS Storage",
+      "scale": "captain",
+      "parent": "dept:architect",
+      "children": [],
+      "inputs": [
+        {"name": "artifact", "type": "data", "from": "dept:architect"},
+        {"name": "content", "type": "data", "from": null}
+      ],
+      "outputs": [
+        {"name": "cid", "type": "result", "to": "dept:architect"},
+        {"name": "hash", "type": "result", "to": null}
+      ],
+      "rules": [
+        {"name": "always_hash", "condition": "any content", "action": "pass"},
+        {"name": "ipfs_optional", "condition": "ipfs unavailable", "action": "log"}
+      ],
+      "escalation": {"target": "dept:architect", "threshold": 3, "cascade": ["dept:architect"]},
+      "metadata": {
+        "crates_owned": ["ipfs"],
+        "files": ["ptc/ipfs.py"],
+        "functions": ["content_hash", "ipfs_add", "ipfs_get", "ipfs_pin", "dual_store", "migrate_existing"]
+      }
+    },
+    {
+      "id": "capt:vectors",
+      "name": "Vector Search",
+      "scale": "captain",
+      "parent": "dept:architect",
+      "children": [],
+      "inputs": [
+        {"name": "text", "type": "data", "from": "dept:architect"},
+        {"name": "query", "type": "task", "from": null}
+      ],
+      "outputs": [
+        {"name": "embedding", "type": "result", "to": "dept:architect"},
+        {"name": "search_results", "type": "result", "to": null}
+      ],
+      "rules": [
+        {"name": "model_required", "condition": "no embedding model", "action": "log"},
+        {"name": "fallback_text", "condition": "vector search fails", "action": "transform"}
+      ],
+      "escalation": {"target": "dept:architect", "threshold": 3, "cascade": ["dept:architect"]},
+      "metadata": {
+        "crates_owned": ["vectors", "embeddings"],
+        "files": ["ptc/embeddings.py", "mongodb/vector-setup.js"],
+        "functions": ["embed_text", "semantic_search", "embed_trace", "embed_blueprint", "find_similar_traces"]
       }
     },
 

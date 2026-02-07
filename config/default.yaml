@@ -31,5 +31,24 @@ vnc_port: 5900
 read_only_root: true
 seccomp_profile: default
 
+# ── IPFS ────────────────────────────────────────────────────────
+# Content-addressed artifact storage. Dual-write: MongoDB + IPFS.
+ipfs_enabled: false
+ipfs_api: http://localhost:5001
+ipfs_gateway: http://localhost:8080
+ipfs_pin_service: local
+
+# ── Vector Embeddings ──────────────────────────────────────────
+# Semantic search over traces, commits, blueprints.
+embedding_enabled: false
+embedding_model: all-MiniLM-L6-v2
+embedding_dim: 384
+embedding_api: local
+
+# ── Architect Mode ─────────────────────────────────────────────
+# Blueprint caching and design-first workflow.
+architect_cache_similarity: 0.9
+architect_auto_embed: true
+
 # ── Logging ──────────────────────────────────────────────────────
 log_level: info
