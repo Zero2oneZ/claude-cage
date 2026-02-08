@@ -13,8 +13,8 @@
     "obs_dashboard"
   ],
   "key_concepts": [
-    "observability",
-    "degraded_threshold"
+    "degraded_threshold",
+    "observability"
   ],
   "cross_refs": {
     "structural": {
@@ -30,10 +30,10 @@
   "staleness": {
     "source_hash": "sha256:empty",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.595363+00:00"
+    "last_verified": "2026-02-07T23:08:43.792756+00:00"
   },
-  "content_hash": "sha256:6e9a649be5df9453be1e4000a0534839f8c3d181eacfbe8611e319fc3215c6d0",
+  "content_hash": "sha256:e6214576d67c27b7c8bb03dd79fbd0af084d48965d88e2063b0bb870c35ce384",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.595363+00:00"
+  "_ts": "2026-02-07T23:08:43.792756+00:00"
 }

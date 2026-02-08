@@ -705,6 +705,14 @@ tbody tr:hover { background: var(--bg-tertiary); }
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
             GentlyOS Tree
         </div>
+        <div class="nav-item" data-view="integrations" onclick="navigate('integrations')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"/><path d="M21 3l-7 7"/><path d="M8 21H3v-5"/><path d="M3 21l7-7"/><path d="M21 14v5a2 2 0 01-2 2h-5"/><path d="M3 10V5a2 2 0 012-2h5"/></svg>
+            Integrations
+        </div>
+        <div class="nav-item" data-view="federation" onclick="navigate('federation')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 012 2v7"/><path d="M6 9v12"/></svg>
+            Federation
+        </div>
         <div class="nav-item" data-view="config" onclick="navigate('config')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
             Config
@@ -852,6 +860,8 @@ function render() {
         case 'docs-circle': renderDocsCircle(el); break;
         case 'search': renderSearch(el); break;
         case 'gentlyos': renderGentlyOS(el); break;
+        case 'integrations': renderIntegrations(el); break;
+        case 'federation': renderFederation(el); break;
         case 'config': renderConfig(el); break;
         case 'detail': renderDetail(); break;
     }
@@ -1624,6 +1634,158 @@ function selectBrowsed(path) {
 }
 
 /* ── Config ─────────────────────────────────────────────────── */
+/* ── Integrations View ──────────────────────────────────────── */
+async function renderIntegrations(el) {
+    el.innerHTML = `<div class="page-title">Integrations</div><p style="color:var(--text-secondary)"><span class="spinner"></span> Loading...</p>`;
+
+    const [porkbun, hfStatus, hfCache] = await Promise.all([
+        api('/api/porkbun/status'),
+        api('/api/hf/status'),
+        api('/api/hf/cache'),
+    ]);
+
+    const pb = porkbun || {};
+    const hf = hfStatus || {};
+    const cache = hfCache || {};
+
+    el.innerHTML = `
+        <div class="page-title">Integrations</div>
+        <div class="stats-row">
+            <div class="stat-card ${pb.status === 'SUCCESS' ? 'running' : 'stopped'}">
+                <div class="label">Porkbun API</div>
+                <div class="value" style="font-size:18px">${pb.status === 'SUCCESS' ? 'Connected' : 'Offline'}</div>
+            </div>
+            <div class="stat-card ${hf.ready ? 'running' : 'stopped'}">
+                <div class="label">Hugging Face</div>
+                <div class="value" style="font-size:18px">${hf.ready ? hf.username : (hf.message || 'Offline')}</div>
+            </div>
+            <div class="stat-card total">
+                <div class="label">HF Cache</div>
+                <div class="value" style="font-size:18px">${cache.total_size_gb || 0} GB</div>
+            </div>
+        </div>
+
+        <div class="detail-card" style="margin-bottom:20px">
+            <h3>Porkbun Domains</h3>
+            <p style="color:var(--text-secondary);font-size:13px;margin-top:8px">
+                Set PORKBUN_ENABLED=true, PORKBUN_API_KEY, and PORKBUN_SECRET_KEY to enable.
+                <br>CLI: <code style="color:var(--accent-cyan)">claude-cage porkbun domains</code>
+            </p>
+        </div>
+
+        <div class="detail-card" style="margin-bottom:20px">
+            <h3>Noun Project Icons</h3>
+            <p style="color:var(--text-secondary);font-size:13px;margin-top:8px">
+                Set NOUNPROJECT_ENABLED=true, NOUNPROJECT_KEY, and NOUNPROJECT_SECRET to enable.
+                <br>CLI: <code style="color:var(--accent-cyan)">claude-cage icons search "rocket"</code>
+            </p>
+        </div>
+
+        <div class="detail-card" style="margin-bottom:20px">
+            <h3>Hugging Face Hub</h3>
+            <p style="color:var(--text-secondary);font-size:13px;margin-top:8px">
+                ${hf.ready
+                    ? `Authenticated as <strong style="color:var(--accent-green)">${escHtml(hf.username)}</strong>. ${cache.count || 0} cached repos.`
+                    : `Set HF_ENABLED=true and HF_TOKEN to enable.`
+                }
+                <br>CLI: <code style="color:var(--accent-cyan)">claude-cage hf status</code>
+            </p>
+            ${cache.repos && cache.repos.length > 0 ? `
+                <div style="margin-top:12px">
+                    <table><thead><tr>
+                        <th>Repo</th><th>Type</th><th>Size</th><th>Revisions</th>
+                    </tr></thead><tbody>
+                    ${cache.repos.slice(0, 10).map(r => `
+                        <tr>
+                            <td style="font-family:var(--font-mono);font-size:12px">${escHtml(r.repo_id)}</td>
+                            <td><span class="mode-tag">${escHtml(r.repo_type)}</span></td>
+                            <td>${r.size_mb} MB</td>
+                            <td>${r.revisions}</td>
+                        </tr>
+                    `).join('')}
+                    </tbody></table>
+                </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+/* ── Federation View ───────────────────────────────────────── */
+async function renderFederation(el) {
+    el.innerHTML = `<div class="page-title">Federation</div><p style="color:var(--text-secondary)"><span class="spinner"></span> Loading...</p>`;
+
+    const [status, verify] = await Promise.all([
+        api('/api/federation/status'),
+        api('/api/federation/verify'),
+    ]);
+
+    const s = status || {};
+    const v = verify || {};
+    const diff = s.tree_diff || {};
+
+    el.innerHTML = `
+        <div class="page-title">Federation</div>
+        ${s.error ? `
+            <div class="detail-card" style="margin-bottom:20px">
+                <h3>No Federation Configured</h3>
+                <p style="color:var(--text-secondary);font-size:13px;margin-top:8px">
+                    This project is not federated. To create a fork:
+                    <br><code style="color:var(--accent-cyan)">claude-cage fork init &lt;upstream-url&gt; &lt;dir&gt; --name my-project</code>
+                </p>
+            </div>
+        ` : `
+            <div class="stats-row">
+                <div class="stat-card ${s.ahead > 0 ? 'running' : 'total'}">
+                    <div class="label">Ahead</div>
+                    <div class="value">${s.ahead || 0}</div>
+                </div>
+                <div class="stat-card ${s.behind > 0 ? 'stopped' : 'total'}">
+                    <div class="label">Behind</div>
+                    <div class="value">${s.behind || 0}</div>
+                </div>
+                <div class="stat-card ${s.diverged ? 'stopped' : 'running'}">
+                    <div class="label">Status</div>
+                    <div class="value" style="font-size:18px">${s.diverged ? 'Diverged' : 'In Sync'}</div>
+                </div>
+            </div>
+
+            <div class="detail-card" style="margin-bottom:20px">
+                <h3>Sync Status</h3>
+                <div class="detail-row"><span class="key">Last Sync</span><span class="val">${s.last_sync || 'never'}</span></div>
+                <div class="detail-row"><span class="key">Sync SHA</span><span class="val" style="font-family:var(--font-mono)">${s.sync_sha ? s.sync_sha.substring(0, 12) : 'none'}</span></div>
+            </div>
+
+            ${diff.summary ? `
+                <div class="detail-card" style="margin-bottom:20px">
+                    <h3>Tree Diff</h3>
+                    <div class="detail-row"><span class="key">Summary</span><span class="val" style="font-family:var(--font-mono)">${escHtml(diff.summary)}</span></div>
+                    ${diff.added && diff.added.length > 0 ? `<div class="detail-row"><span class="key">Added</span><span class="val" style="color:var(--accent-green)">${diff.added.join(', ')}</span></div>` : ''}
+                    ${diff.removed && diff.removed.length > 0 ? `<div class="detail-row"><span class="key">Removed</span><span class="val" style="color:var(--accent-red)">${diff.removed.join(', ')}</span></div>` : ''}
+                    ${diff.modified && diff.modified.length > 0 ? `<div class="detail-row"><span class="key">Modified</span><span class="val" style="color:var(--accent-yellow)">${diff.modified.join(', ')}</span></div>` : ''}
+                </div>
+            ` : ''}
+
+            <div class="detail-card" style="margin-bottom:20px">
+                <h3>Trust Verification</h3>
+                <div class="detail-row"><span class="key">Verified</span><span class="val"><span class="status-badge ${v.verified ? 'running' : 'exited'}">${v.verified ? 'TRUSTED' : 'UNVERIFIED'}</span></span></div>
+                <div class="detail-row"><span class="key">Fork Hash Match</span><span class="val">${v.fork_hash_match ? 'Yes' : 'No'}</span></div>
+                <div class="detail-row"><span class="key">Upstream Hash Match</span><span class="val">${v.upstream_hash_match === null ? 'N/A' : (v.upstream_hash_match ? 'Yes' : 'MISMATCH')}</span></div>
+                <div class="detail-row"><span class="key">Last Verified</span><span class="val">${v.last_verified || 'never'}</span></div>
+            </div>
+        `}
+
+        <div class="detail-card">
+            <h3>CLI Commands</h3>
+            <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);line-height:2">
+                claude-cage fork status .<br>
+                claude-cage fork pull . --nodes dept:security<br>
+                claude-cage fork verify .<br>
+                claude-cage fork diff tree.json gentlyos/tree.json
+            </div>
+        </div>
+    `;
+}
+
 async function renderConfig(el) {
     const cfg = await api('/api/config') || {};
     let rows = '';

@@ -17,8 +17,8 @@
   "key_concepts": [
     "docker",
     "compose",
-    "image_required",
-    "api_key_warn"
+    "api_key_warn",
+    "image_required"
   ],
   "cross_refs": {
     "structural": {
@@ -73,10 +73,10 @@
   "staleness": {
     "source_hash": "sha256:e9c694f0b53a5c30bb497148b29d894e0a60d3254e317eff22648f4beee2d043",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.579469+00:00"
+    "last_verified": "2026-02-07T23:08:43.791083+00:00"
   },
-  "content_hash": "sha256:55bd0e51667531e07c33c6e1d037e46b59a202b0d6b6a4220698fc9db1c67e72",
+  "content_hash": "sha256:3d56d200b8d76578a65e57c7e88741d7699fef4a5321ad56b11428c07681f268",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.579469+00:00"
+  "_ts": "2026-02-07T23:08:43.791083+00:00"
 }

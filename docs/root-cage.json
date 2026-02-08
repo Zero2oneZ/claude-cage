@@ -18,9 +18,9 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "safety_check",
-    "ALL",
     "final_authority",
+    "ALL",
+    "safety_check",
     "dispatch"
   ],
   "cross_refs": {
@@ -54,10 +54,10 @@
   "staleness": {
     "source_hash": "sha256:d90e1cf635123179006f3c4065950fb9c0386f8cb26403adbfc4f26cf15e9f33",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.579004+00:00"
+    "last_verified": "2026-02-07T23:08:43.790562+00:00"
   },
-  "content_hash": "sha256:64eb917557b81bbbf2d6c41c8313e486ea8e6cb49d97c5b063cd3aca2ad6cfad",
+  "content_hash": "sha256:ed5b93e3960ee2fa0db824fa136dc52f58528c9b4dea100edfb53b08e9d39941",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.579004+00:00"
+  "_ts": "2026-02-07T23:08:43.790562+00:00"
 }

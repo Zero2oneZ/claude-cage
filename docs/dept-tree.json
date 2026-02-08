@@ -14,11 +14,11 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "tree",
-    "schema_valid",
     "one_pattern",
-    "universal-node",
-    "scaffold"
+    "schema_valid",
+    "scaffold",
+    "tree",
+    "universal-node"
   ],
   "cross_refs": {
     "structural": {
@@ -65,10 +65,10 @@
   "staleness": {
     "source_hash": "sha256:232581d7c447d22d13a8575efd4564173376f56703cd74eff217be8a64cc11fa",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.596296+00:00"
+    "last_verified": "2026-02-07T23:08:43.793757+00:00"
   },
-  "content_hash": "sha256:94cc98235cbef89ec4e1515e1eabf2feef47d306ef45fcebf28c8e75f58ef408",
+  "content_hash": "sha256:4cc6e04ad39b4686306943c2efb456d58b2f32cff1f6065e0b36eddf74bde2bc",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.596296+00:00"
+  "_ts": "2026-02-07T23:08:43.793757+00:00"
 }

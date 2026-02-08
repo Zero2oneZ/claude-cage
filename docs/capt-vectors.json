@@ -19,8 +19,8 @@
   ],
   "key_concepts": [
     "vectors",
-    "fallback_text",
     "embeddings",
+    "fallback_text",
     "model_required"
   ],
   "cross_refs": {
@@ -46,10 +46,10 @@
   "staleness": {
     "source_hash": "sha256:4a8fbeeb105bdc4f1ba06fc3ce07dd11c9615b45fe97128b8a12e2d0cca237ab",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.598158+00:00"
+    "last_verified": "2026-02-07T23:08:43.795761+00:00"
   },
-  "content_hash": "sha256:922cbef3fb663f02c2678b7106bbe918c69882c1fec1efef7da2dcc5c404dd52",
+  "content_hash": "sha256:349878b667206d08982c449cbe34a09dad9563906a1ca52f8f4aba709e7499b5",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.598158+00:00"
+  "_ts": "2026-02-07T23:08:43.795761+00:00"
 }

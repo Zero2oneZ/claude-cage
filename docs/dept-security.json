@@ -14,12 +14,12 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "network-filter",
-    "defense_in_depth",
     "sandbox",
     "seccomp",
     "no_escalation",
-    "apparmor"
+    "network-filter",
+    "apparmor",
+    "defense_in_depth"
   ],
   "cross_refs": {
     "structural": {
@@ -74,10 +74,10 @@
   "staleness": {
     "source_hash": "sha256:bed44368dd785e3781661953e1583c29894e7ca7354db8a30c6f362471c628ca",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.594378+00:00"
+    "last_verified": "2026-02-07T23:08:43.791591+00:00"
   },
-  "content_hash": "sha256:a185db520a096ced8b7f3ad513b38ec621d3fb1e4656e42d049bca78c478130b",
+  "content_hash": "sha256:3fe4fcbef1232aaa55f66cecc9f4ab620a1871a339166832340b191fca4d54f2",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.594378+00:00"
+  "_ts": "2026-02-07T23:08:43.791591+00:00"
 }

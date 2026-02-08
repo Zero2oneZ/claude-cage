@@ -20,8 +20,8 @@
   ],
   "key_concepts": [
     "ipfs_optional",
-    "always_hash",
-    "ipfs"
+    "ipfs",
+    "always_hash"
   ],
   "cross_refs": {
     "structural": {
@@ -46,10 +46,10 @@
   "staleness": {
     "source_hash": "sha256:4d63fa5beed6702c6c589f02967bf6cdd29f604c38429f4b7eade7539fffb5bc",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.598065+00:00"
+    "last_verified": "2026-02-07T23:08:43.795661+00:00"
   },
-  "content_hash": "sha256:65366bec1d79b53374363011e3e65d12919482213c64f07822ac3a7f1dea8e7b",
+  "content_hash": "sha256:da7f294ded8b2c37ff736e1a000758fdda6b5530d530473c138d6a765b5549d0",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.598065+00:00"
+  "_ts": "2026-02-07T23:08:43.795661+00:00"
 }

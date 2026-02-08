@@ -13,8 +13,8 @@
     "tree_init"
   ],
   "key_concepts": [
-    "scaffold",
-    "no_overwrite"
+    "no_overwrite",
+    "scaffold"
   ],
   "cross_refs": {
     "structural": {
@@ -43,10 +43,10 @@
   "staleness": {
     "source_hash": "sha256:f5aa98f928541e4656012513c7027bf56b223005bfa374c1790e20115112e9e8",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.596595+00:00"
+    "last_verified": "2026-02-07T23:08:43.794121+00:00"
   },
-  "content_hash": "sha256:350b8e96aa519800f03a2c44fa1f2f888448e9677c6e15f25893f52a5332b076",
+  "content_hash": "sha256:45a23f84553835ac29fd780d47e574b6d9a903a075dff3d269e7ca23c7de1a58",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.596595+00:00"
+  "_ts": "2026-02-07T23:08:43.794121+00:00"
 }

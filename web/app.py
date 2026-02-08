@@ -571,6 +571,158 @@ def api_git_branches():
         return jsonify({"error": str(e)}), 500
 
 
+# ── Porkbun (Domains) ──────────────────────────────────────────
+
+
+def _run_ptc_module(module, args):
+    """Run a ptc module as subprocess, return parsed JSON or error."""
+    cmd = [sys.executable, "-m", f"ptc.{module}"] + args
+    env = {**os.environ, "CAGE_ROOT": CAGE_ROOT, "PYTHONPATH": CAGE_ROOT}
+    try:
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=30, env=env,
+        )
+        out = result.stdout.strip()
+        if out:
+            try:
+                return json.loads(out), None
+            except json.JSONDecodeError:
+                return {"output": out}, None
+        if result.returncode != 0:
+            return None, result.stderr.strip() or "Command failed"
+        return {"output": ""}, None
+    except subprocess.TimeoutExpired:
+        return None, "Timeout"
+    except Exception as e:
+        return None, str(e)
+
+
+@app.route("/api/porkbun/status")
+def api_porkbun_status():
+    data, err = _run_ptc_module("porkbun", ["ping"])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+@app.route("/api/porkbun/domains")
+def api_porkbun_domains():
+    data, err = _run_ptc_module("porkbun", ["domains"])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+@app.route("/api/porkbun/dns/<domain>")
+def api_porkbun_dns(domain):
+    data, err = _run_ptc_module("porkbun", ["dns", domain])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+# ── Noun Project (Icons) ──────────────────────────────────────
+
+
+@app.route("/api/icons/search")
+def api_icons_search():
+    query = request.args.get("q", "")
+    limit = request.args.get("limit", "20")
+    if not query:
+        return jsonify({"error": "q parameter required"}), 400
+    data, err = _run_ptc_module("nounproject", ["search", query, "--limit", limit])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+@app.route("/api/icons/<icon_id>")
+def api_icons_get(icon_id):
+    data, err = _run_ptc_module("nounproject", ["get", icon_id])
+    if err:
+        return jsonify({"error": err}), 404
+    return jsonify(data)
+
+
+# ── Federation ─────────────────────────────────────────────────
+
+
+@app.route("/api/federation/status")
+def api_federation_status():
+    directory = request.args.get("dir", CAGE_ROOT)
+    data, err = _run_ptc_module("federation", ["status", directory])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+@app.route("/api/federation/pull", methods=["POST"])
+def api_federation_pull():
+    body = request.get_json(force=True) if request.is_json else {}
+    directory = body.get("dir", CAGE_ROOT)
+    nodes = body.get("nodes")
+    args = ["pull", directory]
+    if nodes:
+        args += ["--nodes", ",".join(nodes)]
+    data, err = _run_ptc_module("federation", args)
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+@app.route("/api/federation/diff")
+def api_federation_diff():
+    tree_a = request.args.get("a", os.path.join(CAGE_ROOT, "tree.json"))
+    tree_b = request.args.get("b", "")
+    if not tree_b:
+        return jsonify({"error": "b parameter required (path to second tree)"}), 400
+    data, err = _run_ptc_module("federation", ["diff", tree_a, tree_b])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+@app.route("/api/federation/verify")
+def api_federation_verify():
+    directory = request.args.get("dir", CAGE_ROOT)
+    data, err = _run_ptc_module("federation", ["verify", directory])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+# ── Hugging Face ───────────────────────────────────────────────
+
+
+@app.route("/api/hf/status")
+def api_hf_status():
+    data, err = _run_ptc_module("huggingface", ["status"])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+@app.route("/api/hf/search")
+def api_hf_search():
+    query = request.args.get("q", "")
+    search_type = request.args.get("type", "model")
+    if not query:
+        return jsonify({"error": "q parameter required"}), 400
+    cmd = "search" if search_type == "model" else "datasets"
+    data, err = _run_ptc_module("huggingface", [cmd, query])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
+@app.route("/api/hf/cache")
+def api_hf_cache():
+    data, err = _run_ptc_module("huggingface", ["cache"])
+    if err:
+        return jsonify({"error": err}), 500
+    return jsonify(data)
+
+
 # ── Main ────────────────────────────────────────────────────────
 
 

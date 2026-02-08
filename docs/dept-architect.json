@@ -17,14 +17,14 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "design_only",
-    "blueprints",
-    "design",
-    "embed_all",
-    "cache_first",
     "ipfs",
+    "design_only",
+    "architect",
     "vectors",
-    "architect"
+    "cache_first",
+    "blueprints",
+    "embed_all",
+    "design"
   ],
   "cross_refs": {
     "structural": {
@@ -73,10 +73,10 @@
   "staleness": {
     "source_hash": "sha256:247da48dd570bbd00a3519281e923e082ef76314d58c0d2a6c7c1620a04062f3",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.597443+00:00"
+    "last_verified": "2026-02-07T23:08:43.795116+00:00"
   },
-  "content_hash": "sha256:8721c6577b550e8b165981fcda2675f531113540b175ba9a02204d41dedc9ea2",
+  "content_hash": "sha256:fccd38483bbfb5e66b9efc1372695c1712645602ec68d992280eeae7f78dd56e",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.597443+00:00"
+  "_ts": "2026-02-07T23:08:43.795116+00:00"
 }

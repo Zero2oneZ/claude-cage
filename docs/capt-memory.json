@@ -9,8 +9,8 @@
   "owned_files": [],
   "entry_points": [],
   "key_concepts": [
-    "memory",
-    "ttl_30d"
+    "ttl_30d",
+    "memory"
   ],
   "cross_refs": {
     "structural": {
@@ -26,10 +26,10 @@
   "staleness": {
     "source_hash": "sha256:empty",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.594927+00:00"
+    "last_verified": "2026-02-07T23:08:43.792235+00:00"
   },
-  "content_hash": "sha256:506aff5c4b75ad065a48fb20a4de8244bc2bdc4ff3581f882f6805ac65f9e2dd",
+  "content_hash": "sha256:3b6b3ea9d0c97a2ebf8a8459064726efb26830b00949430aff441ed2cd1882a5",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.594927+00:00"
+  "_ts": "2026-02-07T23:08:43.792235+00:00"
 }
