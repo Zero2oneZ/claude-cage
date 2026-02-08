@@ -20,6 +20,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -57,6 +58,8 @@ def execute(task):
         return _execute_claude(task)
     elif mode == "compose":
         return _execute_compose(task)
+    elif mode == "codie":
+        return _execute_codie(task)
     else:
         return _execute_plan(task)
 
@@ -65,6 +68,11 @@ def _detect_mode(task):
     """Detect execution mode from task context."""
     intent = task.get("intent", "").lower()
     files = task.get("files", [])
+
+    # CODIE mode: task has codie metadata or intent mentions codie
+    # Must be checked first — "codie build" would otherwise match shell_words
+    if task.get("codie_program") or "codie" in intent:
+        return "codie"
 
     # Keywords that suggest architect/design mode
     design_words = ["design", "architect", "blueprint", "specify", "plan architecture", "draft"]
@@ -331,4 +339,99 @@ def _execute_plan(task):
         "functions": task.get("functions", []),
         "rules_applied": [r["name"] for r in task.get("rules", [])],
         "summary": f"Planning: {task.get('intent', '')}",
+    }
+
+
+# ── CODIE Execution Mode ───────────────────────────────────────
+
+
+def _build_codie_instruction(task):
+    """Convert PTC leaf task to CODIE instruction chain."""
+    node_id = task.get("node_id", "unknown")
+    intent = task.get("intent", "")
+    rules = task.get("rules", [])
+    files = task.get("files", [])
+
+    safe_id = node_id.replace(":", "_").upper()
+    lines = [f"pug {safe_id}"]
+    lines.append("|")
+
+    # Rules as bones
+    if rules:
+        lines.append("+-- fence RULES")
+        for r in rules:
+            cond = r.get("condition", "?")
+            act = r.get("action", "?")
+            lines.append(f"|   +-- bone {cond} -> {act}")
+        lines.append("|")
+
+    # Context as elfs
+    lines.append("+-- elf context")
+    lines.append(f'|   +-- elf node_id <- "{node_id}"')
+    lines.append(f'|   +-- elf intent <- "{intent}"')
+    lines.append("|")
+
+    # Files as barks
+    for f in files:
+        lines.append(f"+-- bark content <- @fs/read({f})")
+    lines.append("|")
+
+    # Execute
+    lines.append("+-- cali EXECUTE_INTENT(context)")
+    lines.append("|")
+
+    # Return + checkpoint
+    lines.append("+-- biz -> result")
+    safe_anchor = node_id.replace(":", "_")
+    lines.append(f"    +-- anchor #{safe_anchor}")
+
+    return "\n".join(lines)
+
+
+def _execute_codie(task):
+    """CODIE mode: generate CODIE instruction, log it, return plan."""
+    codie_source = _build_codie_instruction(task)
+    node_id = task.get("node_id", "unknown")
+    intent = task.get("intent", "")
+
+    # Store the CODIE instruction as artifact via store.js
+    store_js = os.path.join(CAGE_ROOT, "mongodb", "store.js")
+    artifact_name = f"codie-{node_id}-{int(time.time())}"
+    try:
+        doc = json.dumps({
+            "name": artifact_name,
+            "type": "codie_instruction",
+            "content": codie_source,
+            "project": "claude-cage",
+        })
+        subprocess.Popen(
+            ["node", store_js, "put", "artifacts", doc],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except Exception:
+        pass
+
+    # Log phase
+    try:
+        event_val = json.dumps({
+            "instruction": codie_source,
+            "mode": "codie",
+            "node_id": node_id,
+        })
+        subprocess.Popen(
+            ["node", store_js, "log", "ptc:codie", f"{node_id}", event_val],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except Exception:
+        pass
+
+    return {
+        "mode": "codie",
+        "codie_source": codie_source,
+        "instruction_count": codie_source.count("\n") + 1,
+        "node_id": node_id,
+        "intent": intent,
+        "status": "planned",
     }

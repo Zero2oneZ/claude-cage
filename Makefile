@@ -347,6 +347,24 @@ ship: ## Integrate and ship — seed tree, generate docs, update MongoDB
 	@node mongodb/store.js log "coordination:phase" "SHIP:ready" '{}' 2>/dev/null || true
 	@echo "==> SHIP: Ready to commit."
 
+# ── Rust Web Server ──────────────────────────────────────────
+.PHONY: build-web web-rs codie-seed codie-parse codie-list
+
+build-web: ## Build cage-web Rust binary
+	cargo build --release --manifest-path cage-web/Cargo.toml
+
+web-rs: ## Start Rust HTMX dashboard (port 5000)
+	CAGE_ROOT="$(CAGE_ROOT)" cargo run --release --manifest-path cage-web/Cargo.toml
+
+codie-seed: ## Parse .codie files and seed to MongoDB
+	CAGE_ROOT="$(CAGE_ROOT)" cargo run --release --manifest-path cage-web/Cargo.toml -- --seed-codie
+
+codie-parse: ## Parse a single .codie file (usage: make codie-parse FILE=path)
+	CAGE_ROOT="$(CAGE_ROOT)" cargo run --release --manifest-path cage-web/Cargo.toml -- --parse-codie $(FILE)
+
+codie-list: ## List all seeded CODIE programs
+	node mongodb/store.js get codie_programs '{}' 20
+
 # ── GentlyOS ─────────────────────────────────────────────────
 .PHONY: gentlyos-seed gentlyos-tree
 gentlyos-seed: ## Seed GentlyOS docs, tree, and nodes into MongoDB

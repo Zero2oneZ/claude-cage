@@ -1,0 +1,36 @@
+<div class="codie-page">
+    <h1>CODIE Programs</h1>
+    <p class="subtitle">12-keyword orchestration language. {{ programs.len() }} programs loaded.</p>
+
+    {% if programs.is_empty() %}
+    <p class="empty-state">No .codie programs found. Check projects/Gently-nix/tools/codie-maps/</p>
+    {% else %}
+    <div class="codie-grid">
+        {% for p in programs %}
+        <div class="codie-card">
+            <h3><a href="/codie/{{ p.name }}" hx-get="/codie/{{ p.name }}" hx-target="#main" hx-push-url="true">{{ p.name }}</a></h3>
+            <div class="codie-stats">
+                <span class="stat">Entry: <code>{{ p.entry_point }}</code></span>
+                <span class="stat">{{ p.line_count }} lines</span>
+                <span class="stat">{{ p.instruction_count }} instructions</span>
+                <span class="stat">{{ p.keyword_total }} keywords</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="parse-section">
+        <h2>Parse CODIE Source</h2>
+        <form hx-post="/codie/parse" hx-target="#parse-result" hx-indicator="#spinner">
+            <textarea name="source" rows="10" class="input textarea" placeholder="pug MY_PROGRAM
+fence
+  bone NOT: skip validation
+
+bark data <- @source/path
+biz -> result"></textarea>
+            <button type="submit" class="btn btn-primary">Parse</button>
+        </form>
+        <div id="parse-result"></div>
+    </div>
+</div>

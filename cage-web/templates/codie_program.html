@@ -1,0 +1,39 @@
+<div class="codie-detail">
+    <h1>{{ name }}.codie</h1>
+    <div class="codie-meta">
+        <span class="stat">Entry: <code>{{ entry_point }}</code></span>
+        <span class="stat">{{ line_count }} lines</span>
+        <span class="stat">{{ instruction_count }} instructions</span>
+    </div>
+
+    <div class="keyword-distribution">
+        <h2>Keyword Distribution</h2>
+        <div class="keyword-bars">
+            {% for kw in keywords %}
+            <div class="keyword-bar">
+                <span class="kw-name">{{ kw.0 }}</span>
+                <div class="kw-bar-fill" style="width: {{ kw.1 * 8 }}px"></div>
+                <span class="kw-count">{{ kw.1 }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="source-section">
+        <h2>Source</h2>
+        <pre class="codie-source"><code>{{ source }}</code></pre>
+    </div>
+
+    <div class="execute-section">
+        <h2>Execute</h2>
+        <form hx-post="/codie/{{ name }}/execute" hx-target="#exec-result" hx-indicator="#spinner">
+            <input type="text" name="intent" placeholder="Intent (optional)" class="input">
+            <button type="submit" class="btn btn-primary">Execute Plan</button>
+        </form>
+        <div id="exec-result"></div>
+    </div>
+
+    <div class="action-row">
+        <a href="/codie" hx-get="/codie" hx-target="#main" hx-push-url="true" class="btn btn-outline">Back to Programs</a>
+    </div>
+</div>

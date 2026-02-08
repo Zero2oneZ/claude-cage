@@ -288,9 +288,55 @@ Four `.docx` documents define the GentlyOS architecture. Seeded into MongoDB as 
 | `Gently_Studio_Protocols.docx` | Design doc | Quad-Context (WHAT×WHEN×WHO×HOW), Alexandria, CODIE, $SYNTH |
 | `Google_Infrastructure_Research.docx` | Research | Google ADK, supply chain analysis, GentlyOS as counter-architecture |
 
+### Rust Web Dashboard (`cage-web/`)
+
+Replaces the Flask dashboard with Rust (axum) + HTMX server-side rendering. Zero React, zero Next.js.
+
+**Stack:** axum 0.8 + askama templates + HTMX 2.0 + dark theme CSS
+
+**Build & Run:**
+```bash
+make build-web        # Compile Rust binary
+make web-rs           # Start dashboard at http://localhost:5000
+make codie-seed       # Parse .codie files and seed to MongoDB
+make codie-parse FILE=path.codie  # Parse a single .codie file
+make codie-list       # List seeded CODIE programs
+```
+
+**Architecture:** Subprocess wrappers shell out to docker CLI, `node store.js` (MongoDB), and `python3 -m ptc.engine`. Only the CODIE parser is native Rust.
+
+**Routes:**
+| Route | Method | Purpose |
+|-------|--------|---------|
+| `/` | GET | Dashboard with sessions, health, quick actions |
+| `/sessions` | GET | Session list (HTMX fragment) |
+| `/sessions/new` | POST | Create session |
+| `/sessions/{name}` | GET | Session detail with logs |
+| `/sessions/{name}/stop` | POST | Stop session |
+| `/sessions/{name}/start` | POST | Start session |
+| `/sessions/{name}/destroy` | DELETE | Destroy session |
+| `/tree` | GET | GentlyOS tree hierarchy |
+| `/tree/{node_id}` | GET | Node detail |
+| `/tree/blast-radius` | GET | Risk calculation |
+| `/codie` | GET | CODIE programs grid |
+| `/codie/{name}` | GET | Program source + AST |
+| `/codie/{name}/execute` | POST | Execute program plan |
+| `/codie/parse` | POST | Parse raw CODIE source |
+| `/api/health` | GET | JSON health status |
+| `/api/sessions` | GET | JSON session list |
+| `/api/gentlyos/tree` | GET | JSON tree |
+
+### CODIE Language Parser (`cage-web/src/codie_parser.rs`)
+
+Parses 12-keyword CODIE `.codie` files into an AST. Handles pipe-tree notation (`|  +--`), brace blocks, and all keywords: pug, bark, spin, cali, elf, turk, fence, pin, bone, blob, biz, anchor.
+
+**Parsed programs:** 9 `.codie` orchestration maps from `projects/Gently-nix/tools/codie-maps/`
+
+**Integration:** CODIE mode added to `ptc/executor.py` -- when PTC decomposes to leaf tasks, each can be expressed as a CODIE instruction chain.
+
 ### GentlyWorkstation Frontend (`GentlyWorkstation.jsx`)
 
-React component — the future GentlyOS workstation UI. Contains: project shelf, Claude chat panel, browser tabs, bottom panels (MongoDB, Terminal, GPU Monitor, Files, Activity Log), GPU stats, global search. Dark theme matching the web dashboard. Currently a standalone JSX file for development; will be integrated via a React build pipeline.
+React prototype (superseded by cage-web HTMX dashboard). Kept for reference.
 
 ## No Tests or Linting
 

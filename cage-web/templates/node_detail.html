@@ -1,0 +1,64 @@
+<div class="node-detail">
+    <h1>{{ name }}</h1>
+    <p class="node-meta">
+        <span class="node-scale scale-{{ scale }}">{{ scale }}</span>
+        <code>{{ id }}</code>
+        {% if !sephira.is_empty() %}<span class="sephira">{{ sephira }}</span>{% endif %}
+        {% if !department.is_empty() %}<span class="department">{{ department }}</span>{% endif %}
+    </p>
+
+    {% if !description.is_empty() %}
+    <div class="detail-section">
+        <h2>Description</h2>
+        <p>{{ description }}</p>
+    </div>
+    {% endif %}
+
+    {% if !rules.is_empty() %}
+    <div class="detail-section">
+        <h2>Rules</h2>
+        <ul class="rule-list">
+            {% for rule in rules %}
+            <li><code>{{ rule }}</code></li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if !files.is_empty() %}
+    <div class="detail-section">
+        <h2>Files</h2>
+        <ul class="file-list">
+            {% for f in files %}
+            <li><code>{{ f }}</code></li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if !crates_owned.is_empty() %}
+    <div class="detail-section">
+        <h2>Crates Owned</h2>
+        <ul class="crate-list">
+            {% for c in crates_owned %}
+            <li><code>{{ c }}</code></li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if !children.is_empty() %}
+    <div class="detail-section">
+        <h2>Children</h2>
+        <ul class="children-list">
+            {% for child in children %}
+            <li><a href="/tree/{{ child }}" hx-get="/tree/{{ child }}" hx-target="#main" hx-push-url="true">{{ child }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="action-row">
+        <a href="/tree" hx-get="/tree" hx-target="#main" hx-push-url="true" class="btn btn-outline">Back to Tree</a>
+    </div>
+</div>

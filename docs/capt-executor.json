@@ -12,8 +12,8 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "never_destructive",
     "safe_commands_only",
+    "never_destructive",
     "executor"
   ],
   "cross_refs": {
@@ -35,12 +35,12 @@
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:fe908c27b33cfdcf93ae5da3f34725b09644ca68088e8afc404ec5fa6a7ee962",
+    "source_hash": "sha256:2106d81d5991de2167a0a98dbd3b7b10e3c3665e12f1011bb4cd48a1749c81f4",
     "is_stale": false,
-    "last_verified": "2026-02-08T17:02:29.703687+00:00"
+    "last_verified": "2026-02-08T19:45:22.773116+00:00"
   },
-  "content_hash": "sha256:20de25f50b00b49e1c39a74e58a8484f27b8c3afef0a9187631d01e5a1a62026",
+  "content_hash": "sha256:fabe63562693c81d818703f1b1782aa6cd48f2f1fa9a3935b1cf770ec474967c",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-08T17:02:29.703687+00:00"
+  "_ts": "2026-02-08T19:45:22.773116+00:00"
 }

@@ -1,0 +1,49 @@
+<div class="sessions-page">
+    <h1>Sessions</h1>
+    <div class="action-row">
+        <form hx-post="/sessions/new" hx-target="#main" hx-indicator="#spinner">
+            <input type="hidden" name="mode" value="cli">
+            <input type="hidden" name="network" value="filtered">
+            <button type="submit" class="btn btn-primary">New CLI Session</button>
+        </form>
+        <form hx-post="/sessions/new" hx-target="#main" hx-indicator="#spinner">
+            <input type="hidden" name="mode" value="desktop">
+            <input type="hidden" name="network" value="filtered">
+            <button type="submit" class="btn btn-secondary">New Desktop Session</button>
+        </form>
+    </div>
+
+    {% if sessions.is_empty() %}
+    <p class="empty-state">No sessions running. Create one above.</p>
+    {% else %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Image</th>
+                <th>Ports</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in sessions %}
+            <tr id="session-{{ s.name }}">
+                <td><a href="/sessions/{{ s.name }}" hx-get="/sessions/{{ s.name }}" hx-target="#main" hx-push-url="true">{{ s.name }}</a></td>
+                <td><span class="status-badge {% if s.status.contains("Up") %}status-up{% else %}status-down{% endif %}">{{ s.status }}</span></td>
+                <td>{{ s.image }}</td>
+                <td>{{ s.ports }}</td>
+                <td class="actions">
+                    {% if s.status.contains("Up") %}
+                    <button hx-post="/sessions/{{ s.name }}/stop" hx-target="#session-{{ s.name }}" hx-swap="outerHTML" class="btn btn-sm btn-warn">Stop</button>
+                    {% else %}
+                    <button hx-post="/sessions/{{ s.name }}/start" hx-target="#session-{{ s.name }}" hx-swap="outerHTML" class="btn btn-sm btn-primary">Start</button>
+                    {% endif %}
+                    <button hx-delete="/sessions/{{ s.name }}/destroy" hx-target="#session-{{ s.name }}" hx-swap="outerHTML" hx-confirm="Destroy session {{ s.name }}?" class="btn btn-sm btn-danger">Destroy</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
