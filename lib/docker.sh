@@ -16,6 +16,7 @@ docker_check() {
 }
 
 docker_build_cli() {
+    mongo_log "docker" "build:cli"
     echo "==> Building Claude CLI image..."
     docker build \
         -t "$(config_get image_cli claude-cage-cli:latest)" \
@@ -25,6 +26,7 @@ docker_build_cli() {
 }
 
 docker_build_desktop() {
+    mongo_log "docker" "build:desktop"
     echo "==> Building Claude Desktop image..."
     docker build \
         -t "$(config_get image_desktop claude-cage-desktop:latest)" \
@@ -48,6 +50,7 @@ docker_run_session() {
     local -n _mounts="${10}"
     local -n _ports="${11}"
     local -n _env_vars="${12}"
+    local project="${13:-}"
 
     docker_check
 
@@ -80,6 +83,10 @@ docker_run_session() {
     cmd+=(--label "$CAGE_LABEL")
     cmd+=(--label "cage.mode=$mode")
     cmd+=(--label "cage.session=$name")
+    cmd+=(--label "cage.project=${project:--}")
+    cmd+=(--label "cage.created=$(date -u +"%Y-%m-%dT%H:%M:%SZ")")
+    cmd+=(--label "cage.memory=$memory")
+    cmd+=(--label "cage.idle_timeout=${CAGE_CFG[idle_timeout]:-60}")
     cmd+=(--hostname "cage-${name}")
 
     # Auto-remove if ephemeral
@@ -148,6 +155,8 @@ docker_run_session() {
     cmd+=("$image")
 
     echo "==> Launching container: $container_name"
+    mongo_log "docker" "run:${container_name}" \
+        "{\"mode\":\"$mode\",\"network\":\"$network\",\"cpus\":\"$cpus\",\"memory\":\"$memory\",\"image\":\"$image\",\"project\":\"${project:--}\"}"
     "${cmd[@]}"
 
     # Post-launch: apply network filtering
@@ -164,6 +173,7 @@ docker_run_session() {
 docker_stop_session() {
     local name="$1"
     local container_name="cage-${name}"
+    mongo_log "docker" "stop:${container_name}"
     docker stop "$container_name" 2>/dev/null || true
 }
 
@@ -183,6 +193,7 @@ docker_destroy_session() {
     local name="$1"
     local force="$2"
     local container_name="cage-${name}"
+    mongo_log "docker" "destroy:${container_name}" "{\"force\":\"$force\"}"
 
     if [[ "$force" == "true" ]]; then
         docker rm -f "$container_name" 2>/dev/null || true

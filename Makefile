@@ -296,6 +296,24 @@ hf-search: ## Search HF models (usage: make hf-search Q="text generation")
 hf-cache: ## Show HF cache status
 	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.huggingface cache
 
+# ── Lifecycle ────────────────────────────────────────────────
+
+.PHONY: seed-all projects gc reap
+seed-all: ## Discover and seed all projects into MongoDB
+	node mongodb/seed-all.js
+
+projects: ## List all discovered projects with type and path
+	@chmod +x bin/claude-cage
+	@bin/claude-cage projects
+
+gc: ## Garbage collect dead containers and orphan volumes
+	@chmod +x bin/claude-cage
+	@bin/claude-cage gc
+
+reap: ## Stop idle and memory-heavy containers
+	@chmod +x bin/claude-cage
+	@bin/claude-cage reap
+
 # ── GentlyOS ─────────────────────────────────────────────────
 .PHONY: gentlyos-seed gentlyos-tree
 gentlyos-seed: ## Seed GentlyOS docs, tree, and nodes into MongoDB

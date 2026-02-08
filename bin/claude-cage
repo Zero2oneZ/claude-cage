@@ -3,8 +3,9 @@
 # Usage: claude-cage <command> [options]
 set -euo pipefail
 
-CAGE_VERSION="0.1.0"
+CAGE_VERSION="0.2.0"
 CAGE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CAGE_DATA_DIR="${CAGE_DATA_DIR:-$HOME/.local/share/claude-cage}"
 
 # Source libraries
 source "$CAGE_ROOT/lib/config.sh"
@@ -17,9 +18,16 @@ source "$CAGE_ROOT/lib/tree.sh"
 source "$CAGE_ROOT/lib/architect.sh"
 source "$CAGE_ROOT/lib/docs.sh"
 source "$CAGE_ROOT/lib/integrations.sh"
+source "$CAGE_ROOT/lib/mongodb.sh"
+source "$CAGE_ROOT/lib/memory.sh"
+source "$CAGE_ROOT/lib/observability.sh"
+source "$CAGE_ROOT/lib/lifecycle.sh"
 source "$CAGE_ROOT/lib/cli.sh"
 
 main() {
+    # Initialize subsystems
+    mongo_init
+    memory_init
     local command="${1:-help}"
     shift || true
 
@@ -46,8 +54,13 @@ main() {
         fork|federation) cmd_fork "$@" ;;
         hf)         cmd_hf "$@" ;;
         gui|ui|tui) gui_main "$@" ;;
-        web)        cmd_web "$@" ;;
-        observe)    cmd_observe "$@" ;;
+        web|dashboard) cmd_web "$@" ;;
+        observe|obs|metrics) obs_dashboard "$@" ;;
+        health)     obs_health "${1:-}" ;;
+        memory)     memory_list "$@" ;;
+        gc)         cmd_gc "$@" ;;
+        reap)       cmd_reap "$@" ;;
+        projects)   cmd_projects "$@" ;;
         version)    echo "claude-cage $CAGE_VERSION" ;;
         help|-h|--help) cmd_help "$@" ;;
         *)

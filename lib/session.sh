@@ -25,18 +25,26 @@ session_generate_name() {
 session_create() {
     local name="$1"
     local mode="$2"
+    local project="${3:-}"
     local dir
     dir="$(_sessions_dir)/$name"
     mkdir -p "$dir"
 
     # Write session metadata
+    local now
+    now="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
     cat > "$dir/metadata" <<EOF
 name=$name
 mode=$mode
 status=running
-created=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+created=$now
 container=cage-${name}
+project=${project:--}
 EOF
+
+    # Fire-and-forget to MongoDB
+    mongo_log_session "created" "$name" \
+        "{\"mode\":\"$mode\",\"created\":\"$now\",\"container\":\"cage-${name}\",\"project\":\"${project:--}\"}"
 }
 
 session_set_status() {
@@ -52,6 +60,8 @@ session_set_status() {
         else
             echo "status=$status" >> "$meta"
         fi
+        # Fire-and-forget to MongoDB
+        mongo_log_session "status_change" "$name" "{\"status\":\"$status\"}"
     fi
 }
 
@@ -156,4 +166,5 @@ session_remove() {
     if [[ -d "$dir" ]]; then
         rm -rf "$dir"
     fi
+    mongo_log_session "removed" "$name"
 }

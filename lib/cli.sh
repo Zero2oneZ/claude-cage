@@ -33,6 +33,9 @@ COMMANDS
     gui         Launch interactive TUI dashboard
     web         Launch web dashboard (http://localhost:5000)
     observe     Show observability dashboard for running sessions
+    gc          Garbage collect dead containers and orphan volumes
+    reap        Stop idle and memory-heavy containers
+    projects    List all discovered projects with seed status
     version     Print version
     help        Show this help message
 
@@ -148,6 +151,9 @@ EXAMPLES
     # Resource-constrained session
     claude-cage start --mode cli --cpus 1 --memory 2g
 
+    # Project-scoped session
+    claude-cage start --project Gently-nix --memory 2g
+
 HELPTEXT
 }
 
@@ -162,6 +168,7 @@ cmd_start() {
     local persist=true
     local config_file=""
     local api_key="${ANTHROPIC_API_KEY:-}"
+    local project=""
     local -a mounts=()
     local -a ports=()
     local -a env_vars=()
@@ -181,6 +188,7 @@ cmd_start() {
             --api-key)    api_key="$2"; shift 2 ;;
             --ephemeral)  ephemeral=true; shift ;;
             --no-persist) persist=false; shift ;;
+            --project)    project="$2"; shift 2 ;;
             *)
                 echo "Error: unknown option '$1'" >&2
                 exit 1
@@ -212,15 +220,50 @@ cmd_start() {
         config_load_default
     fi
 
+    # Auto-GC dead containers before starting
+    if [[ "$(config_get gc_on_start true)" == "true" ]]; then
+        lifecycle_gc >/dev/null 2>&1 || true
+    fi
+
+    # Enforce max sessions
+    if ! lifecycle_enforce_max; then
+        exit 1
+    fi
+
+    # Resolve project path
+    if [[ -n "$project" ]]; then
+        local project_path=""
+        # Try projects/<name>
+        if [[ -d "$CAGE_ROOT/projects/$project" ]]; then
+            project_path="$(cd "$CAGE_ROOT/projects/$project" && pwd)"
+        # Try absolute path
+        elif [[ -d "$project" ]]; then
+            project_path="$(cd "$project" && pwd)"
+            project="$(basename "$project_path")"
+        else
+            echo "Error: project not found: $project" >&2
+            echo "  Checked: $CAGE_ROOT/projects/$project" >&2
+            exit 1
+        fi
+        # Auto-mount project dir
+        mounts+=("$project_path")
+        # Set project env var inside container
+        env_vars+=("CAGE_PROJECT=$project")
+    fi
+
     # Generate session name if not provided
     if [[ -z "$name" ]]; then
         name="$(session_generate_name)"
     fi
 
-    echo "==> Starting claude-cage session: $name (mode=$mode)"
+    echo "==> Starting claude-cage session: $name (mode=$mode${project:+, project=$project})"
+
+    # Log to MongoDB
+    mongo_log_command "start" "--mode" "$mode" "--name" "$name" "--network" "$network" \
+        ${project:+"--project" "$project"}
 
     # Create session record
-    session_create "$name" "$mode"
+    session_create "$name" "$mode" "$project"
 
     # Resolve mount paths to absolute
     local -a abs_mounts=()
@@ -245,7 +288,8 @@ cmd_start() {
         "$persist" \
         abs_mounts \
         ports \
-        env_vars
+        env_vars \
+        "$project"
 
     # Post-launch info
     if [[ "$mode" == "desktop" ]]; then
@@ -275,6 +319,7 @@ cmd_stop() {
     fi
 
     echo "==> Stopping session: $name"
+    mongo_log_command "stop" "--name" "$name"
     docker_stop_session "$name"
     session_set_status "$name" "stopped"
     echo "==> Session '$name' stopped."
@@ -368,6 +413,7 @@ cmd_destroy() {
     fi
 
     echo "==> Destroying session: $name"
+    mongo_log_command "destroy" "--name" "$name"
     docker_destroy_session "$name" "$force"
     session_remove "$name"
     echo "==> Session '$name' destroyed."
@@ -375,6 +421,7 @@ cmd_destroy() {
 
 cmd_build() {
     local target="${1:-all}"
+    mongo_log_command "build" "$target"
     case "$target" in
         cli)     docker_build_cli ;;
         desktop) docker_build_desktop ;;
@@ -384,6 +431,21 @@ cmd_build() {
             exit 1
             ;;
     esac
+}
+
+cmd_web() {
+    local port="${CAGE_WEB_PORT:-5000}"
+    local venv="$CAGE_ROOT/web/.venv"
+
+    # Check for venv
+    if [[ ! -d "$venv" ]]; then
+        echo "==> Setting up web dashboard..."
+        python3 -m venv "$venv"
+        "$venv/bin/pip" install -q -r "$CAGE_ROOT/web/requirements.txt"
+    fi
+
+    echo "==> Starting web dashboard at http://localhost:${port}"
+    CAGE_WEB_PORT="$port" "$venv/bin/python" "$CAGE_ROOT/web/app.py"
 }
 
 cmd_config() {
@@ -1319,4 +1381,66 @@ HFHELP
             exit 1
             ;;
     esac
+}
+
+# ── Lifecycle commands ───────────────────────────────────────────
+
+cmd_gc() {
+    echo "==> Garbage collecting dead containers and orphan volumes..."
+    mongo_log_command "gc"
+    lifecycle_gc
+}
+
+cmd_reap() {
+    echo "==> Reaping idle and memory-heavy sessions..."
+    mongo_log_command "reap"
+    lifecycle_reap_idle
+    lifecycle_reap_memory
+    echo ""
+    lifecycle_summary
+}
+
+cmd_projects() {
+    echo "PROJECTS:"
+    printf "%-24s %-10s %-8s %-30s\n" "NAME" "TYPE" "SOURCE" "PATH"
+    printf "%-24s %-10s %-8s %-30s\n" "----" "----" "------" "----"
+
+    local projects_dir="$CAGE_ROOT/projects"
+    local root_skip="projects|node_modules|\.git|\.claude|docker|config|security|bin|lib|audit|mongodb"
+
+    # Scan projects/
+    if [[ -d "$projects_dir" ]]; then
+        for d in "$projects_dir"/*/; do
+            [[ -d "$d" ]] || continue
+            local name="$(basename "$d")"
+            [[ "$name" == .* ]] && continue
+            local type="unknown"
+            [[ -f "$d/Cargo.toml" ]] && type="rust"
+            [[ -f "$d/flake.nix" ]] && type="nix"
+            [[ -f "$d/package.json" ]] && type="node"
+            [[ -f "$d/go.mod" ]] && type="go"
+            [[ -f "$d/Makefile" && "$type" == "unknown" ]] && type="generic"
+            printf "%-24s %-10s %-8s %-30s\n" "$name" "$type" "projects" "projects/$name"
+        done
+    fi
+
+    # Root-level project dirs
+    for d in "$CAGE_ROOT"/*/; do
+        [[ -d "$d" ]] || continue
+        local name="$(basename "$d")"
+        [[ "$name" == .* ]] && continue
+        echo "$name" | grep -qE "^($root_skip)$" && continue
+        # Must have code files
+        local has_code=false
+        for f in "$d"*; do
+            [[ -f "$f" ]] && [[ "$f" =~ \.(js|ts|sh|py|rs|nix|toml|yaml|yml|json|jsx|tsx|md)$ ]] && has_code=true && break
+        done
+        $has_code || continue
+        local type="unknown"
+        [[ -f "$d/Cargo.toml" ]] && type="rust"
+        [[ -f "$d/flake.nix" ]] && type="nix"
+        [[ -f "$d/package.json" ]] && type="node"
+        [[ -f "$d/Makefile" && "$type" == "unknown" ]] && type="generic"
+        printf "%-24s %-10s %-8s %-30s\n" "$name" "$type" "root" "$name"
+    done
 }

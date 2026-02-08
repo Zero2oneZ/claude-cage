@@ -27,6 +27,12 @@ image_desktop: claude-cage-desktop:latest
 desktop_port: 6080
 vnc_port: 5900
 
+# ── Lifecycle ────────────────────────────────────────────────────
+idle_timeout: 60
+memory_warn: 80
+memory_kill: 95
+gc_on_start: true
+
 # ── Security ─────────────────────────────────────────────────────
 read_only_root: true
 seccomp_profile: default
