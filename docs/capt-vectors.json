@@ -18,10 +18,10 @@
     "find_similar_traces"
   ],
   "key_concepts": [
-    "vectors",
+    "model_required",
     "embeddings",
-    "fallback_text",
-    "model_required"
+    "vectors",
+    "fallback_text"
   ],
   "cross_refs": {
     "structural": {
@@ -30,7 +30,8 @@
       "siblings": [
         "capt:blueprints",
         "capt:ipfs",
-        "capt:docs"
+        "capt:docs",
+        "capt:federation"
       ]
     },
     "code_shared": [
@@ -46,10 +47,10 @@
   "staleness": {
     "source_hash": "sha256:4a8fbeeb105bdc4f1ba06fc3ce07dd11c9615b45fe97128b8a12e2d0cca237ab",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.795761+00:00"
+    "last_verified": "2026-02-08T17:02:29.704631+00:00"
   },
-  "content_hash": "sha256:349878b667206d08982c449cbe34a09dad9563906a1ca52f8f4aba709e7499b5",
+  "content_hash": "sha256:e6963fb02961510334d217a83a3b54fa35fd298f1535bd05d6c901cfa9a984d7",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.795761+00:00"
+  "_ts": "2026-02-08T17:02:29.704631+00:00"
 }

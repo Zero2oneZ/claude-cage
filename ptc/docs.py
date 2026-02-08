@@ -64,7 +64,16 @@ OWNERSHIP_MAP = {
     "capt:ipfs":         ["ptc/ipfs.py"],
     "capt:vectors":      ["ptc/embeddings.py"],
     "capt:docs":         ["ptc/docs.py", "lib/docs.sh"],
-    "project:gentlyos":  ["gentlyos/tree.json"],
+    "project:gentlyos":       ["gentlyos/tree.json"],
+    "capt:federation":        ["ptc/federation.py"],
+    "project:test-apps":      ["projects/test-apps/kv-store.js", "projects/test-apps/chat-server.js", "projects/test-apps/task-api.js"],
+    "capt:kv-store":          ["projects/test-apps/kv-store.js"],
+    "capt:chat-server":       ["projects/test-apps/chat-server.js"],
+    "capt:task-api":          ["projects/test-apps/task-api.js"],
+    "project:test-apps-rust": ["projects/test-apps-rust/src/kv_store.rs", "projects/test-apps-rust/src/chat_server.rs", "projects/test-apps-rust/src/task_api.rs"],
+    "capt:kv-store-rs":       ["projects/test-apps-rust/src/kv_store.rs"],
+    "capt:chat-server-rs":    ["projects/test-apps-rust/src/chat_server.rs"],
+    "capt:task-api-rs":       ["projects/test-apps-rust/src/task_api.rs"],
 }
 
 

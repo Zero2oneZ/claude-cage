@@ -15,10 +15,10 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "docker",
-    "compose",
     "api_key_warn",
-    "image_required"
+    "compose",
+    "image_required",
+    "docker"
   ],
   "cross_refs": {
     "structural": {
@@ -38,7 +38,10 @@
         "dept:ptc",
         "dept:training",
         "dept:architect",
-        "project:gentlyos"
+        "dept:integrations",
+        "project:gentlyos",
+        "project:test-apps",
+        "project:test-apps-rust"
       ]
     },
     "code_shared": [
@@ -71,12 +74,12 @@
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:e9c694f0b53a5c30bb497148b29d894e0a60d3254e317eff22648f4beee2d043",
+    "source_hash": "sha256:876cfd65e40b1ae087083ba8a54116c0bb94930eeec5b63bf1d2c27bca547473",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.791083+00:00"
+    "last_verified": "2026-02-08T17:02:29.700081+00:00"
   },
-  "content_hash": "sha256:3d56d200b8d76578a65e57c7e88741d7699fef4a5321ad56b11428c07681f268",
+  "content_hash": "sha256:83c959304e1b480c3b8eca02f0672b38fca95b88fa58421906142726e3331048",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.791083+00:00"
+  "_ts": "2026-02-08T17:02:29.700081+00:00"
 }

@@ -12,8 +12,8 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "qlora",
     "lora",
+    "qlora",
     "stack_order"
   ],
   "cross_refs": {
@@ -43,10 +43,10 @@
   "staleness": {
     "source_hash": "sha256:ed31f774f9d65bf55dbcdb80eb0931828a5c9e246a8f7a43bf03490b14f9125a",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.794972+00:00"
+    "last_verified": "2026-02-08T17:02:29.703983+00:00"
   },
-  "content_hash": "sha256:db66d5cbf53df38241b223caa7fdef33b28781d3e094b50a1139479ffad67624",
+  "content_hash": "sha256:3eb734bc012385a9eeb63e5d5fc9323e69a57f26a7d2d5916cad6c0d17e65409",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.794972+00:00"
+  "_ts": "2026-02-08T17:02:29.703983+00:00"
 }

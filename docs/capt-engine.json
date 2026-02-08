@@ -16,8 +16,8 @@
     "run"
   ],
   "key_concepts": [
-    "engine",
-    "8_phase"
+    "8_phase",
+    "engine"
   ],
   "cross_refs": {
     "structural": {
@@ -40,10 +40,10 @@
   "staleness": {
     "source_hash": "sha256:64a11891a887f16d4b7d4ff7bf1b46649a28d64c89162792670d7e9c03d75d36",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.794465+00:00"
+    "last_verified": "2026-02-08T17:02:29.703578+00:00"
   },
-  "content_hash": "sha256:15b41b8502ad0a3c081ca1d58411a022259256035f4bb7cec03b9f82b46c8791",
+  "content_hash": "sha256:2cdae3825bd52dbc777ad229a65e44879e38f2b2e3cbe7822763f03436acfe80",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.794465+00:00"
+  "_ts": "2026-02-08T17:02:29.703578+00:00"
 }

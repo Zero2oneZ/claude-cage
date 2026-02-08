@@ -1,0 +1,57 @@
+{
+  "node_id": "dept:integrations",
+  "title": "External Integrations",
+  "scale": "department",
+  "description": "External service integrations. Domains, design assets, ML models.",
+  "what_it_does": [
+    "External service integrations. Domains, design assets, ML models.",
+    "Rule: env_required \u2014 credentials missing \u2192 log",
+    "Rule: graceful_degrade \u2014 service unavailable \u2192 pass"
+  ],
+  "owned_files": [],
+  "entry_points": [],
+  "key_concepts": [
+    "env_required",
+    "icons",
+    "domains",
+    "graceful_degrade",
+    "ml-hub",
+    "integrations"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "root:cage",
+      "children": [
+        "capt:porkbun",
+        "capt:nounproject",
+        "capt:huggingface"
+      ],
+      "siblings": [
+        "dept:runtime",
+        "dept:security",
+        "dept:sessions",
+        "dept:config",
+        "dept:observe",
+        "dept:web",
+        "dept:tree",
+        "dept:ptc",
+        "dept:training",
+        "dept:architect",
+        "project:gentlyos",
+        "project:test-apps",
+        "project:test-apps-rust"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-08T17:02:29.705014+00:00"
+  },
+  "content_hash": "sha256:8ef1d643235c9680352e5073d0e77d9c04b116168f5ca7b128fb7e960ab3eae7",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-08T17:02:29.705014+00:00"
+}

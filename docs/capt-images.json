@@ -12,8 +12,8 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "images",
-    "dockerfile_valid"
+    "dockerfile_valid",
+    "images"
   ],
   "cross_refs": {
     "structural": {
@@ -38,10 +38,10 @@
   "staleness": {
     "source_hash": "sha256:0579314ff7b3474715b839cbc922eb127fde54efe7040a208e4d3f6b4ff0edf1",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.791475+00:00"
+    "last_verified": "2026-02-08T17:02:29.700424+00:00"
   },
-  "content_hash": "sha256:cf8a654b0bebaaa10a1a1797cfc8d13d7b467132860148aa1522ff88ed0168f8",
+  "content_hash": "sha256:cf0ac1f23315530b6b8c99357a7129c1808ed4c6cba653dc000578fe7ffd6163",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.791475+00:00"
+  "_ts": "2026-02-08T17:02:29.700424+00:00"
 }

@@ -18,9 +18,9 @@
     "cmd_config"
   ],
   "key_concepts": [
+    "validate_mode",
     "validate_network",
-    "cli",
-    "validate_mode"
+    "cli"
   ],
   "cross_refs": {
     "structural": {
@@ -41,12 +41,12 @@
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:2fac0d8796639b37c40643448b62b4a04e4b92205ca23dfedf00ccfbbb439ab2",
+    "source_hash": "sha256:ed1a7c78a44b165eb92bfa23ebb2890da3da2823117f2717d46686991b3767e7",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.792440+00:00"
+    "last_verified": "2026-02-08T17:02:29.701623+00:00"
   },
-  "content_hash": "sha256:42085a57b258dfd416d3f8cefb845fe9944d6f351c310c0b15ce057a02b96d34",
+  "content_hash": "sha256:be1ad785f0e9b288868912299a3d2a5b04e6b9af83bdfca9e7720cd76c35d1d1",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.792440+00:00"
+  "_ts": "2026-02-08T17:02:29.701623+00:00"
 }

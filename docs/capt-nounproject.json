@@ -1,0 +1,43 @@
+{
+  "node_id": "capt:nounproject",
+  "title": "Noun Project Icons",
+  "scale": "captain",
+  "description": "Noun Project Icons (captain)",
+  "what_it_does": [
+    "Rule: oauth_required \u2014 no credentials \u2192 block"
+  ],
+  "owned_files": [],
+  "entry_points": [
+    "search_icons",
+    "get_icon",
+    "download_icon",
+    "batch_download",
+    "save_icon"
+  ],
+  "key_concepts": [
+    "design-assets",
+    "oauth_required",
+    "icons"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:integrations",
+      "children": [],
+      "siblings": [
+        "capt:porkbun",
+        "capt:huggingface"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-08T17:02:29.705056+00:00"
+  },
+  "content_hash": "sha256:2931dffb25d69c773a01074474c36ecc57c52ec0662b9b0d61a85c5ba3ef407b",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-08T17:02:29.705056+00:00"
+}

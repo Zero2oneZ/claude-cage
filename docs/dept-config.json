@@ -13,9 +13,9 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "default_merge",
     "config",
-    "validate"
+    "validate",
+    "default_merge"
   ],
   "cross_refs": {
     "structural": {
@@ -34,7 +34,10 @@
         "dept:ptc",
         "dept:training",
         "dept:architect",
-        "project:gentlyos"
+        "dept:integrations",
+        "project:gentlyos",
+        "project:test-apps",
+        "project:test-apps-rust"
       ]
     },
     "code_shared": [
@@ -48,12 +51,12 @@
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:bb2d88660bc3f49e2124b89929472639854a34feae2686233b4d2f2816dc2b65",
+    "source_hash": "sha256:19a78d936a9610838fe5bb0ee0595ff646896bdd8545c768cfa6b2068cf34959",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.792263+00:00"
+    "last_verified": "2026-02-08T17:02:29.701476+00:00"
   },
-  "content_hash": "sha256:e60d1a4f718d684aacce5e88bb244de4818a7c7a3f26cffc360a3891b23fc22c",
+  "content_hash": "sha256:138da855e4c8c7df8c4bd19d1e2ac40b193026e48925c9bcd5f23f95e6c99890",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.792263+00:00"
+  "_ts": "2026-02-08T17:02:29.701476+00:00"
 }

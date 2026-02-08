@@ -1,0 +1,45 @@
+{
+  "node_id": "capt:chat-server-rs",
+  "title": "Chat Server (Rust)",
+  "scale": "captain",
+  "description": "Chat Server (Rust) (captain)",
+  "what_it_does": [
+    "Rule: user_required \u2014 no user field \u2192 block"
+  ],
+  "owned_files": [
+    "projects/test-apps-rust/src/chat_server.rs"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "user_required",
+    "chat-server-rs"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "project:test-apps-rust",
+      "children": [],
+      "siblings": [
+        "capt:kv-store-rs",
+        "capt:task-api-rs"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "project:test-apps-rust",
+        "files": [
+          "projects/test-apps-rust/src/chat_server.rs"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:1aa4eecc99a070370feb5073c315cdf16249ef769ab2522757115735eb156e9b",
+    "is_stale": false,
+    "last_verified": "2026-02-08T17:02:29.705755+00:00"
+  },
+  "content_hash": "sha256:0c9a39314a3e2411320d21cec255851f6b7df97de667539bf7c10a08c7ea1de9",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-08T17:02:29.705755+00:00"
+}

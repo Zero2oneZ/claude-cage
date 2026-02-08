@@ -17,14 +17,14 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "ipfs",
-    "design_only",
-    "architect",
     "vectors",
+    "ipfs",
+    "design",
     "cache_first",
-    "blueprints",
     "embed_all",
-    "design"
+    "architect",
+    "blueprints",
+    "design_only"
   ],
   "cross_refs": {
     "structural": {
@@ -33,7 +33,8 @@
         "capt:blueprints",
         "capt:ipfs",
         "capt:vectors",
-        "capt:docs"
+        "capt:docs",
+        "capt:federation"
       ],
       "siblings": [
         "dept:runtime",
@@ -45,7 +46,10 @@
         "dept:tree",
         "dept:ptc",
         "dept:training",
-        "project:gentlyos"
+        "dept:integrations",
+        "project:gentlyos",
+        "project:test-apps",
+        "project:test-apps-rust"
       ]
     },
     "code_shared": [
@@ -73,10 +77,10 @@
   "staleness": {
     "source_hash": "sha256:247da48dd570bbd00a3519281e923e082ef76314d58c0d2a6c7c1620a04062f3",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.795116+00:00"
+    "last_verified": "2026-02-08T17:02:29.704092+00:00"
   },
-  "content_hash": "sha256:fccd38483bbfb5e66b9efc1372695c1712645602ec68d992280eeae7f78dd56e",
+  "content_hash": "sha256:34e6768fd870592ce31d774dc52fd52e6dce2dc49d481363ecf2ac46e17235bb",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.795116+00:00"
+  "_ts": "2026-02-08T17:02:29.704092+00:00"
 }

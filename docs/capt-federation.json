@@ -1,0 +1,53 @@
+{
+  "node_id": "capt:federation",
+  "title": "Git Federation",
+  "scale": "captain",
+  "description": "Git sovereignty. Bidirectional forking where the fork decides. Always.",
+  "what_it_does": [
+    "Git sovereignty. Bidirectional forking where the fork decides. Always.",
+    "Rule: fork_sovereign \u2014 always \u2192 pass",
+    "Rule: tree_integrity \u2014 merge breaks refs \u2192 block",
+    "Rule: trust_verify \u2014 hash mismatch \u2192 escalate"
+  ],
+  "owned_files": [
+    "ptc/federation.py"
+  ],
+  "entry_points": [
+    "init_fork",
+    "sync_pull",
+    "sync_push",
+    "diff_trees",
+    "merge_trees",
+    "verify_trust"
+  ],
+  "key_concepts": [
+    "fork_sovereign",
+    "tree_integrity",
+    "federation",
+    "trust_verify",
+    "sovereignty"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:architect",
+      "children": [],
+      "siblings": [
+        "capt:blueprints",
+        "capt:ipfs",
+        "capt:vectors",
+        "capt:docs"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:4892c756eb15b3eab363335eb0e42aaa4ec9df4d0c5be6a06f83a2b20a496ac3",
+    "is_stale": false,
+    "last_verified": "2026-02-08T17:02:29.704891+00:00"
+  },
+  "content_hash": "sha256:efb0035eabc6b0e749df94856431cbb6252475640cb5905d1eb5e3b4de19faf1",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-08T17:02:29.704891+00:00"
+}

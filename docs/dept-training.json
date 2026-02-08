@@ -13,11 +13,11 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "lora",
-    "accumulate",
+    "correct_only",
     "extraction",
     "training",
-    "correct_only"
+    "lora",
+    "accumulate"
   ],
   "cross_refs": {
     "structural": {
@@ -36,7 +36,10 @@
         "dept:tree",
         "dept:ptc",
         "dept:architect",
-        "project:gentlyos"
+        "dept:integrations",
+        "project:gentlyos",
+        "project:test-apps",
+        "project:test-apps-rust"
       ]
     },
     "code_shared": [
@@ -58,10 +61,10 @@
   "staleness": {
     "source_hash": "sha256:ed31f774f9d65bf55dbcdb80eb0931828a5c9e246a8f7a43bf03490b14f9125a",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.794697+00:00"
+    "last_verified": "2026-02-08T17:02:29.703762+00:00"
   },
-  "content_hash": "sha256:a9af535409ecd7e67616f2793dd7a6fe20d8d95251a3c2a1cc45a56bb05be27a",
+  "content_hash": "sha256:562452ad71a971f68d102f3ddb7302ec83cf9d60abb2ad972817617ec0b40384",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.794697+00:00"
+  "_ts": "2026-02-08T17:02:29.703762+00:00"
 }

@@ -1,0 +1,45 @@
+{
+  "node_id": "capt:kv-store-rs",
+  "title": "KV Store (Rust)",
+  "scale": "captain",
+  "description": "KV Store (Rust) (captain)",
+  "what_it_does": [
+    "Rule: valid_json \u2014 PUT body invalid \u2192 block"
+  ],
+  "owned_files": [
+    "projects/test-apps-rust/src/kv_store.rs"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "kv-store-rs",
+    "valid_json"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "project:test-apps-rust",
+      "children": [],
+      "siblings": [
+        "capt:chat-server-rs",
+        "capt:task-api-rs"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "project:test-apps-rust",
+        "files": [
+          "projects/test-apps-rust/src/kv_store.rs"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:256d09c86fa70743023c8cb528907ad9d5855d73f3bf78c4f1389a401ae2784e",
+    "is_stale": false,
+    "last_verified": "2026-02-08T17:02:29.705702+00:00"
+  },
+  "content_hash": "sha256:2f1ea75829c998f4ed46b8cca0d184105099a158836f56676ce43f96d7e69785",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-08T17:02:29.705702+00:00"
+}

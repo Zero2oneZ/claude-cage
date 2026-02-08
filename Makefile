@@ -314,6 +314,39 @@ reap: ## Stop idle and memory-heavy containers
 	@chmod +x bin/claude-cage
 	@bin/claude-cage reap
 
+# ── Coordination Protocol ─────────────────────────────────────
+
+.PHONY: route execute verify ship
+route: ## Route intent through tree (usage: make route INTENT="add feature")
+	@if [ -z "$(INTENT)" ]; then echo "Usage: make route INTENT=\"your intent\""; exit 1; fi
+	@echo "════════════════════════════════════════════════"
+	@echo "INTAKE: $(INTENT)"
+	@echo "════════════════════════════════════════════════"
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.engine --tree tree.json --intent "$(INTENT)"
+	@echo ""
+	@CAGE_ROOT="$(CAGE_ROOT)" bash -c 'source lib/tree.sh && tree_blast_radius tree.json "$(INTENT)"'
+	@node mongodb/store.js log "coordination:phase" "INTAKE:route" '{"intent":"$(INTENT)"}' 2>/dev/null || true
+	@node mongodb/store.js log "coordination:phase" "TRIAGE:routed" '{"intent":"$(INTENT)"}' 2>/dev/null || true
+
+execute: ## Execute intent live (usage: make execute INTENT="fix bug")
+	@if [ -z "$(INTENT)" ]; then echo "Usage: make execute INTENT=\"your intent\""; exit 1; fi
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.engine --tree tree.json --intent "$(INTENT)" --live --verbose
+	@node mongodb/store.js log "coordination:phase" "EXECUTE:live" '{"intent":"$(INTENT)"}' 2>/dev/null || true
+
+verify: ## Verify changes — check doc staleness, regenerate
+	@echo "==> VERIFY: checking documentation staleness..."
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.docs check-stale 2>/dev/null || echo "  (doc system not available)"
+	@node mongodb/store.js log "coordination:phase" "VERIFY:docs-check" '{}' 2>/dev/null || true
+
+ship: ## Integrate and ship — seed tree, generate docs, update MongoDB
+	@echo "==> INTEGRATE: seeding tree and generating docs..."
+	@node mongodb/seed-all.js 2>/dev/null || echo "  (seeder not available)"
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.docs generate-all 2>/dev/null || echo "  (doc generation not available)"
+	@CAGE_ROOT="$(CAGE_ROOT)" bash -c 'source lib/tree.sh && tree_seed tree.json claude-cage' 2>/dev/null || echo "  (tree seed not available)"
+	@node mongodb/store.js log "coordination:phase" "INTEGRATE:seed" '{}' 2>/dev/null || true
+	@node mongodb/store.js log "coordination:phase" "SHIP:ready" '{}' 2>/dev/null || true
+	@echo "==> SHIP: Ready to commit."
+
 # ── GentlyOS ─────────────────────────────────────────────────
 .PHONY: gentlyos-seed gentlyos-tree
 gentlyos-seed: ## Seed GentlyOS docs, tree, and nodes into MongoDB
@@ -365,4 +398,5 @@ help: ## Show this help
 	@echo "  /build [target]      Build container images"
 	@echo "  /status              System status overview"
 	@echo "  /security-audit      Run security audit"
+	@echo "  /route <intent>      Route intent through tree (blast radius, risk, approval)"
 	@echo "  /gentlyos <cmd>      Tree orchestration (route, node, blast-radius, tree, seed)"

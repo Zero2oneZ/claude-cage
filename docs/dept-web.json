@@ -33,7 +33,10 @@
         "dept:ptc",
         "dept:training",
         "dept:architect",
-        "project:gentlyos"
+        "dept:integrations",
+        "project:gentlyos",
+        "project:test-apps",
+        "project:test-apps-rust"
       ]
     },
     "code_shared": [
@@ -53,12 +56,12 @@
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:5dfb5f9d621765a4cfc41adf3b082b46597ffbfb6b79f193f851cfbe977371d4",
+    "source_hash": "sha256:53743757967162e3d44f7a4da4c0dbd0629b6ec3a8cc2c61cfdcd89fabb897ab",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.792921+00:00"
+    "last_verified": "2026-02-08T17:02:29.702109+00:00"
   },
   "content_hash": "sha256:0c25b79184135a758c3eca5417cffe4f32822edbd1bf14f5ca139201cfb33f05",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.792921+00:00"
+  "_ts": "2026-02-08T17:02:29.702109+00:00"
 }

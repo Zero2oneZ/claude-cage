@@ -13,8 +13,8 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "deny_ptrace",
     "apparmor",
+    "deny_ptrace",
     "deny_raw_net",
     "deny_mount"
   ],
@@ -41,10 +41,10 @@
   "staleness": {
     "source_hash": "sha256:320877a5ce91e7719e8e3c58cbd9104d7f1fed4748ec9c3bd3c383b6a48be552",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.791923+00:00"
+    "last_verified": "2026-02-08T17:02:29.701147+00:00"
   },
-  "content_hash": "sha256:5a66f84e25a8763f5b66f9f0eb3bdb48962f4b9770aa064d574c6d902c15868b",
+  "content_hash": "sha256:1cf6bf792c5e83fb9592b64f19d7983c70309c9fedc707d72b9065df0cf0ec91",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.791923+00:00"
+  "_ts": "2026-02-08T17:02:29.701147+00:00"
 }

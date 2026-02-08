@@ -23,7 +23,9 @@
         "dept:training",
         "dept:architect",
         "dept:integrations",
-        "project:gentlyos"
+        "project:gentlyos",
+        "project:test-apps",
+        "project:test-apps-rust"
       ],
       "inputs": [
         {"name": "intent", "type": "task", "from": null},
@@ -1027,6 +1029,157 @@
         "files": ["gentlyos/tree.json", "gentlyos/seed.js"],
         "role": "Child project tree. 34 agents. Sephirot mapping. Its own PTC cycle. Traces flow back to root."
       }
+    },
+
+    {
+      "id": "project:test-apps",
+      "name": "Test Apps (Node.js)",
+      "scale": "department",
+      "parent": "root:cage",
+      "children": ["capt:kv-store", "capt:chat-server", "capt:task-api"],
+      "inputs": [
+        {"name": "test_request", "type": "task", "from": "root:cage"}
+      ],
+      "outputs": [
+        {"name": "test_result", "type": "artifact", "to": "root:cage"}
+      ],
+      "rules": [
+        {"name": "zero_deps", "condition": "always", "action": "pass"},
+        {"name": "port_unique", "condition": "port collision", "action": "block"}
+      ],
+      "escalation": {"target": "root:cage", "threshold": 3, "cascade": ["root:cage"]},
+      "metadata": {
+        "project": "test-apps",
+        "path": "projects/test-apps",
+        "crates_owned": ["test-apps", "kv-store", "chat-server", "task-api"],
+        "files": ["projects/test-apps/kv-store.js", "projects/test-apps/chat-server.js", "projects/test-apps/task-api.js"],
+        "role": "Zero-dependency Node.js HTTP servers for sandbox testing."
+      }
+    },
+    {
+      "id": "capt:kv-store",
+      "name": "KV Store",
+      "scale": "captain",
+      "parent": "project:test-apps",
+      "children": [],
+      "inputs": [{"name": "http_request", "type": "task", "from": "project:test-apps"}],
+      "outputs": [{"name": "json_response", "type": "result", "to": "project:test-apps"}],
+      "rules": [{"name": "valid_json", "condition": "PUT body invalid", "action": "block"}],
+      "escalation": {"target": "project:test-apps", "threshold": 2, "cascade": ["project:test-apps"]},
+      "metadata": {
+        "crates_owned": ["kv-store"],
+        "files": ["projects/test-apps/kv-store.js"],
+        "port": 3001,
+        "endpoints": ["GET/PUT/DELETE /k/:key", "GET /keys", "GET /stats"]
+      }
+    },
+    {
+      "id": "capt:chat-server",
+      "name": "Chat Server",
+      "scale": "captain",
+      "parent": "project:test-apps",
+      "children": [],
+      "inputs": [{"name": "http_request", "type": "task", "from": "project:test-apps"}],
+      "outputs": [{"name": "sse_stream", "type": "result", "to": "project:test-apps"}],
+      "rules": [{"name": "user_required", "condition": "no user field", "action": "block"}],
+      "escalation": {"target": "project:test-apps", "threshold": 2, "cascade": ["project:test-apps"]},
+      "metadata": {
+        "crates_owned": ["chat-server"],
+        "files": ["projects/test-apps/chat-server.js"],
+        "port": 3002,
+        "endpoints": ["POST /send", "GET /stream", "GET /history", "GET /users"]
+      }
+    },
+    {
+      "id": "capt:task-api",
+      "name": "Task API",
+      "scale": "captain",
+      "parent": "project:test-apps",
+      "children": [],
+      "inputs": [{"name": "http_request", "type": "task", "from": "project:test-apps"}],
+      "outputs": [{"name": "json_response", "type": "result", "to": "project:test-apps"}],
+      "rules": [{"name": "title_required", "condition": "POST without title", "action": "block"}],
+      "escalation": {"target": "project:test-apps", "threshold": 2, "cascade": ["project:test-apps"]},
+      "metadata": {
+        "crates_owned": ["task-api"],
+        "files": ["projects/test-apps/task-api.js"],
+        "port": 3003,
+        "endpoints": ["POST/GET /tasks", "GET/PATCH/DELETE /tasks/:id", "POST /tasks/:id/done", "GET /stats"]
+      }
+    },
+
+    {
+      "id": "project:test-apps-rust",
+      "name": "Test Apps (Rust)",
+      "scale": "department",
+      "parent": "root:cage",
+      "children": ["capt:kv-store-rs", "capt:chat-server-rs", "capt:task-api-rs"],
+      "inputs": [
+        {"name": "test_request", "type": "task", "from": "root:cage"}
+      ],
+      "outputs": [
+        {"name": "test_result", "type": "artifact", "to": "root:cage"}
+      ],
+      "rules": [
+        {"name": "cargo_build", "condition": "source changed", "action": "pass"},
+        {"name": "port_unique", "condition": "port collision", "action": "block"}
+      ],
+      "escalation": {"target": "root:cage", "threshold": 3, "cascade": ["root:cage"]},
+      "metadata": {
+        "project": "test-apps-rust",
+        "path": "projects/test-apps-rust",
+        "crates_owned": ["test-apps-rust", "kv-store-rs", "chat-server-rs", "task-api-rs"],
+        "files": ["projects/test-apps-rust/src/kv_store.rs", "projects/test-apps-rust/src/chat_server.rs", "projects/test-apps-rust/src/task_api.rs"],
+        "role": "Axum-based Rust HTTP servers. Same API surface as Node.js test-apps. 2.1MB static binaries."
+      }
+    },
+    {
+      "id": "capt:kv-store-rs",
+      "name": "KV Store (Rust)",
+      "scale": "captain",
+      "parent": "project:test-apps-rust",
+      "children": [],
+      "inputs": [{"name": "http_request", "type": "task", "from": "project:test-apps-rust"}],
+      "outputs": [{"name": "json_response", "type": "result", "to": "project:test-apps-rust"}],
+      "rules": [{"name": "valid_json", "condition": "PUT body invalid", "action": "block"}],
+      "escalation": {"target": "project:test-apps-rust", "threshold": 2, "cascade": ["project:test-apps-rust"]},
+      "metadata": {
+        "crates_owned": ["kv-store-rs"],
+        "files": ["projects/test-apps-rust/src/kv_store.rs"],
+        "port": 4001
+      }
+    },
+    {
+      "id": "capt:chat-server-rs",
+      "name": "Chat Server (Rust)",
+      "scale": "captain",
+      "parent": "project:test-apps-rust",
+      "children": [],
+      "inputs": [{"name": "http_request", "type": "task", "from": "project:test-apps-rust"}],
+      "outputs": [{"name": "sse_stream", "type": "result", "to": "project:test-apps-rust"}],
+      "rules": [{"name": "user_required", "condition": "no user field", "action": "block"}],
+      "escalation": {"target": "project:test-apps-rust", "threshold": 2, "cascade": ["project:test-apps-rust"]},
+      "metadata": {
+        "crates_owned": ["chat-server-rs"],
+        "files": ["projects/test-apps-rust/src/chat_server.rs"],
+        "port": 4002
+      }
+    },
+    {
+      "id": "capt:task-api-rs",
+      "name": "Task API (Rust)",
+      "scale": "captain",
+      "parent": "project:test-apps-rust",
+      "children": [],
+      "inputs": [{"name": "http_request", "type": "task", "from": "project:test-apps-rust"}],
+      "outputs": [{"name": "json_response", "type": "result", "to": "project:test-apps-rust"}],
+      "rules": [{"name": "title_required", "condition": "POST without title", "action": "block"}],
+      "escalation": {"target": "project:test-apps-rust", "threshold": 2, "cascade": ["project:test-apps-rust"]},
+      "metadata": {
+        "crates_owned": ["task-api-rs"],
+        "files": ["projects/test-apps-rust/src/task_api.rs"],
+        "port": 4003
+      }
     }
   ],
   "projects": {
@@ -1037,6 +1190,20 @@
         "name": "GentlyOS",
         "tree_path": "gentlyos/tree.json",
         "node_count": 35,
+        "status": "active"
+      },
+      {
+        "id": "project:test-apps",
+        "name": "Test Apps (Node.js)",
+        "path": "projects/test-apps",
+        "node_count": 4,
+        "status": "active"
+      },
+      {
+        "id": "project:test-apps-rust",
+        "name": "Test Apps (Rust)",
+        "path": "projects/test-apps-rust",
+        "node_count": 4,
         "status": "active"
       }
     ]

@@ -1,0 +1,45 @@
+{
+  "node_id": "capt:task-api-rs",
+  "title": "Task API (Rust)",
+  "scale": "captain",
+  "description": "Task API (Rust) (captain)",
+  "what_it_does": [
+    "Rule: title_required \u2014 POST without title \u2192 block"
+  ],
+  "owned_files": [
+    "projects/test-apps-rust/src/task_api.rs"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "title_required",
+    "task-api-rs"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "project:test-apps-rust",
+      "children": [],
+      "siblings": [
+        "capt:kv-store-rs",
+        "capt:chat-server-rs"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "project:test-apps-rust",
+        "files": [
+          "projects/test-apps-rust/src/task_api.rs"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:51ff2d059505754a1e2c4dd46b243861873432e9d3b69a1946efd9079f8679ad",
+    "is_stale": false,
+    "last_verified": "2026-02-08T17:02:29.705811+00:00"
+  },
+  "content_hash": "sha256:ce710b01a5b9774f17b32eb2da29c36431ec2c46c11020d409270b1d4f14bae5",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-08T17:02:29.705811+00:00"
+}

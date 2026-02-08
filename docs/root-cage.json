@@ -19,9 +19,9 @@
   "entry_points": [],
   "key_concepts": [
     "final_authority",
-    "ALL",
     "safety_check",
-    "dispatch"
+    "dispatch",
+    "ALL"
   ],
   "cross_refs": {
     "structural": {
@@ -37,7 +37,10 @@
         "dept:ptc",
         "dept:training",
         "dept:architect",
-        "project:gentlyos"
+        "dept:integrations",
+        "project:gentlyos",
+        "project:test-apps",
+        "project:test-apps-rust"
       ],
       "siblings": []
     },
@@ -52,12 +55,12 @@
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:d90e1cf635123179006f3c4065950fb9c0386f8cb26403adbfc4f26cf15e9f33",
+    "source_hash": "sha256:ca1daf5bc4eeb5f88a9927d01874a53512623bfc329285577f2ad0cca922dfe0",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.790562+00:00"
+    "last_verified": "2026-02-08T17:02:29.699618+00:00"
   },
-  "content_hash": "sha256:ed5b93e3960ee2fa0db824fa136dc52f58528c9b4dea100edfb53b08e9d39941",
+  "content_hash": "sha256:cbf608e29e4169f9b3e55ccd4f8f56d355ab5b0dce86bfa597866687aa323b80",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.790562+00:00"
+  "_ts": "2026-02-08T17:02:29.699618+00:00"
 }

@@ -19,9 +19,9 @@
     "verify_blueprint"
   ],
   "key_concepts": [
-    "require_acceptance",
+    "validate_schema",
     "blueprints",
-    "validate_schema"
+    "require_acceptance"
   ],
   "cross_refs": {
     "structural": {
@@ -30,7 +30,8 @@
       "siblings": [
         "capt:ipfs",
         "capt:vectors",
-        "capt:docs"
+        "capt:docs",
+        "capt:federation"
       ]
     },
     "code_shared": [
@@ -46,10 +47,10 @@
   "staleness": {
     "source_hash": "sha256:6ea35fc365291255053287d65deb3ba354e55ea0a685bbdbeb0312040353f080",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.795468+00:00"
+    "last_verified": "2026-02-08T17:02:29.704385+00:00"
   },
-  "content_hash": "sha256:86c872c1186ffa16d630a20edb4f0ac88f74771c4f6dc17d0cc6482219e0972b",
+  "content_hash": "sha256:1363430f9c1c5e7f016e33c5f8804b4489fea15dc0390f6c04802a64f50a42b0",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.795468+00:00"
+  "_ts": "2026-02-08T17:02:29.704385+00:00"
 }

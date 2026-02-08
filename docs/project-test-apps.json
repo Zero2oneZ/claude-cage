@@ -1,0 +1,80 @@
+{
+  "node_id": "project:test-apps",
+  "title": "Test Apps (Node.js)",
+  "scale": "department",
+  "description": "Zero-dependency Node.js HTTP servers for sandbox testing.",
+  "what_it_does": [
+    "Zero-dependency Node.js HTTP servers for sandbox testing.",
+    "Rule: zero_deps \u2014 always \u2192 pass",
+    "Rule: port_unique \u2014 port collision \u2192 block"
+  ],
+  "owned_files": [
+    "projects/test-apps/kv-store.js",
+    "projects/test-apps/chat-server.js",
+    "projects/test-apps/task-api.js"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "kv-store",
+    "task-api",
+    "port_unique",
+    "chat-server",
+    "zero_deps",
+    "test-apps"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "root:cage",
+      "children": [
+        "capt:kv-store",
+        "capt:chat-server",
+        "capt:task-api"
+      ],
+      "siblings": [
+        "dept:runtime",
+        "dept:security",
+        "dept:sessions",
+        "dept:config",
+        "dept:observe",
+        "dept:web",
+        "dept:tree",
+        "dept:ptc",
+        "dept:training",
+        "dept:architect",
+        "dept:integrations",
+        "project:gentlyos",
+        "project:test-apps-rust"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "capt:kv-store",
+        "files": [
+          "projects/test-apps/kv-store.js"
+        ]
+      },
+      {
+        "node": "capt:chat-server",
+        "files": [
+          "projects/test-apps/chat-server.js"
+        ]
+      },
+      {
+        "node": "capt:task-api",
+        "files": [
+          "projects/test-apps/task-api.js"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:67881e55549891ce95e601f2e4eedaf457c13952127f168dc5e668ac2fcd69f7",
+    "is_stale": false,
+    "last_verified": "2026-02-08T17:02:29.705232+00:00"
+  },
+  "content_hash": "sha256:02b1eade1d336f2706bd39d32c30e46299902211f7603a304b9212e1a334dc59",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-08T17:02:29.705232+00:00"
+}

@@ -1,0 +1,45 @@
+{
+  "node_id": "capt:porkbun",
+  "title": "Porkbun Domains",
+  "scale": "captain",
+  "description": "Porkbun Domains (captain)",
+  "what_it_does": [
+    "Rule: auth_required \u2014 no api key \u2192 block"
+  ],
+  "owned_files": [],
+  "entry_points": [
+    "ping",
+    "check_domain",
+    "list_domains",
+    "get_dns",
+    "create_dns",
+    "get_ssl"
+  ],
+  "key_concepts": [
+    "dns",
+    "auth_required",
+    "ssl",
+    "domains"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:integrations",
+      "children": [],
+      "siblings": [
+        "capt:nounproject",
+        "capt:huggingface"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-08T17:02:29.705037+00:00"
+  },
+  "content_hash": "sha256:a58cd7b78ecc885473c94e32f5f3d47fe3ad80c109deaa9aadb179ffbe6d9a81",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-08T17:02:29.705037+00:00"
+}

@@ -16,10 +16,10 @@
     "sandbox_verify"
   ],
   "key_concepts": [
-    "sandbox",
     "readonly_root",
     "cap_drop_all",
-    "resource_limits"
+    "resource_limits",
+    "sandbox"
   ],
   "cross_refs": {
     "structural": {
@@ -50,10 +50,10 @@
   "staleness": {
     "source_hash": "sha256:f102a7543d6c3de8ce19a32132076ac1f1644e0ccf85e2969929a7f522d2b5b3",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.791761+00:00"
+    "last_verified": "2026-02-08T17:02:29.701001+00:00"
   },
-  "content_hash": "sha256:3d8782916eeb650d0eec66bfce8d0e2f6a1a40bfe924597609ecc5389546e266",
+  "content_hash": "sha256:0473bc51eb8c29a6ca032c409886007170da9ac28b28d58a639fc024b29416be",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.791761+00:00"
+  "_ts": "2026-02-08T17:02:29.701001+00:00"
 }

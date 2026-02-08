@@ -1,0 +1,80 @@
+{
+  "node_id": "project:test-apps-rust",
+  "title": "Test Apps (Rust)",
+  "scale": "department",
+  "description": "Axum-based Rust HTTP servers. Same API surface as Node.js test-apps. 2.1MB static binaries.",
+  "what_it_does": [
+    "Axum-based Rust HTTP servers. Same API surface as Node.js test-apps. 2.1MB static binaries.",
+    "Rule: cargo_build \u2014 source changed \u2192 pass",
+    "Rule: port_unique \u2014 port collision \u2192 block"
+  ],
+  "owned_files": [
+    "projects/test-apps-rust/src/kv_store.rs",
+    "projects/test-apps-rust/src/chat_server.rs",
+    "projects/test-apps-rust/src/task_api.rs"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "task-api-rs",
+    "cargo_build",
+    "port_unique",
+    "test-apps-rust",
+    "kv-store-rs",
+    "chat-server-rs"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "root:cage",
+      "children": [
+        "capt:kv-store-rs",
+        "capt:chat-server-rs",
+        "capt:task-api-rs"
+      ],
+      "siblings": [
+        "dept:runtime",
+        "dept:security",
+        "dept:sessions",
+        "dept:config",
+        "dept:observe",
+        "dept:web",
+        "dept:tree",
+        "dept:ptc",
+        "dept:training",
+        "dept:architect",
+        "dept:integrations",
+        "project:gentlyos",
+        "project:test-apps"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "capt:kv-store-rs",
+        "files": [
+          "projects/test-apps-rust/src/kv_store.rs"
+        ]
+      },
+      {
+        "node": "capt:chat-server-rs",
+        "files": [
+          "projects/test-apps-rust/src/chat_server.rs"
+        ]
+      },
+      {
+        "node": "capt:task-api-rs",
+        "files": [
+          "projects/test-apps-rust/src/task_api.rs"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:eba07d4e980c078e37155dd17c233747346fd45ee81c3c357d620a31d7cf350a",
+    "is_stale": false,
+    "last_verified": "2026-02-08T17:02:29.705576+00:00"
+  },
+  "content_hash": "sha256:d0d4312794c7d343cca068db404a5f44bc0072844008ac264441025e780756cd",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-08T17:02:29.705576+00:00"
+}

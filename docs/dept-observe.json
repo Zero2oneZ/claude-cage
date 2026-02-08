@@ -12,8 +12,8 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "mongodb",
     "never_block",
+    "mongodb",
     "observability",
     "fire_and_forget"
   ],
@@ -34,7 +34,10 @@
         "dept:ptc",
         "dept:training",
         "dept:architect",
-        "project:gentlyos"
+        "dept:integrations",
+        "project:gentlyos",
+        "project:test-apps",
+        "project:test-apps-rust"
       ]
     },
     "code_shared": [
@@ -48,12 +51,12 @@
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:2fac0d8796639b37c40643448b62b4a04e4b92205ca23dfedf00ccfbbb439ab2",
+    "source_hash": "sha256:ed1a7c78a44b165eb92bfa23ebb2890da3da2823117f2717d46686991b3767e7",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.792602+00:00"
+    "last_verified": "2026-02-08T17:02:29.701805+00:00"
   },
-  "content_hash": "sha256:d63a0f728ffe7b2bf77f7c075514d6e06026d679a33918809d023b68623a15e6",
+  "content_hash": "sha256:e803d0446d463a37e65b11ec8ed6bfc5b6273ada62a5c53485ecb1b4c2096219",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.792602+00:00"
+  "_ts": "2026-02-08T17:02:29.701805+00:00"
 }

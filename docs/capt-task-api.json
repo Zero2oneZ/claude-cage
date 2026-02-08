@@ -1,0 +1,45 @@
+{
+  "node_id": "capt:task-api",
+  "title": "Task API",
+  "scale": "captain",
+  "description": "Task API (captain)",
+  "what_it_does": [
+    "Rule: title_required \u2014 POST without title \u2192 block"
+  ],
+  "owned_files": [
+    "projects/test-apps/task-api.js"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "task-api",
+    "title_required"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "project:test-apps",
+      "children": [],
+      "siblings": [
+        "capt:kv-store",
+        "capt:chat-server"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "project:test-apps",
+        "files": [
+          "projects/test-apps/task-api.js"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:265690a9bb40b383f0e0f14c80e0aa01728751ef5d3ba7825c419b9cb50fb4eb",
+    "is_stale": false,
+    "last_verified": "2026-02-08T17:02:29.705513+00:00"
+  },
+  "content_hash": "sha256:4aab4d9eb9944122e74848801c87f885adebb0a92d5bd0238b96f4a4d58e59a0",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-08T17:02:29.705513+00:00"
+}

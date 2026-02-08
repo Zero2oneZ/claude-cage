@@ -109,6 +109,14 @@ mongo_store_artifact() {
     mongo_put "artifacts" "$doc"
 }
 
+# ── convenience: log a coordination phase event ──────────────────
+# Usage: mongo_log_phase <PHASE> <action> [metadata_json]
+# Phases: INTAKE, TRIAGE, PLAN, REVIEW, EXECUTE, VERIFY, INTEGRATE, SHIP
+mongo_log_phase() {
+    local phase="$1" action="$2" meta="${3:-'{}'}"
+    mongo_log "coordination:phase" "${phase}:${action}" "$meta"
+}
+
 # ── convenience: log for a specific project context ────────────
 # Usage: mongo_log_project <project_name> <type> <key> [value_json]
 mongo_log_project() {

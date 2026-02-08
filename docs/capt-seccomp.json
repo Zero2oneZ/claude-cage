@@ -11,8 +11,8 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "seccomp",
-    "allowlist_only"
+    "allowlist_only",
+    "seccomp"
   ],
   "cross_refs": {
     "structural": {
@@ -37,10 +37,10 @@
   "staleness": {
     "source_hash": "sha256:cffa9aff28aaa6401e3c31fc8742c4c4371deb8433cd463a90f19ee5e1e46f26",
     "is_stale": false,
-    "last_verified": "2026-02-07T23:08:43.791849+00:00"
+    "last_verified": "2026-02-08T17:02:29.701079+00:00"
   },
-  "content_hash": "sha256:a58222028b201a0d2826df5a6d1cae50c9b9bf4fbaf54de5d7573cfde30b51a0",
+  "content_hash": "sha256:37262f7d2affdd9c04335739123bb6b5f29eb029fd8475e3f73ac6b6c78e27f9",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T23:08:43.791849+00:00"
+  "_ts": "2026-02-08T17:02:29.701079+00:00"
 }
