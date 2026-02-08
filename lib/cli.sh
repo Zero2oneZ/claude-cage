@@ -26,6 +26,10 @@ COMMANDS
     docs        Circular documentation system — the perfect circle
     ipfs        IPFS content-addressed storage
     vsearch     Semantic vector search across everything
+    porkbun     Domain management via Porkbun API
+    icons       Design assets from Noun Project
+    fork        Git federation — bidirectional forking with sovereignty
+    hf          Hugging Face Hub — models, datasets, inference
     gui         Launch interactive TUI dashboard
     web         Launch web dashboard (http://localhost:5000)
     observe     Show observability dashboard for running sessions
@@ -74,6 +78,45 @@ IPFS
 
 VECTOR SEARCH
     claude-cage vsearch "query"                  Semantic search across everything
+
+DOMAINS (Porkbun)
+    claude-cage porkbun ping                     Test API connectivity
+    claude-cage porkbun check <domain>           Check domain availability
+    claude-cage porkbun domains                  List account domains
+    claude-cage porkbun dns <domain>             Show DNS records
+    claude-cage porkbun dns-create <domain> <type> <content> [name]
+    claude-cage porkbun dns-delete <domain> <id> Delete DNS record
+    claude-cage porkbun ssl <domain>             Get free SSL bundle
+    claude-cage porkbun pricing [tld]            TLD pricing
+    claude-cage porkbun forward <domain> <url>   URL forwarding
+
+ICONS (Noun Project)
+    claude-cage icons search <query> [--limit N] Search icons
+    claude-cage icons get <id>                   Icon metadata
+    claude-cage icons download <id> <path>       Download icon to file
+    claude-cage icons batch <query> <dir>        Batch download icons
+    claude-cage icons collections <query>        Search collections
+    claude-cage icons usage                      API usage limits
+
+FEDERATION (Git Sovereignty)
+    claude-cage fork init <upstream-url> <dir> [--name n]  Create a fork
+    claude-cage fork branch <dir> <url> <branch>           Branch mode
+    claude-cage fork pull <dir> [--nodes n1,n2]            Sync from upstream
+    claude-cage fork push <dir> [--nodes n1,n2]            Push as PR
+    claude-cage fork status <dir>                          Ahead/behind status
+    claude-cage fork verify <dir>                          Verify tree trust
+    claude-cage fork diff <tree-a> <tree-b>                Structural diff
+    claude-cage fork forks                                 List known forks
+
+HUGGING FACE
+    claude-cage hf status                        Token + cache status
+    claude-cage hf download <repo> [--files f]   Download model/dataset
+    claude-cage hf embed <text>                  Get embedding
+    claude-cage hf chat <message> [--model m]    Chat completion
+    claude-cage hf search <query>                Search models
+    claude-cage hf upload <repo> <path>          Upload to Hub
+    claude-cage hf repo-create <name>            Create Hub repo
+    claude-cage hf cache                         Cache status
 
 START OPTIONS
     claude-cage start [options]
@@ -930,4 +973,350 @@ cmd_vsearch() {
         exit 1
     fi
     vsearch "$query"
+}
+
+# ── Porkbun: domain management ────────────────────────────────
+cmd_porkbun() {
+    local action="${1:-help}"
+    shift || true
+
+    case "$action" in
+        ping)       porkbun_ping ;;
+        check)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage porkbun check <domain>" >&2; exit 1
+            fi
+            porkbun_check "$1"
+            ;;
+        domains)    porkbun_domains ;;
+        dns)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage porkbun dns <domain>" >&2; exit 1
+            fi
+            porkbun_dns "$1"
+            ;;
+        dns-create) porkbun_dns_create "$@" ;;
+        dns-delete)
+            if [[ -z "${1:-}" || -z "${2:-}" ]]; then
+                echo "Usage: claude-cage porkbun dns-delete <domain> <id>" >&2; exit 1
+            fi
+            porkbun_dns_delete "$1" "$2"
+            ;;
+        ssl)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage porkbun ssl <domain>" >&2; exit 1
+            fi
+            porkbun_ssl "$1"
+            ;;
+        pricing)    porkbun_pricing "${1:-}" ;;
+        forward)
+            if [[ -z "${1:-}" || -z "${2:-}" ]]; then
+                echo "Usage: claude-cage porkbun forward <domain> <url> [type]" >&2; exit 1
+            fi
+            CAGE_ROOT="${CAGE_ROOT}" PYTHONPATH="${CAGE_ROOT}" \
+                python3 -m ptc.porkbun forward "$@"
+            ;;
+        forwards)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage porkbun forwards <domain>" >&2; exit 1
+            fi
+            CAGE_ROOT="${CAGE_ROOT}" PYTHONPATH="${CAGE_ROOT}" \
+                python3 -m ptc.porkbun forwards "$1"
+            ;;
+        nameservers)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage porkbun nameservers <domain>" >&2; exit 1
+            fi
+            CAGE_ROOT="${CAGE_ROOT}" PYTHONPATH="${CAGE_ROOT}" \
+                python3 -m ptc.porkbun nameservers "$1"
+            ;;
+        help|"")
+            cat <<'PORKBUNHELP'
+PORKBUN — Domain Management
+
+USAGE
+    claude-cage porkbun ping                     Test API connectivity
+    claude-cage porkbun check <domain>           Check domain availability
+    claude-cage porkbun domains                  List account domains
+    claude-cage porkbun dns <domain>             Show DNS records
+    claude-cage porkbun dns-create <domain> <type> <content> [name] [ttl]
+    claude-cage porkbun dns-delete <domain> <id> Delete DNS record
+    claude-cage porkbun ssl <domain>             Get free SSL bundle
+    claude-cage porkbun pricing [tld]            TLD pricing
+    claude-cage porkbun forward <domain> <url>   Add URL forwarding
+    claude-cage porkbun forwards <domain>        List URL forwards
+    claude-cage porkbun nameservers <domain>     Show nameservers
+
+ENV
+    PORKBUN_ENABLED=true
+    PORKBUN_API_KEY=<your key>
+    PORKBUN_SECRET_KEY=<your secret>
+PORKBUNHELP
+            ;;
+        *)
+            echo "Error: unknown porkbun action '$action'" >&2
+            echo "Run 'claude-cage porkbun help' for usage." >&2
+            exit 1
+            ;;
+    esac
+}
+
+# ── Icons: Noun Project design assets ─────────────────────────
+cmd_icons() {
+    local action="${1:-help}"
+    shift || true
+
+    case "$action" in
+        search)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage icons search <query> [--limit N]" >&2; exit 1
+            fi
+            np_search "$@"
+            ;;
+        get)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage icons get <id>" >&2; exit 1
+            fi
+            CAGE_ROOT="${CAGE_ROOT}" PYTHONPATH="${CAGE_ROOT}" \
+                python3 -m ptc.nounproject get "$1"
+            ;;
+        download)
+            if [[ -z "${1:-}" || -z "${2:-}" ]]; then
+                echo "Usage: claude-cage icons download <id> <path> [--type svg|png]" >&2; exit 1
+            fi
+            np_download "$@"
+            ;;
+        batch)
+            if [[ -z "${1:-}" || -z "${2:-}" ]]; then
+                echo "Usage: claude-cage icons batch <query> <dir> [--limit N]" >&2; exit 1
+            fi
+            np_batch "$@"
+            ;;
+        collections)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage icons collections <query>" >&2; exit 1
+            fi
+            CAGE_ROOT="${CAGE_ROOT}" PYTHONPATH="${CAGE_ROOT}" \
+                python3 -m ptc.nounproject collections "$1"
+            ;;
+        autocomplete)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage icons autocomplete <query>" >&2; exit 1
+            fi
+            CAGE_ROOT="${CAGE_ROOT}" PYTHONPATH="${CAGE_ROOT}" \
+                python3 -m ptc.nounproject autocomplete "$1"
+            ;;
+        usage)
+            np_usage
+            ;;
+        help|"")
+            cat <<'ICONSHELP'
+ICONS — Noun Project Design Assets
+
+USAGE
+    claude-cage icons search <query> [--limit N]    Search icons
+    claude-cage icons get <id>                      Icon metadata
+    claude-cage icons download <id> <path>          Download icon file
+    claude-cage icons batch <query> <dir> [--limit] Batch download
+    claude-cage icons collections <query>           Search collections
+    claude-cage icons autocomplete <query>          Search suggestions
+    claude-cage icons usage                         API usage limits
+
+ENV
+    NOUNPROJECT_ENABLED=true
+    NOUNPROJECT_KEY=<your key>
+    NOUNPROJECT_SECRET=<your secret>
+ICONSHELP
+            ;;
+        *)
+            echo "Error: unknown icons action '$action'" >&2
+            echo "Run 'claude-cage icons help' for usage." >&2
+            exit 1
+            ;;
+    esac
+}
+
+# ── Fork: git federation with sovereignty ─────────────────────
+cmd_fork() {
+    local action="${1:-help}"
+    shift || true
+
+    case "$action" in
+        init)
+            if [[ -z "${1:-}" || -z "${2:-}" ]]; then
+                echo "Usage: claude-cage fork init <upstream-url> <dir> [--name n]" >&2; exit 1
+            fi
+            federation_fork "$@"
+            ;;
+        branch)
+            if [[ -z "${1:-}" || -z "${2:-}" || -z "${3:-}" ]]; then
+                echo "Usage: claude-cage fork branch <dir> <upstream-url> <branch>" >&2; exit 1
+            fi
+            federation_branch "$@"
+            ;;
+        pull)
+            federation_pull "${1:-.}" "${@:2}"
+            ;;
+        push)
+            federation_push "${1:-.}" "${@:2}"
+            ;;
+        status)
+            federation_status "${1:-.}"
+            ;;
+        verify)
+            federation_verify "${1:-.}"
+            ;;
+        diff)
+            if [[ -z "${1:-}" || -z "${2:-}" ]]; then
+                echo "Usage: claude-cage fork diff <tree-a> <tree-b>" >&2; exit 1
+            fi
+            federation_diff "$1" "$2"
+            ;;
+        forks)
+            CAGE_ROOT="${CAGE_ROOT}" PYTHONPATH="${CAGE_ROOT}" \
+                python3 -m ptc.federation forks
+            ;;
+        help|"")
+            cat <<'FORKHELP'
+FORK — Git Federation with Sovereignty
+
+  Bidirectional forking where the tree doesn't break
+  and sovereignty doesn't lose trust. Fork decides. Always.
+
+USAGE
+    claude-cage fork init <upstream-url> <dir> [--name n]  Create a fork
+    claude-cage fork branch <dir> <url> <branch>           Branch mode
+    claude-cage fork pull [dir] [--nodes n1,n2]            Sync from upstream
+    claude-cage fork push [dir] [--nodes n1,n2]            Push as PR
+    claude-cage fork status [dir]                          Ahead/behind status
+    claude-cage fork verify [dir]                          Verify tree trust
+    claude-cage fork diff <tree-a> <tree-b>                Structural tree diff
+    claude-cage fork forks                                 List known forks
+
+EXAMPLES
+    # Fork claude-cage into a new project
+    claude-cage fork init git@github.com:Zero2oneZ/claude-cage.git ./my-project --name my-project
+
+    # Check sync status
+    claude-cage fork status ./my-project
+
+    # Pull security updates from upstream
+    claude-cage fork pull ./my-project --nodes dept:security
+
+    # Verify trust chain
+    claude-cage fork verify ./my-project
+FORKHELP
+            ;;
+        *)
+            echo "Error: unknown fork action '$action'" >&2
+            echo "Run 'claude-cage fork help' for usage." >&2
+            exit 1
+            ;;
+    esac
+}
+
+# ── HF: Hugging Face Hub integration ─────────────────────────
+cmd_hf() {
+    local action="${1:-help}"
+    shift || true
+
+    case "$action" in
+        status)     hf_status ;;
+        download)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage hf download <repo> [--files f1,f2]" >&2; exit 1
+            fi
+            hf_download "$@"
+            ;;
+        embed)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage hf embed <text>" >&2; exit 1
+            fi
+            hf_embed "$@"
+            ;;
+        chat)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage hf chat <message> [--model m]" >&2; exit 1
+            fi
+            hf_chat "$@"
+            ;;
+        generate)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage hf generate <prompt> [--model m]" >&2; exit 1
+            fi
+            CAGE_ROOT="${CAGE_ROOT}" PYTHONPATH="${CAGE_ROOT}" \
+                python3 -m ptc.huggingface generate "$@"
+            ;;
+        search)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage hf search <query>" >&2; exit 1
+            fi
+            hf_search "$@"
+            ;;
+        datasets)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage hf datasets <query>" >&2; exit 1
+            fi
+            CAGE_ROOT="${CAGE_ROOT}" PYTHONPATH="${CAGE_ROOT}" \
+                python3 -m ptc.huggingface datasets "$1"
+            ;;
+        upload)
+            if [[ -z "${1:-}" || -z "${2:-}" ]]; then
+                echo "Usage: claude-cage hf upload <repo> <path>" >&2; exit 1
+            fi
+            hf_upload "$@"
+            ;;
+        repo-create)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage hf repo-create <name> [--type model|dataset|space]" >&2; exit 1
+            fi
+            CAGE_ROOT="${CAGE_ROOT}" PYTHONPATH="${CAGE_ROOT}" \
+                python3 -m ptc.huggingface repo-create "$@"
+            ;;
+        repo-info)
+            if [[ -z "${1:-}" ]]; then
+                echo "Usage: claude-cage hf repo-info <repo>" >&2; exit 1
+            fi
+            CAGE_ROOT="${CAGE_ROOT}" PYTHONPATH="${CAGE_ROOT}" \
+                python3 -m ptc.huggingface repo-info "$1"
+            ;;
+        cache)      hf_cache ;;
+        cache-clean)
+            CAGE_ROOT="${CAGE_ROOT}" PYTHONPATH="${CAGE_ROOT}" \
+                python3 -m ptc.huggingface cache-clean "$@"
+            ;;
+        help|"")
+            cat <<'HFHELP'
+HF — Hugging Face Hub Integration
+
+  Models, datasets, inference, embeddings. The ML backbone.
+
+USAGE
+    claude-cage hf status                        Token + cache status
+    claude-cage hf download <repo> [--files f]   Download model/dataset
+    claude-cage hf embed <text> [--model m]      Get embedding
+    claude-cage hf chat <message> [--model m]    Chat completion
+    claude-cage hf generate <prompt> [--model m] Text generation
+    claude-cage hf search <query>                Search models
+    claude-cage hf datasets <query>              Search datasets
+    claude-cage hf upload <repo> <path>          Upload to Hub
+    claude-cage hf repo-create <name>            Create Hub repo
+    claude-cage hf repo-info <repo>              Repository metadata
+    claude-cage hf cache                         Cache status
+    claude-cage hf cache-clean [--days N]        Clean old cache
+
+ENV
+    HF_ENABLED=true
+    HF_TOKEN=<your token>
+    HF_CACHE_DIR=<optional cache path>
+    HF_DEFAULT_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+    HF_INFERENCE_PROVIDER=hf-inference
+HFHELP
+            ;;
+        *)
+            echo "Error: unknown hf action '$action'" >&2
+            echo "Run 'claude-cage hf help' for usage." >&2
+            exit 1
+            ;;
+    esac
 }

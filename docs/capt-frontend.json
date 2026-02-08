@@ -32,10 +32,10 @@
   "staleness": {
     "source_hash": "sha256:8e58dccf6cbdd1dc3d23c1936a8222fc946ed9800f855daa3aa21f0a3e0f4e2f",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.595924+00:00"
+    "last_verified": "2026-02-07T23:08:43.793452+00:00"
   },
   "content_hash": "sha256:7413ce36229de5fb4d2cab0e43459353affdf97a1adcdabdce56c80a8fdc7090",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.595924+00:00"
+  "_ts": "2026-02-07T23:08:43.793452+00:00"
 }

@@ -17,9 +17,9 @@
     "docker_exec_session"
   ],
   "key_concepts": [
-    "label_all",
     "docker",
-    "force_guard"
+    "force_guard",
+    "label_all"
   ],
   "cross_refs": {
     "structural": {
@@ -43,10 +43,10 @@
   "staleness": {
     "source_hash": "sha256:449bf41028d7e4f288d0dd6172549e6c79af14eddcc311534752ceab67a791a4",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.593929+00:00"
+    "last_verified": "2026-02-07T23:08:43.791307+00:00"
   },
-  "content_hash": "sha256:6b8d8cace2ae0cb62ae3521aa7713cba1948b3f3be8189745d39e69001dda6c7",
+  "content_hash": "sha256:2c7a6e13ee021446ee0b1f48547fef0288f69ea07a3fe16787ed52c57ee6f7b5",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.593929+00:00"
+  "_ts": "2026-02-07T23:08:43.791307+00:00"
 }

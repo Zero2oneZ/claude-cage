@@ -22,6 +22,7 @@
         "dept:ptc",
         "dept:training",
         "dept:architect",
+        "dept:integrations",
         "project:gentlyos"
       ],
       "inputs": [
@@ -749,7 +750,7 @@
       "name": "Architect System",
       "scale": "department",
       "parent": "root:cage",
-      "children": ["capt:blueprints", "capt:ipfs", "capt:vectors", "capt:docs"],
+      "children": ["capt:blueprints", "capt:ipfs", "capt:vectors", "capt:docs", "capt:federation"],
       "inputs": [
         {"name": "design_intent", "type": "task", "from": "root:cage"},
         {"name": "verification_result", "type": "result", "from": "dept:ptc"}
@@ -874,6 +875,130 @@
         "files": ["ptc/docs.py", "lib/docs.sh"],
         "functions": ["generate_doc", "generate_all", "full_interconnect", "check_staleness", "propagate_staleness", "search_docs"],
         "role": "The circle. Documentation as code. Change one side, the other knows."
+      }
+    },
+
+    {
+      "id": "capt:federation",
+      "name": "Git Federation",
+      "scale": "captain",
+      "parent": "dept:architect",
+      "children": [],
+      "inputs": [
+        {"name": "upstream_url", "type": "config", "from": "dept:architect"},
+        {"name": "sync_request", "type": "task", "from": "dept:architect"}
+      ],
+      "outputs": [
+        {"name": "federation_manifest", "type": "artifact", "to": "dept:architect"},
+        {"name": "sync_result", "type": "result", "to": "dept:architect"}
+      ],
+      "rules": [
+        {"name": "fork_sovereign", "condition": "always", "action": "pass"},
+        {"name": "tree_integrity", "condition": "merge breaks refs", "action": "block"},
+        {"name": "trust_verify", "condition": "hash mismatch", "action": "escalate"}
+      ],
+      "escalation": {"target": "dept:architect", "threshold": 5, "cascade": ["dept:architect", "root:cage"]},
+      "metadata": {
+        "crates_owned": ["federation", "sovereignty"],
+        "files": ["ptc/federation.py"],
+        "functions": ["init_fork", "sync_pull", "sync_push", "diff_trees", "merge_trees", "verify_trust"],
+        "role": "Git sovereignty. Bidirectional forking where the fork decides. Always."
+      }
+    },
+
+    {
+      "id": "dept:integrations",
+      "name": "External Integrations",
+      "scale": "department",
+      "parent": "root:cage",
+      "children": ["capt:porkbun", "capt:nounproject", "capt:huggingface"],
+      "inputs": [
+        {"name": "integration_request", "type": "task", "from": "root:cage"}
+      ],
+      "outputs": [
+        {"name": "api_result", "type": "result", "to": "root:cage"},
+        {"name": "asset", "type": "artifact", "to": null}
+      ],
+      "rules": [
+        {"name": "env_required", "condition": "credentials missing", "action": "log"},
+        {"name": "graceful_degrade", "condition": "service unavailable", "action": "pass"}
+      ],
+      "escalation": {"target": "root:cage", "threshold": 5, "cascade": ["root:cage"]},
+      "metadata": {
+        "crates_owned": ["integrations", "domains", "icons", "ml-hub"],
+        "files": ["lib/integrations.sh", "ptc/porkbun.py", "ptc/nounproject.py", "ptc/huggingface.py"],
+        "role": "External service integrations. Domains, design assets, ML models."
+      }
+    },
+    {
+      "id": "capt:porkbun",
+      "name": "Porkbun Domains",
+      "scale": "captain",
+      "parent": "dept:integrations",
+      "children": [],
+      "inputs": [
+        {"name": "domain_request", "type": "task", "from": "dept:integrations"}
+      ],
+      "outputs": [
+        {"name": "domain_result", "type": "result", "to": "dept:integrations"}
+      ],
+      "rules": [
+        {"name": "auth_required", "condition": "no api key", "action": "block"}
+      ],
+      "escalation": {"target": "dept:integrations", "threshold": 3, "cascade": ["dept:integrations"]},
+      "metadata": {
+        "crates_owned": ["domains", "dns", "ssl"],
+        "files": ["ptc/porkbun.py"],
+        "functions": ["ping", "check_domain", "list_domains", "get_dns", "create_dns", "get_ssl"],
+        "api": "Porkbun API v3"
+      }
+    },
+    {
+      "id": "capt:nounproject",
+      "name": "Noun Project Icons",
+      "scale": "captain",
+      "parent": "dept:integrations",
+      "children": [],
+      "inputs": [
+        {"name": "icon_request", "type": "task", "from": "dept:integrations"}
+      ],
+      "outputs": [
+        {"name": "icon_data", "type": "artifact", "to": "dept:integrations"}
+      ],
+      "rules": [
+        {"name": "oauth_required", "condition": "no credentials", "action": "block"}
+      ],
+      "escalation": {"target": "dept:integrations", "threshold": 3, "cascade": ["dept:integrations"]},
+      "metadata": {
+        "crates_owned": ["icons", "design-assets"],
+        "files": ["ptc/nounproject.py"],
+        "functions": ["search_icons", "get_icon", "download_icon", "batch_download", "save_icon"],
+        "api": "Noun Project API v2, OAuth 1.0a"
+      }
+    },
+    {
+      "id": "capt:huggingface",
+      "name": "Hugging Face Hub",
+      "scale": "captain",
+      "parent": "dept:integrations",
+      "children": [],
+      "inputs": [
+        {"name": "ml_request", "type": "task", "from": "dept:integrations"}
+      ],
+      "outputs": [
+        {"name": "model_data", "type": "artifact", "to": "dept:integrations"},
+        {"name": "embedding", "type": "data", "to": "capt:vectors"}
+      ],
+      "rules": [
+        {"name": "token_required", "condition": "no HF_TOKEN", "action": "block"},
+        {"name": "cache_aware", "condition": "model cached", "action": "pass"}
+      ],
+      "escalation": {"target": "dept:integrations", "threshold": 4, "cascade": ["dept:integrations"]},
+      "metadata": {
+        "crates_owned": ["huggingface", "ml-hub", "inference"],
+        "files": ["ptc/huggingface.py"],
+        "functions": ["hf_init", "download_model", "embed_text", "chat", "list_models", "upload_folder", "cache_status"],
+        "dependency": "huggingface_hub>=1.0.0"
       }
     },
 

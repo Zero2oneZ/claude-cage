@@ -13,9 +13,9 @@
   "entry_points": [],
   "key_concepts": [
     "mongodb",
-    "fire_and_forget",
+    "never_block",
     "observability",
-    "never_block"
+    "fire_and_forget"
   ],
   "cross_refs": {
     "structural": {
@@ -50,10 +50,10 @@
   "staleness": {
     "source_hash": "sha256:2fac0d8796639b37c40643448b62b4a04e4b92205ca23dfedf00ccfbbb439ab2",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.595236+00:00"
+    "last_verified": "2026-02-07T23:08:43.792602+00:00"
   },
-  "content_hash": "sha256:9f9b488d8fbd992c91d345c7b224736fc62b436bc688946ba93a74550002c502",
+  "content_hash": "sha256:d63a0f728ffe7b2bf77f7c075514d6e06026d679a33918809d023b68623a15e6",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.595236+00:00"
+  "_ts": "2026-02-07T23:08:43.792602+00:00"
 }

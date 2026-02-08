@@ -14,8 +14,8 @@
   "entry_points": [],
   "key_concepts": [
     "gentlyos",
-    "feed_root",
-    "own_tree"
+    "own_tree",
+    "feed_root"
   ],
   "cross_refs": {
     "structural": {
@@ -40,10 +40,10 @@
   "staleness": {
     "source_hash": "sha256:053505f3a2eb8c3ada142371bbc19610e1bb4bc12e2279b187b3dc98a7635163",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.598428+00:00"
+    "last_verified": "2026-02-07T23:08:43.796082+00:00"
   },
-  "content_hash": "sha256:491c28d7f8ca9098884453da7193b716dfbfc357e7eff5de6f40010522d3c3cb",
+  "content_hash": "sha256:6fa6c3b58c95588242f6b54ad1c17accd236b66275d4965c37891726fb50edc2",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.598428+00:00"
+  "_ts": "2026-02-07T23:08:43.796082+00:00"
 }

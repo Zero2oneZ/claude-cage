@@ -14,11 +14,11 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "ptc",
-    "aggregate_all",
     "decompose_first",
-    "executor",
-    "engine"
+    "engine",
+    "aggregate_all",
+    "ptc",
+    "executor"
   ],
   "cross_refs": {
     "structural": {
@@ -59,10 +59,10 @@
   "staleness": {
     "source_hash": "sha256:3dbf206f16e215983ea621bd4a51568b61f556761dc674f911cf52fb750bde5e",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.596676+00:00"
+    "last_verified": "2026-02-07T23:08:43.794221+00:00"
   },
-  "content_hash": "sha256:97bde5cc2b7da33c5ca4491c7f4a3ad934a595186252e41641fdb07abbcefa24",
+  "content_hash": "sha256:105da3d5276ff276572939e2bc945800440ce41ebb9ae800c57d4eef2324b14e",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.596676+00:00"
+  "_ts": "2026-02-07T23:08:43.794221+00:00"
 }

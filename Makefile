@@ -233,6 +233,69 @@ docs-graph: ## Output interconnection graph as JSON
 docs-refresh: ## Refresh all stale docs
 	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.docs refresh
 
+# ── Porkbun (Domains) ────────────────────────────────────────
+
+.PHONY: porkbun-ping porkbun-domains porkbun-check porkbun-dns porkbun-pricing
+porkbun-ping: ## Test Porkbun API connectivity
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.porkbun ping
+
+porkbun-domains: ## List account domains
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.porkbun domains
+
+porkbun-check: ## Check domain availability (usage: make porkbun-check DOMAIN=example.com)
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.porkbun check "$(DOMAIN)"
+
+porkbun-dns: ## Show DNS records (usage: make porkbun-dns DOMAIN=example.com)
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.porkbun dns "$(DOMAIN)"
+
+porkbun-pricing: ## Show TLD pricing (usage: make porkbun-pricing TLD=com)
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.porkbun pricing $(TLD)
+
+# ── Noun Project (Icons) ────────────────────────────────────
+
+.PHONY: icons-search icons-download icons-batch
+icons-search: ## Search icons (usage: make icons-search Q="rocket")
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.nounproject search "$(Q)"
+
+icons-download: ## Download icon (usage: make icons-download ID=12345 PATH=./icon.svg)
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.nounproject download "$(ID)" "$(PATH)"
+
+icons-batch: ## Batch download icons (usage: make icons-batch Q="web" DIR=./icons)
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.nounproject batch "$(Q)" "$(DIR)"
+
+# ── Federation (Git Sovereignty) ─────────────────────────────
+
+.PHONY: fork-init fork-status fork-pull fork-push fork-verify
+fork-init: ## Initialize fork (usage: make fork-init URL=git@... DIR=./project)
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.federation fork "$(URL)" "$(DIR)"
+
+fork-status: ## Show federation sync status (usage: make fork-status DIR=.)
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.federation status "$(or $(DIR),.)"
+
+fork-pull: ## Sync from upstream (usage: make fork-pull DIR=.)
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.federation pull "$(or $(DIR),.)"
+
+fork-push: ## Push to upstream as PR (usage: make fork-push DIR=.)
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.federation push "$(or $(DIR),.)"
+
+fork-verify: ## Verify tree trust hashes (usage: make fork-verify DIR=.)
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.federation verify "$(or $(DIR),.)"
+
+# ── Hugging Face ─────────────────────────────────────────────
+
+.PHONY: hf-status hf-download hf-search hf-cache
+hf-status: ## HF Hub token + cache status
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.huggingface status
+
+hf-download: ## Download model (usage: make hf-download REPO=meta-llama/Llama-2-7b)
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.huggingface download "$(REPO)"
+
+hf-search: ## Search HF models (usage: make hf-search Q="text generation")
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.huggingface search "$(Q)"
+
+hf-cache: ## Show HF cache status
+	@CAGE_ROOT="$(CAGE_ROOT)" PYTHONPATH="$(CAGE_ROOT)" python3 -m ptc.huggingface cache
+
 # ── GentlyOS ─────────────────────────────────────────────────
 .PHONY: gentlyos-seed gentlyos-tree
 gentlyos-seed: ## Seed GentlyOS docs, tree, and nodes into MongoDB

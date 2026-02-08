@@ -14,10 +14,10 @@
   "entry_points": [],
   "key_concepts": [
     "lora",
-    "correct_only",
     "accumulate",
     "extraction",
-    "training"
+    "training",
+    "correct_only"
   ],
   "cross_refs": {
     "structural": {
@@ -58,10 +58,10 @@
   "staleness": {
     "source_hash": "sha256:ed31f774f9d65bf55dbcdb80eb0931828a5c9e246a8f7a43bf03490b14f9125a",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.597094+00:00"
+    "last_verified": "2026-02-07T23:08:43.794697+00:00"
   },
-  "content_hash": "sha256:4356d4663c8d1a6db53678ae0382d8a500febf8cf1a9e6a5def96553f6c13584",
+  "content_hash": "sha256:a9af535409ecd7e67616f2793dd7a6fe20d8d95251a3c2a1cc45a56bb05be27a",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.597094+00:00"
+  "_ts": "2026-02-07T23:08:43.794697+00:00"
 }

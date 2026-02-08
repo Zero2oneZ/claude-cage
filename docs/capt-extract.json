@@ -11,8 +11,8 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "cot_structure",
-    "extraction"
+    "extraction",
+    "cot_structure"
   ],
   "cross_refs": {
     "structural": {
@@ -41,10 +41,10 @@
   "staleness": {
     "source_hash": "sha256:ed31f774f9d65bf55dbcdb80eb0931828a5c9e246a8f7a43bf03490b14f9125a",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.597221+00:00"
+    "last_verified": "2026-02-07T23:08:43.794839+00:00"
   },
-  "content_hash": "sha256:7231f18c8b2a4053d57f70a861b22327e95d81734555ede7c6c5adbfb198ecbd",
+  "content_hash": "sha256:5ebb238054d818fc715354e8f56775afc62e8df184423202e7524b8c597a215d",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.597221+00:00"
+  "_ts": "2026-02-07T23:08:43.794839+00:00"
 }

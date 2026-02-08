@@ -19,8 +19,8 @@
     "verify_blueprint"
   ],
   "key_concepts": [
-    "blueprints",
     "require_acceptance",
+    "blueprints",
     "validate_schema"
   ],
   "cross_refs": {
@@ -46,10 +46,10 @@
   "staleness": {
     "source_hash": "sha256:6ea35fc365291255053287d65deb3ba354e55ea0a685bbdbeb0312040353f080",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.597773+00:00"
+    "last_verified": "2026-02-07T23:08:43.795468+00:00"
   },
-  "content_hash": "sha256:97b56bd9b90d1cf2808e997bbbc892d0a0feb391516eb79aa148b5c9d5f74e40",
+  "content_hash": "sha256:86c872c1186ffa16d630a20edb4f0ac88f74771c4f6dc17d0cc6482219e0972b",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.597773+00:00"
+  "_ts": "2026-02-07T23:08:43.795468+00:00"
 }

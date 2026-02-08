@@ -11,9 +11,9 @@
   ],
   "entry_points": [],
   "key_concepts": [
+    "unique_names",
     "session",
-    "memory",
-    "unique_names"
+    "memory"
   ],
   "cross_refs": {
     "structural": {
@@ -54,10 +54,10 @@
   "staleness": {
     "source_hash": "sha256:3de9f69680893b2472639215057044b63e558cef4e29f2971c52bd7b5621e427",
     "is_stale": false,
-    "last_verified": "2026-02-07T22:45:27.594799+00:00"
+    "last_verified": "2026-02-07T23:08:43.792084+00:00"
   },
-  "content_hash": "sha256:5f5b73a05b05b81d4257c4bf5c6f0a3d0a5c866500bd233218a1f38cb3ab4baa",
+  "content_hash": "sha256:8236bc3b3a676478aede1a6aa99ac3d73dcba8fc712741a2548ce8e6b83d2ede",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-07T22:45:27.594799+00:00"
+  "_ts": "2026-02-07T23:08:43.792084+00:00"
 }
