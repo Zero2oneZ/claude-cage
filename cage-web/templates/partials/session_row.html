@@ -1,0 +1,14 @@
+<tr id="session-{{ name }}">
+    <td><a href="/sessions/{{ name }}" hx-get="/sessions/{{ name }}" hx-target="#main" hx-push-url="true">{{ name }}</a></td>
+    <td><span class="status-badge {% if status.contains("Up") %}status-up{% else %}status-down{% endif %}">{{ status }}</span></td>
+    <td>{{ image }}</td>
+    <td>{{ ports }}</td>
+    <td class="actions">
+        {% if status.contains("Up") %}
+        <button hx-post="/sessions/{{ name }}/stop" hx-target="#session-{{ name }}" hx-swap="outerHTML" class="btn btn-sm btn-warn">Stop</button>
+        {% else %}
+        <button hx-post="/sessions/{{ name }}/start" hx-target="#session-{{ name }}" hx-swap="outerHTML" class="btn btn-sm btn-primary">Start</button>
+        {% endif %}
+        <button hx-delete="/sessions/{{ name }}/destroy" hx-target="#session-{{ name }}" hx-swap="outerHTML" hx-confirm="Destroy session {{ name }}?" class="btn btn-sm btn-danger">Destroy</button>
+    </td>
+</tr>

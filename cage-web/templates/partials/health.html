@@ -1,0 +1,5 @@
+<div class="health-indicators">
+    <span class="indicator {% if docker_ok %}ind-ok{% else %}ind-err{% endif %}">Docker</span>
+    <span class="indicator {% if api_key_set %}ind-ok{% else %}ind-warn{% endif %}">API Key</span>
+    <span class="indicator ind-info">{{ session_count }} sessions</span>
+</div>

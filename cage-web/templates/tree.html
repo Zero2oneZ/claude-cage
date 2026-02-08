@@ -1,0 +1,28 @@
+<div class="tree-page">
+    <h1>GentlyOS Tree</h1>
+
+    {% if nodes.is_empty() %}
+    <p class="empty-state">No tree loaded. Check gentlyos/tree.json.</p>
+    {% else %}
+    <div class="tree-view">
+        {% for node in nodes %}
+        <div class="tree-node depth-{{ node.depth }}" style="padding-left: {{ node.depth * 24 }}px">
+            <span class="node-scale scale-{{ node.scale }}">{{ node.scale }}</span>
+            <a href="/tree/{{ node.id }}" hx-get="/tree/{{ node.id }}" hx-target="#main" hx-push-url="true" class="node-link">
+                <span class="node-id">{{ node.id }}</span>
+                <span class="node-name">{{ node.name }}</span>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="blast-radius-section">
+        <h2>Blast Radius Calculator</h2>
+        <form hx-get="/tree/blast-radius" hx-target="#blast-result" hx-indicator="#spinner">
+            <input type="text" name="crates" placeholder="cage-web, gently-codie, ..." class="input">
+            <button type="submit" class="btn btn-primary">Calculate</button>
+        </form>
+        <div id="blast-result"></div>
+    </div>
+</div>

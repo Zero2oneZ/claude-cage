@@ -1,0 +1,46 @@
+<div class="dashboard">
+    <h1>cage-web Dashboard</h1>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-value">{{ session_count }}</span>
+            <span class="stat-label">Sessions</span>
+            <span class="stat-icon">{% if docker_ok %}ONLINE{% else %}OFFLINE{% endif %}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value">{{ codie_count }}</span>
+            <span class="stat-label">CODIE Programs</span>
+            <span class="stat-icon">LOADED</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value">{% if docker_ok %}OK{% else %}--{% endif %}</span>
+            <span class="stat-label">Docker</span>
+            <span class="stat-icon">{% if docker_ok %}READY{% else %}DOWN{% endif %}</span>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <h2>Quick Actions</h2>
+        <div class="action-row">
+            <form hx-post="/sessions/new" hx-target="#main" hx-indicator="#spinner">
+                <input type="hidden" name="mode" value="cli">
+                <input type="hidden" name="network" value="filtered">
+                <button type="submit" class="btn btn-primary">New CLI Session</button>
+            </form>
+            <form hx-post="/sessions/new" hx-target="#main" hx-indicator="#spinner">
+                <input type="hidden" name="mode" value="desktop">
+                <input type="hidden" name="network" value="filtered">
+                <button type="submit" class="btn btn-secondary">New Desktop Session</button>
+            </form>
+            <a href="/tree" hx-get="/tree" hx-target="#main" hx-push-url="true" class="btn btn-outline">View Tree</a>
+            <a href="/codie" hx-get="/codie" hx-target="#main" hx-push-url="true" class="btn btn-outline">CODIE Programs</a>
+        </div>
+    </div>
+
+    <div class="recent-sessions">
+        <h2>Sessions</h2>
+        <div hx-get="/sessions" hx-trigger="load" hx-swap="innerHTML">
+            Loading sessions...
+        </div>
+    </div>
+</div>

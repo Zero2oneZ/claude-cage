@@ -22,11 +22,11 @@
     "search_docs"
   ],
   "key_concepts": [
-    "propagate_stale",
-    "hash_track",
-    "bidirectional",
     "circle",
-    "docs"
+    "hash_track",
+    "docs",
+    "propagate_stale",
+    "bidirectional"
   ],
   "cross_refs": {
     "structural": {
@@ -43,12 +43,12 @@
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:7a4e2b2c59a1fee4f5def2512f251df2b9fcaeab5a93140651082c451302a7b3",
+    "source_hash": "sha256:26dd72c0767dd49579b726175dda6d14de0178bb0571ed0c492d32d2b1fa4aa3",
     "is_stale": false,
-    "last_verified": "2026-02-08T17:02:29.704718+00:00"
+    "last_verified": "2026-02-08T19:45:28.030107+00:00"
   },
-  "content_hash": "sha256:f13b5ae4f768e39ff4b4df6a3d82b01af3bb341a92a1c864e86a5515c9cbe33c",
+  "content_hash": "sha256:68b7ba75c2e1591505b0810e52e480dcf788d83f3da8bcb4fd433e98a67c0cfd",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-08T17:02:29.704718+00:00"
+  "_ts": "2026-02-08T19:45:28.030107+00:00"
 }

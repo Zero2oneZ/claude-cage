@@ -1,0 +1,37 @@
+<div class="session-detail">
+    <h1>Session: {{ name }}</h1>
+
+    <div class="detail-grid">
+        <div class="detail-card">
+            <h3>Status</h3>
+            <span class="status-badge {% if status == "running" %}status-up{% else %}status-down{% endif %}">{{ status }}</span>
+        </div>
+        <div class="detail-card">
+            <h3>Image</h3>
+            <code>{{ image }}</code>
+        </div>
+        <div class="detail-card">
+            <h3>Created</h3>
+            <code>{{ created }}</code>
+        </div>
+        <div class="detail-card">
+            <h3>Ports</h3>
+            <code>{{ ports }}</code>
+        </div>
+    </div>
+
+    <div class="action-row">
+        {% if status == "running" %}
+        <button hx-post="/sessions/{{ name }}/stop" hx-target="#main" class="btn btn-warn">Stop</button>
+        {% else %}
+        <button hx-post="/sessions/{{ name }}/start" hx-target="#main" class="btn btn-primary">Start</button>
+        {% endif %}
+        <button hx-delete="/sessions/{{ name }}/destroy" hx-target="#main" hx-confirm="Destroy session {{ name }}?" class="btn btn-danger">Destroy</button>
+        <a href="/sessions" hx-get="/sessions" hx-target="#main" hx-push-url="true" class="btn btn-outline">Back to List</a>
+    </div>
+
+    <div class="logs-section">
+        <h2>Container Logs</h2>
+        <pre class="log-output">{{ logs }}</pre>
+    </div>
+</div>

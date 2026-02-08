@@ -302,7 +302,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:orchestration" }],
       "rules": [{ "name": "compression_94", "condition": "ratio < 94%", "action": "block" }, { "name": "fidelity_95", "condition": "semantic fidelity < 0.95", "action": "block" }, { "name": "round_trip_99", "condition": "round-trip < 0.99", "action": "block" }],
       "escalation": { "target": "dept:orchestration", "threshold": 3, "cascade": ["dept:orchestration", "exec:cto"] },
-      "metadata": { "agent_id": "codie_captain", "crates_owned": ["gentlyos-codie"], "performance_targets": { "compression_ratio": 0.947, "semantic_fidelity": 0.95, "latency_ms": 100 } }
+      "metadata": { "agent_id": "codie_captain", "crates_owned": ["gentlyos-codie", "cage-web"], "files": ["cage-web/src/codie_parser.rs", "cage-web/src/routes/codie.rs"], "status": "implemented", "programs_parsed": 9, "performance_targets": { "compression_ratio": 0.947, "semantic_fidelity": 0.95, "latency_ms": 100 } }
     },
     {
       "id": "capt:ptc", "name": "PTC Captain", "scale": "captain", "parent": "dept:orchestration",
