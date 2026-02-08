@@ -240,7 +240,7 @@ A node has: inputs, outputs, children, a parent, rules for what passes through i
 
 **Files:**
 - `gentlyos/universal-node.schema.json` — The ONE JSON schema every node follows
-- `gentlyos/tree.json` — The full tree: 34 agents (1 Human + 2 Executives + 8 Directors + 24 Captains), sephirot mapping, coordination protocol
+- `gentlyos/tree.json` — The full tree: 35 agents (3 Executives + 8 Directors + 24 Captains), sephirot mapping, coordination protocol
 - `gentlyos/seed.js` — Seeds documents, tree, and nodes into MongoDB
 
 **Node Scales:** `executive`, `department`, `captain`, `crate`, `module`, `sephira`, `knowledge`, `reasoning`, `primitive`

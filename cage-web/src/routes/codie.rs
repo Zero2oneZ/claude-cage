@@ -47,7 +47,10 @@ struct ProgramSummary {
     keyword_total: usize,
 }
 
-async fn codie_list(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+async fn codie_list(
+    headers: HeaderMap,
+    State(state): State<Arc<AppState>>,
+) -> impl IntoResponse {
     let programs = state.codie_programs.read().await;
 
     let summaries: Vec<ProgramSummary> = programs
@@ -61,13 +64,17 @@ async fn codie_list(State(state): State<Arc<AppState>>) -> impl IntoResponse {
         })
         .collect();
 
-    Html(
-        CodieListTemplate {
-            programs: summaries,
-        }
-        .render()
-        .unwrap_or_default(),
-    )
+    let content = CodieListTemplate {
+        programs: summaries,
+    }
+    .render()
+    .unwrap_or_default();
+
+    if is_htmx(&headers) {
+        Html(content)
+    } else {
+        Html(wrap_page("CODIE Programs", &content))
+    }
 }
 
 async fn codie_detail(
@@ -138,13 +145,29 @@ async fn codie_execute(
             )
             .await;
 
+            // Execute via PTC engine
+            let task_json = json!({
+                "node_id": "capt:codie",
+                "intent": intent,
+                "codie_program": name,
+                "files": [],
+            })
+            .to_string();
+
+            let ptc_result = subprocess::ptc_execute(&state.cage_root, &task_json).await;
+
+            let (status, output) = match ptc_result {
+                Ok(out) => ("executed", out),
+                Err(e) => ("error", e),
+            };
+
             let result = json!({
-                "status": "planned",
+                "status": status,
                 "program": name,
                 "entry_point": p.entry_point(),
                 "instruction_count": p.instruction_count(),
                 "intent": intent,
-                "ast": p.to_json(),
+                "ptc_output": output,
             });
 
             let safe_name = html_escape(&name);
@@ -155,7 +178,8 @@ async fn codie_execute(
 
             Html(format!(
                 "<div class=\"result\">\
-                    <h3>Execution Plan: {safe_name}</h3>\
+                    <h3>Execution: {safe_name}</h3>\
+                    <p>Status: {status}</p>\
                     <p>Entry: {safe_entry}</p>\
                     <p>Instructions: {}</p>\
                     <p>Intent: {safe_intent}</p>\
@@ -283,9 +307,31 @@ pub async fn parse_codie_file(path: &str) {
 }
 
 fn chrono_now() -> String {
-    let now = std::time::SystemTime::now()
+    let secs = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap_or_default()
         .as_secs();
-    format!("{now}")
+    // Format as ISO 8601 UTC without external crate
+    let s = secs % 60;
+    let m = (secs / 60) % 60;
+    let h = (secs / 3600) % 24;
+    let days = secs / 86400;
+    // Days since epoch to y/m/d (simplified civil calendar)
+    let mut y = 1970i64;
+    let mut rem = days as i64;
+    loop {
+        let ylen = if y % 4 == 0 && (y % 100 != 0 || y % 400 == 0) { 366 } else { 365 };
+        if rem < ylen { break; }
+        rem -= ylen;
+        y += 1;
+    }
+    let leap = y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
+    let mdays = [31, if leap { 29 } else { 28 }, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    let mut mo = 0usize;
+    for md in &mdays {
+        if rem < *md { break; }
+        rem -= md;
+        mo += 1;
+    }
+    format!("{y:04}-{:02}-{:02}T{h:02}:{m:02}:{s:02}Z", mo + 1, rem + 1)
 }

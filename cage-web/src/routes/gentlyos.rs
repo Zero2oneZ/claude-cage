@@ -53,12 +53,26 @@ struct TreeNode {
 fn extract_nodes(tree: &Value) -> Vec<TreeNode> {
     let mut result = Vec::new();
     if let Some(nodes) = tree["nodes"].as_array() {
+        // Build parent→depth map by walking the tree
+        let mut depth_map = std::collections::HashMap::new();
         for node in nodes {
+            let id = node["id"].as_str().unwrap_or("");
+            let parent = node["parent"].as_str();
+            let depth = match parent {
+                None | Some("") => 0,
+                Some(p) => depth_map.get(p).copied().unwrap_or(0) + 1,
+            };
+            depth_map.insert(id.to_string(), depth);
+        }
+
+        for node in nodes {
+            let id = node["id"].as_str().unwrap_or("").to_string();
+            let depth = depth_map.get(&id).copied().unwrap_or(0);
             result.push(TreeNode {
-                id: node["id"].as_str().unwrap_or("").to_string(),
+                id,
                 name: node["name"].as_str().unwrap_or("").to_string(),
                 scale: node["scale"].as_str().unwrap_or("").to_string(),
-                depth: node["depth"].as_u64().unwrap_or(0) as usize,
+                depth,
             });
         }
     }
@@ -73,13 +87,21 @@ fn find_node(tree: &Value, node_id: &str) -> Option<Value> {
     }
 }
 
-async fn tree_page(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+async fn tree_page(
+    headers: HeaderMap,
+    State(state): State<Arc<AppState>>,
+) -> impl IntoResponse {
     let tree = subprocess::read_tree(&state.tree_path)
         .await
         .unwrap_or(json!({"nodes": []}));
     let nodes = extract_nodes(&tree);
 
-    Html(TreeTemplate { nodes }.render().unwrap_or_default())
+    let content = TreeTemplate { nodes }.render().unwrap_or_default();
+    if is_htmx(&headers) {
+        Html(content)
+    } else {
+        Html(wrap_page("GentlyOS Tree", &content))
+    }
 }
 
 async fn node_detail(
@@ -127,13 +149,13 @@ async fn node_detail(
         id: node_id,
         name: node["name"].as_str().unwrap_or("").to_string(),
         scale: node["scale"].as_str().unwrap_or("").to_string(),
-        description: node["description"].as_str().unwrap_or("").to_string(),
+        description: node["metadata"]["description"].as_str().unwrap_or("").to_string(),
         rules,
         files,
         crates_owned,
         children,
-        sephira: node["sephira"].as_str().unwrap_or("").to_string(),
-        department: node["department"].as_str().unwrap_or("").to_string(),
+        sephira: node["metadata"]["sephira_mapping"].as_str().unwrap_or("").to_string(),
+        department: node["parent"].as_str().unwrap_or("").to_string(),
     }
     .render()
     .unwrap_or_default();

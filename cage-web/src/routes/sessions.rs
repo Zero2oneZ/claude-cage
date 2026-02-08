@@ -80,15 +80,19 @@ fn parse_sessions(raw: &str) -> Vec<SessionInfo> {
         .collect()
 }
 
-async fn list_sessions(State(_state): State<Arc<AppState>>) -> impl IntoResponse {
+async fn list_sessions(
+    headers: HeaderMap,
+    State(_state): State<Arc<AppState>>,
+) -> impl IntoResponse {
     let raw = subprocess::list_sessions().await.unwrap_or_default();
     let sessions = parse_sessions(&raw);
 
-    Html(
-        SessionsTemplate { sessions }
-            .render()
-            .unwrap_or_default(),
-    )
+    let content = SessionsTemplate { sessions }.render().unwrap_or_default();
+    if is_htmx(&headers) {
+        Html(content)
+    } else {
+        Html(wrap_page("Sessions", &content))
+    }
 }
 
 async fn api_sessions(State(_state): State<Arc<AppState>>) -> impl IntoResponse {

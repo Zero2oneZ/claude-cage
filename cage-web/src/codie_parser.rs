@@ -1,44 +1,6 @@
 use serde::Serialize;
 use std::path::Path;
 
-/// The 12 CODIE keywords.
-#[derive(Debug, Clone, Serialize, PartialEq)]
-#[serde(rename_all = "lowercase")]
-pub enum Keyword {
-    Pug,
-    Bark,
-    Spin,
-    Cali,
-    Elf,
-    Turk,
-    Fence,
-    Pin,
-    Bone,
-    Blob,
-    Biz,
-    Anchor,
-}
-
-impl Keyword {
-    fn from_str(s: &str) -> Option<Self> {
-        match s {
-            "pug" => Some(Self::Pug),
-            "bark" => Some(Self::Bark),
-            "spin" => Some(Self::Spin),
-            "cali" => Some(Self::Cali),
-            "elf" => Some(Self::Elf),
-            "turk" => Some(Self::Turk),
-            "fence" => Some(Self::Fence),
-            "pin" => Some(Self::Pin),
-            "bone" => Some(Self::Bone),
-            "blob" => Some(Self::Blob),
-            "biz" => Some(Self::Biz),
-            "anchor" => Some(Self::Anchor),
-            _ => None,
-        }
-    }
-}
-
 /// AST node for a CODIE instruction.
 #[derive(Debug, Clone, Serialize)]
 #[serde(tag = "type")]
@@ -693,18 +655,21 @@ impl<'a> Parser<'a> {
             let content_trimmed = content.trim();
 
             // Inside brace blocks, key: value lines are implicit Bind nodes
-            if let Some((key, val)) = content_trimmed.split_once(':') {
-                let key_trimmed = key.trim();
-                // Only treat as key:value if key looks like an identifier (no spaces, not a keyword)
-                if !key_trimmed.is_empty()
-                    && !key_trimmed.contains(' ')
-                    && !is_top_level_keyword(key_trimmed)
-                {
-                    children.push(Node::Bind {
-                        name: key_trimmed.to_string(),
-                        value: val.trim().trim_matches('"').to_string(),
-                    });
-                    continue;
+            // But first check if the line starts with a CODIE keyword (case-insensitive)
+            let first_word = content_trimmed.split_whitespace().next().unwrap_or("");
+            if !is_top_level_keyword(&first_word.to_lowercase()) {
+                if let Some((key, val)) = content_trimmed.split_once(':') {
+                    let key_trimmed = key.trim();
+                    // Only treat as key:value if key looks like an identifier (no spaces)
+                    if !key_trimmed.is_empty()
+                        && !key_trimmed.contains(' ')
+                    {
+                        children.push(Node::Bind {
+                            name: key_trimmed.to_string(),
+                            value: val.trim().trim_matches('"').to_string(),
+                        });
+                        continue;
+                    }
                 }
             }
 

@@ -2,7 +2,7 @@
 name: gentlyos-orchestrator
 description: >
   GentlyOS Virtual Organization orchestrator. ONE agent that reads the recursive
-  tree and routes tasks to the right node at the right scale. 34 agents don't need
+  tree and routes tasks to the right node at the right scale. 35 agents don't need
   34 files — they need one tree and one router.
 tools:
   - Bash
@@ -26,7 +26,7 @@ You ARE the router. You read the tree. You find the right node. You apply its ru
 ## Tree Location
 
 ```
-gentlyos/tree.json          — The full recursive tree (34 agents, sephirot, coordination)
+gentlyos/tree.json          — The full recursive tree (35 agents, sephirot, coordination)
 gentlyos/universal-node.schema.json — The one schema every node follows
 ```
 

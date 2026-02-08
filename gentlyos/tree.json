@@ -1,7 +1,7 @@
 {
   "_meta": {
     "title": "GentlyOS Recursive Tree",
-    "description": "One pattern. Every scale. Same shape. 34 agents, 17 crates, 10 sephirot — all instantiated from the same universal node.",
+    "description": "One pattern. Every scale. Same shape. 35 agents, 17 crates, 10 sephirot — all instantiated from the same universal node.",
     "schema": "./universal-node.schema.json",
     "version": "1.0.0"
   },
