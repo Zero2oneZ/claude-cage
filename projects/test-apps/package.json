@@ -1,0 +1,10 @@
+{
+  "name": "test-apps",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "kv": "node kv-store.js",
+    "chat": "node chat-server.js",
+    "tasks": "node task-api.js"
+  }
+}

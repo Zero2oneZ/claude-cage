@@ -6,8 +6,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 claude-cage is a dockerized sandbox for running Claude CLI and Claude Desktop in isolated containers with defense-in-depth security. Two modes: CLI (interactive TTY) and Desktop (Xvfb + noVNC in browser at localhost:6080).
 
-**Core Principle: One pattern. Every scale. Same shape.** claude-cage itself is a tree. Every project you create with it is a tree. The universal node schema (`universal-node.schema.json`) is the foundational infrastructure primitive — not a feature of any sub-project, but THE pattern everything builds on.
-
 ## Build & Run Commands
 
 ```bash
@@ -54,13 +52,6 @@ claude-cage shell <name>          # Attach bash to running container
 claude-cage list                  # Show all sessions
 claude-cage destroy <name>        # Remove container + volume
 claude-cage config [--validate]   # Show or validate configuration
-claude-cage init <dir> [--name n] # Initialize new project with tree infrastructure
-claude-cage tree show [tree.json] # Show tree hierarchy
-claude-cage tree node <path> <id> # Get node details as JSON
-claude-cage tree blast-radius <path> <targets>  # Calculate blast radius
-claude-cage tree route <path> <intent>          # Route intent through tree
-claude-cage web                   # Launch web dashboard (localhost:5000)
-claude-cage observe               # Show observability dashboard
 ```
 
 ## Architecture
@@ -76,7 +67,6 @@ The CLI is a modular bash application. `bin/claude-cage` sources all library mod
 | `lib/sandbox.sh` | Constructs security flags, creates filtered network, applies iptables rules, verifies sandbox |
 | `lib/session.sh` | Session metadata (create/list/status/remove), name generation (`adjective-noun-hex4`) |
 | `lib/config.sh` | YAML config loading (default + user override at `~/.config/claude-cage/config.yaml`), validation |
-| `lib/tree.sh` | Universal tree operations: load, show, node, blast-radius, route, init, add-node, seed |
 | `lib/mongodb.sh` | MongoDB fire-and-forget storage: key/value writes, event logging, artifact storage |
 
 ### Container Images (`docker/`)
@@ -242,113 +232,6 @@ Configured in `.claude/settings.local.json` via the `PostToolUse` hook pattern.
 | `ops` | DevOps/operations — compact status cards, metrics tables, action-oriented |
 | `debug` | Troubleshooting — verbose output, stack traces, step-by-step diagnosis |
 
-### Universal Node Tree (root infrastructure)
-
-**One pattern. Every scale. Same shape.** A node has: inputs, outputs, children, a parent, rules for what passes through it, and an escalation path when it can't decide.
-
-**Root files (not a sub-feature — THE foundation):**
-- `universal-node.schema.json` — The ONE JSON schema. Every node, every scale, every project.
-- `tree.json` — claude-cage's own architecture as a tree (28 nodes: 2 executives, 7 departments, 19 captains)
-- `lib/tree.sh` — Tree operations for ANY project
-- `templates/project/tree.json` — Starter tree for `claude-cage init`
-
-**Self-describing architecture:** claude-cage eats its own cooking. Its own `tree.json` maps every lib module, security layer, and subsystem as universal nodes. The same pattern it scaffolds into every new project.
-
-**CLI commands:**
-```bash
-claude-cage init <dir> [--name n]          # Scaffold new project with tree
-claude-cage tree show [tree.json]          # Render tree hierarchy
-claude-cage tree node <path> <id>          # Get single node as JSON
-claude-cage tree blast-radius <path> <t>   # Calculate affected nodes + risk
-claude-cage tree route <path> <intent>     # Route intent to matching nodes
-claude-cage tree seed <path> [project]     # Seed tree into MongoDB
-```
-
-**`lib/tree.sh` functions:**
-- `tree_load` / `tree_show` / `tree_node` — Read and display trees
-- `tree_blast_radius` — Find affected nodes, calculate risk (1-10), determine approval level
-- `tree_route` — Route intent keywords to matching nodes
-- `tree_init` — Create new tree.json (from template or minimal default)
-- `tree_add_node` — Add node to existing tree, update parent's children
-- `tree_seed` — Seed full tree + individual nodes into MongoDB
-
-**Container integration:** When containers launch, `universal-node.schema.json` and `templates/` are mounted read-only at `/opt/cage/` so Claude inside the sandbox can scaffold new projects.
-
-### PTC — Pass-Through Coordination (`ptc/`)
-
-**The tree isn't a map — it's a machine.** Intent flows DOWN. Artifacts flow UP. As above, so below.
-
-**Core files:**
-- `ptc/engine.py` — The PTC engine: decompose, execute, aggregate, store
-- `ptc/executor.py` — Leaf node executor: inspect, shell, claude, compose modes
-
-**The cycle:**
-1. **INTAKE** — Intent enters at root
-2. **TRIAGE/PLAN** — Decompose through tree: route intent to departments, fan out to captains
-3. **EXECUTE** — Leaf nodes (captains) do the actual work
-4. **VERIFY** — Each result checked against node rules
-5. **INTEGRATE** — Results aggregate bottom-up: captain → department → executive → root
-6. **SHIP** — Full execution trace stored to MongoDB
-
-**Execution modes:**
-- `inspect` — Read files, analyze, report (triggered by: show, check, verify, audit)
-- `shell` — Run safe, known commands (triggered by: build, run, install, deploy)
-- `claude` — Invoke Claude Code with full node context (triggered by: create, add, implement, fix)
-- `plan` — Return what would be done without doing it (default/dry-run)
-
-**Self-identification:** Every node carries a `lineage` — full path from root to itself. Any fragment can reconstruct its place in the tree. The `execution` field tracks status, last input/output, run counts. The `artifacts` field tracks what each node has produced, with content hashes for IPFS addressing.
-
-**CLI:**
-```bash
-claude-cage ptc run "intent" [--tree path] [--target node] [--live] [-v]
-claude-cage ptc exec <node-id> "task" [--live]
-claude-cage ptc leaves [tree.json]
-claude-cage ptc tree [tree.json]
-```
-
-**Makefile:**
-```bash
-make ptc INTENT="add GPU monitoring"       # Dry run
-make ptc-live INTENT="verify sandbox"      # Live execution
-make ptc-leaves                             # Show all workers
-```
-
-### Training Protocol (`ptc/training.py`, `ptc/lora.py`)
-
-**Every PTC trace IS a chain of thought. Extract. Train. Stack. Grow.**
-
-The Hopf sphere: PTC runs generate traces → traces become training data → training data trains LoRAs → LoRAs improve executors → better traces. Build out to feed in.
-
-**Training data extraction** (`ptc/training.py`):
-- Alpaca format (instruction/input/output) — for supervised fine-tuning
-- ShareGPT format (multi-turn conversations) — for chat fine-tuning
-- CoT format (question/chain_of_thought/answer) — for reasoning training
-- Per-node, per-department, per-scale splitting — each feeds its own LoRA
-
-**LoRA pipeline** (`ptc/lora.py`):
-- L0: `ptc-base` — trained on ALL traces (universal tree coordination)
-- L1: `ptc-scale-*` — executive reasoning, department coordination, captain execution
-- L2: `ptc-dept_*` — security patterns, runtime patterns, web patterns, etc.
-- L3: `ptc-capt_*` — leaf-specific expertise (one per worker)
-- Stack: base + scale + department + captain = specialized agent
-
-**Hardware:** QLoRA (4-bit NF4 quantization) on 2x RTX 3090 24GB.
-
-**CLI:**
-```bash
-claude-cage train extract [--source local|mongodb] [--output dir]
-claude-cage train pipeline [--tree path] [--model name]
-claude-cage train stack [--tree path]
-claude-cage train preview [trace.json]
-```
-
-**Makefile:**
-```bash
-make train-extract     # Extract training data from traces
-make train-pipeline    # Generate full LoRA pipeline
-make train-stack       # Show stacking order
-```
-
 ### GentlyOS Recursive Tree (`gentlyos/`)
 
 **Core Insight: One pattern. Every scale. Same shape.**
@@ -356,7 +239,8 @@ make train-stack       # Show stacking order
 A node has: inputs, outputs, children, a parent, rules for what passes through it, and an escalation path when it can't decide. That's a crate. That's a department. That's a sephira. That's a knowledge node. That's a CODIE primitive. One struct, parameterized by scale.
 
 **Files:**
-- `gentlyos/tree.json` — The full GentlyOS tree: 34 agents (1 Human + 2 Executives + 8 Directors + 24 Captains), sephirot mapping, coordination protocol. Uses the root `universal-node.schema.json`.
+- `gentlyos/universal-node.schema.json` — The ONE JSON schema every node follows
+- `gentlyos/tree.json` — The full tree: 34 agents (1 Human + 2 Executives + 8 Directors + 24 Captains), sephirot mapping, coordination protocol
 - `gentlyos/seed.js` — Seeds documents, tree, and nodes into MongoDB
 
 **Node Scales:** `executive`, `department`, `captain`, `crate`, `module`, `sephira`, `knowledge`, `reasoning`, `primitive`

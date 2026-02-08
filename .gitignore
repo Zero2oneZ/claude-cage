@@ -32,3 +32,17 @@ __pycache__/
 # Docker build cache
 docker/cli/.cache/
 docker/desktop/.cache/
+
+# Python
+web/.venv/
+__pycache__/
+*.pyc
+
+# Node (MongoDB store)
+mongodb/node_modules/
+mongodb/package-lock.json
+
+# Binary docs (stored in MongoDB, not git)
+*.docx
+*.zip
+*.~lock.*
