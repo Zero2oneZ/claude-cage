@@ -42,6 +42,9 @@ __pycache__/
 mongodb/node_modules/
 mongodb/package-lock.json
 
+# Rust build artifacts
+target/
+
 # Binary docs (stored in MongoDB, not git)
 *.docx
 *.zip

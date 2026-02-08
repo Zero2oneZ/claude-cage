@@ -15,6 +15,18 @@ path = "src/chat_server.rs"
 name = "task-api"
 path = "src/task_api.rs"
 
+[[bin]]
+name = "text-gen"
+path = "src/text_gen.rs"
+
+[[bin]]
+name = "tree-walker"
+path = "src/tree_walker.rs"
+
+[[bin]]
+name = "codie-runner"
+path = "src/codie_runner.rs"
+
 [dependencies]
 axum = "0.8"
 tokio = { version = "1", features = ["full"] }
