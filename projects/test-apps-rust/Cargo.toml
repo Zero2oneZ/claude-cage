@@ -27,6 +27,18 @@ path = "src/tree_walker.rs"
 name = "codie-runner"
 path = "src/codie_runner.rs"
 
+[[bin]]
+name = "ecommerce"
+path = "src/ecommerce.rs"
+
+[[bin]]
+name = "livestream"
+path = "src/livestream.rs"
+
+[[bin]]
+name = "realestate"
+path = "src/realestate.rs"
+
 [dependencies]
 axum = "0.8"
 tokio = { version = "1", features = ["full"] }
