@@ -44,6 +44,17 @@ mongodb/package-lock.json
 
 # Rust build artifacts
 target/
+Cargo.lock
+
+# Audit logs (runtime-generated, not source)
+audit/
+
+# Nested repos / stale clones
+claude-cage/
+projects/Gently-nix/
+
+# Root-level dupes (canonical copies live in projects/)
+/GentlyWorkstation.jsx
 
 # Binary docs (stored in MongoDB, not git)
 *.docx

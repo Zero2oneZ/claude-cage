@@ -1,0 +1,210 @@
+# =============================================================================
+# Encryption / Ransomware Indicator Patterns — Windows Forensic Scanner
+# =============================================================================
+# Each line is a file extension pattern, path, or indicator.
+# The scanner uses these to detect ransomware activity, encryption artifacts,
+# and data-recovery-relevant evidence on a mounted Windows partition.
+# Lines beginning with # are comments; blank lines are ignored.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Section 1: Common Ransomware File Extensions
+# ---------------------------------------------------------------------------
+*.encrypted
+*.locked
+*.crypt
+*.crypto
+*.enc
+*.WNCRY
+*.wnry
+*.locky
+*.cerber
+*.cerber2
+*.cerber3
+*.ryuk
+*.RYK
+*.hermes
+*.hermes837
+*.gandcrab
+*.GDCB
+*.KRAB
+*.crab
+*.maze
+*.revil
+*.sodinokibi
+*.REvil
+*.conti
+*.lockbit
+*.LOCKBIT
+*.hive
+*.blackcat
+*.ALPHV
+*.play
+*.royal
+*.clop
+*.cl0p
+*.phobos
+*.dharma
+*.wallet
+*.arena
+*.bip
+*.combo
+*.adobe
+*.ETH
+*.id-*.[*@*].*
+*.zepto
+*.odin
+*.thor
+*.aesir
+*.zzzzz
+*.cryptolocker
+*.cryptowall
+*.teslacrypt
+*.ecc
+*.ezz
+*.exx
+*.micro
+*.xxx
+*.vvv
+*.ccc
+*.zzz
+*.abc
+*.aaa
+*.bbb
+*.xyz
+*.btc
+*.STOP
+*.djvu
+*.reqg
+*.orkf
+*.lmas
+*.maas
+*.nols
+*.hoop
+*.doom
+*.neer
+*.bora
+*.reco
+*.xorist
+*.magniber
+*.avaddon
+*.darkside
+*.DARKSIDE
+*.babuk
+*.BABUK
+*.pysa
+*.PYSA
+*.akira
+*.AKIRA
+*.medusa
+*.bianlian
+*.rhysida
+
+# ---------------------------------------------------------------------------
+# Section 2: Ransom Note Filenames (searched recursively)
+# ---------------------------------------------------------------------------
+*README*.txt
+*readme*.txt
+*ReadMe*.txt
+DECRYPT_INSTRUCTIONS.*
+DECRYPT_INFO.*
+DECRYPT_FILES.*
+DECRYPT_YOUR_FILES.*
+HOW_TO_RECOVER*.*
+HOW_TO_DECRYPT*.*
+HOW_TO_RESTORE*.*
+HOW_TO_UNLOCK*.*
+HOW_TO_RETURN*.*
+HELP_DECRYPT*.*
+HELP_RECOVER*.*
+HELP_YOUR_FILES*.*
+HELP_TO_SAVE_FILES*.*
+RECOVERY_FILES*.*
+RECOVERY_YOUR_FILES*.*
+RESTORE_FILES*.*
+_readme.txt
+_RECOVERY_+*.txt
+_RECOVERY_+*.html
+@Please_Read_Me@.txt
+!READM3!.txt
+YOUR_FILES_ARE_ENCRYPTED*.*
+FILES_ENCRYPTED*.*
+RANSOM_NOTE*.*
+ATTENTION!!!*.txt
+_Decrypt_ReadMe.txt
+#DECRYPT_MY_FILES#.*
+-DECRYPT--.txt
+RESTORE-MY-FILES.txt
+#How_To_Decrypt#.*
+RECOVER-FILES.txt
+Readme_Instructions.txt
+!!! YOUR FILES HAVE BEEN ENCRYPTED !!!.txt
+info.hta
+info.txt
+
+# ---------------------------------------------------------------------------
+# Section 3: BitLocker Recovery Key Artifacts
+# ---------------------------------------------------------------------------
+C:\Windows\System32\Recovery\ReAgent.xml
+*BitLocker Recovery Key*.txt
+*BitLocker Recovery Key*.bek
+C:\Windows\System32\config\BCD-Template
+# BitLocker metadata on the volume (BDE markers)
+# BDE_SCAN:VOLUME_HEADER
+
+# ---------------------------------------------------------------------------
+# Section 4: EFS (Encrypting File System) Artifacts
+# ---------------------------------------------------------------------------
+C:\Users\*\AppData\Roaming\Microsoft\Crypto\RSA\*
+C:\Users\*\AppData\Roaming\Microsoft\Crypto\Keys\*
+C:\Users\*\AppData\Roaming\Microsoft\SystemCertificates\My\Certificates\*
+C:\Users\*\AppData\Roaming\Microsoft\Protect\*
+C:\ProgramData\Microsoft\Crypto\RSA\MachineKeys\*
+C:\ProgramData\Microsoft\Crypto\Keys\*
+C:\Windows\System32\Microsoft\Protect\*
+
+# ---------------------------------------------------------------------------
+# Section 5: Certificate Store Paths
+# ---------------------------------------------------------------------------
+C:\Users\*\AppData\Roaming\Microsoft\SystemCertificates\*
+C:\ProgramData\Microsoft\SystemCertificates\*
+C:\Windows\System32\config\systemprofile\AppData\Roaming\Microsoft\SystemCertificates\*
+C:\Users\*\AppData\Roaming\Microsoft\Crypto\*
+C:\ProgramData\Microsoft\Crypto\*
+# Personal certificate stores (.pfx, .p12, .cer)
+C:\Users\*\**\*.pfx
+C:\Users\*\**\*.p12
+C:\Users\*\**\*.cer
+C:\Users\*\**\*.pem
+C:\Users\*\**\*.key
+
+# ---------------------------------------------------------------------------
+# Section 6: High-Entropy File Indicators
+# ---------------------------------------------------------------------------
+# NOTE: High-entropy detection cannot be done via simple path patterns.
+# The scanner uses 'ent' or custom entropy calculation on sampled files.
+# Files with Shannon entropy > 7.9 (out of 8.0) across the first 4096 bytes
+# are flagged as potentially encrypted/compressed/packed.
+# The following directories are priority targets for entropy scanning:
+# ENTROPY_SCAN:C:\Users\*\Documents\
+# ENTROPY_SCAN:C:\Users\*\Desktop\
+# ENTROPY_SCAN:C:\Users\*\Pictures\
+# ENTROPY_SCAN:C:\Users\*\Downloads\
+# ENTROPY_SCAN:C:\Users\*\Videos\
+# ENTROPY_SCAN:C:\Users\*\Music\
+# ENTROPY_SCAN:C:\Shares\
+
+# ---------------------------------------------------------------------------
+# Section 7: Encryption Tool Artifacts
+# ---------------------------------------------------------------------------
+C:\Program Files\VeraCrypt\*
+C:\Program Files (x86)\VeraCrypt\*
+C:\Users\*\**\*.hc
+C:\Users\*\**\*.tc
+C:\Program Files\GnuPG\*
+C:\Users\*\AppData\Roaming\gnupg\*
+C:\Users\*\**\*.gpg
+C:\Users\*\**\*.pgp
+C:\Users\*\**\*.asc
+C:\Program Files\7-Zip\*
+C:\Users\*\**\*.7z.encrypted

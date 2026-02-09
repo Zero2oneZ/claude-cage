@@ -1,0 +1,25 @@
+# SSH keys (generated locally, never commit)
+keys/*.pub
+keys/3090-headless
+keys/3090-headless.pub
+
+# Downloaded ISOs
+*.iso
+ubuntu-*.iso
+
+# Build artifacts
+build/
+custom-iso/
+
+# Forensic reports (may contain sensitive data)
+forensic-report/
+
+# Secrets
+*.key
+*.pem
+.env
+luks-passphrase
+
+# OS junk
+.DS_Store
+Thumbs.db

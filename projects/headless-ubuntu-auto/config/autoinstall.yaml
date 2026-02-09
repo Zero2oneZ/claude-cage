@@ -1,0 +1,406 @@
+#cloud-config
+autoinstall:
+  version: 1
+
+  # ---------------------------------------------------------------------------
+  # ZERO-TOUCH — no monitor, no keyboard, fully unattended
+  # ---------------------------------------------------------------------------
+  # interactive-sections: [] means NO sections require user input.
+  # This suppresses the "Confirm destructive action" prompt that Ubuntu 24.04
+  # normally shows before wiping disks.
+  interactive-sections: []
+
+  # Refresh the installer to latest available (non-interactive)
+  refresh-installer:
+    update: false
+
+  # ---------------------------------------------------------------------------
+  # Locale & Keyboard
+  # ---------------------------------------------------------------------------
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+
+  # ---------------------------------------------------------------------------
+  # Network — STATIC IP for direct ethernet connection (no router)
+  #
+  # This machine (3090):  10.0.0.2/30
+  # Your machine:         10.0.0.1/30 (configure on enp2s0)
+  # ---------------------------------------------------------------------------
+  network:
+    version: 2
+    ethernets:
+      any-eth:
+        match:
+          name: en*
+        dhcp4: false
+        dhcp6: false
+        addresses:
+          - 10.0.0.2/30
+        routes:
+          - to: default
+            via: 10.0.0.1
+        nameservers:
+          addresses:
+            - 1.1.1.1
+            - 8.8.8.8
+
+  # ---------------------------------------------------------------------------
+  # Storage — LUKS2-encrypted NVMe + HDD /data
+  #
+  # Disk 0 (/dev/nvme0n1):
+  #   GPT -> 512 MB EFI (FAT32)
+  #        -> 1 GB /boot (ext4)
+  #        -> remainder LUKS2 -> LVM:
+  #              lv-root  100 GB  ext4  /
+  #              lv-swap   32 GB  swap
+  #              lv-home   rest   ext4  /home
+  #
+  # Disk 1 (/dev/sda):
+  #   GPT -> single ext4 partition -> /data
+  #
+  # GPUs: 2x NVIDIA RTX 3090 + Intel iGPU (Intel unused for ML)
+  # ---------------------------------------------------------------------------
+  storage:
+    config:
+      # -----------------------------------------------------------------------
+      # Disk 0 — NVMe
+      # -----------------------------------------------------------------------
+      - id: nvme-disk
+        type: disk
+        path: /dev/nvme0n1
+        ptable: gpt
+        wipe: superblock-recursive
+        grub_device: false
+
+      # EFI System Partition — 512 MB
+      - id: nvme-part-efi
+        type: partition
+        device: nvme-disk
+        size: 512M
+        flag: boot
+        grub_device: true
+
+      - id: nvme-fmt-efi
+        type: format
+        volume: nvme-part-efi
+        fstype: fat32
+        label: EFI
+
+      - id: nvme-mount-efi
+        type: mount
+        device: nvme-fmt-efi
+        path: /boot/efi
+
+      # /boot partition — 1 GB
+      - id: nvme-part-boot
+        type: partition
+        device: nvme-disk
+        size: 1G
+
+      - id: nvme-fmt-boot
+        type: format
+        volume: nvme-part-boot
+        fstype: ext4
+        label: BOOT
+
+      - id: nvme-mount-boot
+        type: mount
+        device: nvme-fmt-boot
+        path: /boot
+
+      # LUKS2-encrypted partition — remainder of NVMe
+      - id: nvme-part-luks
+        type: partition
+        device: nvme-disk
+        size: -1
+
+      - id: nvme-dmcrypt
+        type: dm_crypt
+        volume: nvme-part-luks
+        dm_name: nvme-crypt
+        key: LUKS_PASSPHRASE_PLACEHOLDER
+
+      # LVM volume group on the LUKS device
+      - id: vg-system
+        type: lvm_volgroup
+        name: vg-system
+        devices:
+          - nvme-dmcrypt
+
+      # lv-root — 100 GB
+      - id: lv-root
+        type: lvm_partition
+        volgroup: vg-system
+        name: lv-root
+        size: 100G
+
+      - id: fmt-root
+        type: format
+        volume: lv-root
+        fstype: ext4
+        label: ROOT
+
+      - id: mount-root
+        type: mount
+        device: fmt-root
+        path: /
+
+      # lv-swap — 32 GB
+      - id: lv-swap
+        type: lvm_partition
+        volgroup: vg-system
+        name: lv-swap
+        size: 32G
+
+      - id: fmt-swap
+        type: format
+        volume: lv-swap
+        fstype: swap
+
+      - id: mount-swap
+        type: mount
+        device: fmt-swap
+        path: none
+
+      # lv-home — remaining space
+      - id: lv-home
+        type: lvm_partition
+        volgroup: vg-system
+        name: lv-home
+        size: -1
+
+      - id: fmt-home
+        type: format
+        volume: lv-home
+        fstype: ext4
+        label: HOME
+
+      - id: mount-home
+        type: mount
+        device: fmt-home
+        path: /home
+
+      # -----------------------------------------------------------------------
+      # Disk 1 — HDD (/dev/sda) mounted at /data
+      # -----------------------------------------------------------------------
+      - id: hdd-disk
+        type: disk
+        path: /dev/sda
+        ptable: gpt
+        wipe: superblock-recursive
+        grub_device: false
+
+      - id: hdd-part-data
+        type: partition
+        device: hdd-disk
+        size: -1
+
+      - id: hdd-fmt-data
+        type: format
+        volume: hdd-part-data
+        fstype: ext4
+        label: DATA
+
+      - id: hdd-mount-data
+        type: mount
+        device: hdd-fmt-data
+        path: /data
+
+  # ---------------------------------------------------------------------------
+  # Identity
+  # ---------------------------------------------------------------------------
+  identity:
+    hostname: gpu-3090
+    username: zero20nez
+    # Password hash — placeholder; SSH key is the primary auth method.
+    # Generate with: mkpasswd -m sha-512
+    password: "$6$rounds=4096$staticSalt$placeholder_hash_replace_me"
+
+  # ---------------------------------------------------------------------------
+  # SSH — key-only authentication
+  # ---------------------------------------------------------------------------
+  ssh:
+    install-server: true
+    allow-pw: false
+    authorized-keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJM8FDlkumIPCkCLGA8Y+10800s35YSWw25Ml748FZVR tomlee3ddesign@gmail.com
+
+  # ---------------------------------------------------------------------------
+  # Packages to install
+  # ---------------------------------------------------------------------------
+  packages:
+    - build-essential
+    - linux-headers-generic
+    - curl
+    - git
+    - tmux
+    - htop
+    - jq
+    - ntfs-3g
+    - libhivex-bin
+    - socat
+
+  # ---------------------------------------------------------------------------
+  # Early commands — run the forensic scanner BEFORE disk partitioning
+  # ---------------------------------------------------------------------------
+  early-commands:
+    # Helper function to beep via PC speaker (works without audio drivers)
+    # Usage: beep <count> — plays <count> short beeps
+    - |
+      beep() {
+        local count="${1:-1}"
+        for i in $(seq 1 "$count"); do
+          echo -e '\a' > /dev/console 2>/dev/null || true
+          # Also try direct speaker access
+          ( speaker-test -t sine -f 1000 -l 1 2>/dev/null & sleep 0.15; kill $! 2>/dev/null ) || true
+          sleep 0.2
+        done
+      }
+      export -f beep
+
+    # 2 beeps = forensic scan starting
+    - |
+      beep() { for i in $(seq 1 "${1:-1}"); do echo -e '\a' > /dev/console 2>/dev/null; sleep 0.2; done; }
+      beep 2
+      set +e
+      FORENSICS_DIR=""
+      # Try to find the forensics directory on the installer media
+      for mount_point in /cdrom /media/cdrom /run/archiso/bootmnt; do
+        if [ -d "${mount_point}/forensics" ]; then
+          FORENSICS_DIR="${mount_point}/forensics"
+          break
+        fi
+      done
+      if [ -n "${FORENSICS_DIR}" ] && [ -x "${FORENSICS_DIR}/scan-windows.sh" ]; then
+        echo "=== Running pre-install forensic scan ==="
+        mkdir -p /tmp/forensic-report
+        bash "${FORENSICS_DIR}/scan-windows.sh" /tmp/forensic-report 2>&1 | tee /tmp/forensic-report/scan.log || true
+        echo "=== Forensic scan complete — results in /tmp/forensic-report/ ==="
+        # 3 beeps = forensic scan complete
+        beep 3
+      else
+        echo "=== No forensic scanner found on installer media — skipping ==="
+        beep 3
+      fi
+      set -e
+
+  # ---------------------------------------------------------------------------
+  # Late commands — post-installation hardening & first-boot service setup
+  # ---------------------------------------------------------------------------
+  late-commands:
+    # Set timezone
+    - curtin in-target -- timedatectl set-timezone America/Los_Angeles
+
+    # Disable root login
+    - curtin in-target -- passwd -l root
+
+    # Harden SSH daemon configuration
+    - |
+      cat > /target/etc/ssh/sshd_config.d/99-hardening.conf <<'SSHEOF'
+# Hardened SSH configuration — autoinstall
+PasswordAuthentication no
+PermitRootLogin no
+PubkeyAuthentication yes
+ChallengeResponseAuthentication no
+UsePAM yes
+X11Forwarding no
+MaxAuthTries 3
+ClientAliveInterval 300
+ClientAliveCountMax 2
+SSHEOF
+
+    # Copy forensic results if they exist (from early-commands)
+    - |
+      if [ -d /tmp/forensic-report ] && [ "$(ls -A /tmp/forensic-report 2>/dev/null)" ]; then
+        mkdir -p /target/opt/headless-setup/forensic-report
+        cp -a /tmp/forensic-report/* /target/opt/headless-setup/forensic-report/
+      fi
+
+    # Copy the post-install script from the USB/ISO into /opt/headless-setup/
+    - |
+      mkdir -p /target/opt/headless-setup
+      for mount_point in /cdrom /media/cdrom /run/archiso/bootmnt; do
+        if [ -d "${mount_point}/forensics" ]; then
+          cp -a "${mount_point}/forensics" /target/opt/headless-setup/ 2>/dev/null || true
+        fi
+        if [ -f "${mount_point}/scripts/post-install.sh" ]; then
+          cp "${mount_point}/scripts/post-install.sh" /target/opt/headless-setup/
+          chmod +x /target/opt/headless-setup/post-install.sh
+        fi
+      done
+
+    # Create systemd oneshot service for first-boot post-install
+    - |
+      cat > /target/etc/systemd/system/headless-post-install.service <<'UNITEOF'
+[Unit]
+Description=Headless Ubuntu Post-Install Setup (first boot)
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/opt/headless-setup/post-install.sh
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /opt/headless-setup/post-install.sh
+ExecStartPost=/bin/rm -f /opt/headless-setup/.first-boot-pending
+RemainAfterExit=true
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target
+UNITEOF
+
+    # NOTE: post-install is NOT auto-enabled. It's triggered via 'make provision'
+    # over SSH so the user can monitor progress. To auto-run on first boot instead,
+    # uncomment the next line:
+    # - curtin in-target -- systemctl enable headless-post-install.service
+    - curtin in-target -- touch /opt/headless-setup/.first-boot-pending
+
+    # Ensure zero20nez owns /data
+    - curtin in-target -- chown zero20nez:zero20nez /data
+
+    # Signal completion: create a beacon service that sends UDP broadcasts
+    # on the LAN so find-machine.sh can detect the machine before SSH is up.
+    # Broadcasts "GPU3090-READY:<ip>" every 5 seconds on UDP port 9999.
+    - |
+      cat > /target/etc/systemd/system/install-beacon.service <<'BEACONEOF'
+[Unit]
+Description=Broadcast install-complete beacon on LAN
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c 'IP=$(hostname -I | awk "{print \\$1}"); while true; do echo "GPU3090-READY:${IP}" | socat - UDP-DATAGRAM:255.255.255.255:9999,broadcast 2>/dev/null || echo "GPU3090-READY:${IP}" > /dev/udp/255.255.255.255/9999 2>/dev/null || true; sleep 5; done'
+ExecStopPost=/bin/systemctl disable install-beacon.service
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+BEACONEOF
+    - curtin in-target -- systemctl enable install-beacon.service
+
+    # Create a service that beeps 5 times when SSH is ready (first boot)
+    - |
+      cat > /target/etc/systemd/system/ssh-ready-beep.service <<'BEEPEOF'
+[Unit]
+Description=Beep when SSH is ready
+After=ssh.service sshd.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'sleep 5; for i in 1 2 3 4 5; do echo -e "\\a" > /dev/console 2>/dev/null; sleep 0.2; done'
+ExecStartPost=/bin/systemctl disable ssh-ready-beep.service
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+BEEPEOF
+    - curtin in-target -- systemctl enable ssh-ready-beep.service
+
+    # 4 beeps = install complete, about to reboot
+    - |
+      beep() { for i in $(seq 1 "${1:-1}"); do echo -e '\a' > /dev/console 2>/dev/null; sleep 0.2; done; }
+      beep 4

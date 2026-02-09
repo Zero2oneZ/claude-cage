@@ -1,0 +1,100 @@
+# =============================================================================
+# Docker Artifact Patterns — Windows Forensic Scanner
+# =============================================================================
+# Each line is a Windows-style path pattern. The scanner converts backslashes
+# to forward slashes and resolves wildcards when searching under MOUNT_POINT.
+# Lines beginning with # are comments; blank lines are ignored.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Section 1: Docker Desktop & Engine core directories
+# ---------------------------------------------------------------------------
+C:\ProgramData\Docker\
+C:\ProgramData\DockerDesktop\
+C:\Program Files\Docker\
+C:\Program Files\Docker Desktop\
+
+# ---------------------------------------------------------------------------
+# Section 2: Per-user Docker configuration & local data
+# ---------------------------------------------------------------------------
+C:\Users\*\AppData\Local\Docker\
+C:\Users\*\AppData\Local\Docker Desktop\
+C:\Users\*\AppData\Roaming\Docker\
+C:\Users\*\AppData\Roaming\Docker Desktop\
+C:\Users\*\.docker\
+C:\Users\*\.docker\config.json
+C:\Users\*\.docker\daemon.json
+
+# ---------------------------------------------------------------------------
+# Section 3: WSL2 distro images (Docker Desktop backend)
+# ---------------------------------------------------------------------------
+C:\Users\*\AppData\Local\Docker\wsl\data\ext4.vhdx
+C:\Users\*\AppData\Local\Docker\wsl\distro\ext4.vhdx
+C:\Users\*\AppData\Local\Packages\*Docker*\LocalState\ext4.vhdx
+C:\Users\*\AppData\Local\Packages\CanonicalGroupLimited*\LocalState\ext4.vhdx
+
+# ---------------------------------------------------------------------------
+# Section 4: Windows Containers support
+# ---------------------------------------------------------------------------
+C:\Windows\System32\containers\
+C:\ProgramData\Microsoft\Windows\Containers\
+
+# ---------------------------------------------------------------------------
+# Section 5: Docker overlay2 / image layers / storage driver data
+# ---------------------------------------------------------------------------
+C:\ProgramData\Docker\windowsfilter\
+C:\ProgramData\Docker\image\
+C:\ProgramData\Docker\overlay2\
+C:\ProgramData\Docker\tmp\
+C:\ProgramData\Docker\volumes\
+
+# ---------------------------------------------------------------------------
+# Section 6: Container configuration files
+# ---------------------------------------------------------------------------
+C:\ProgramData\Docker\containers\*\config.v2.json
+C:\ProgramData\Docker\containers\*\hostconfig.json
+C:\ProgramData\Docker\containers\*\hostname
+C:\ProgramData\Docker\containers\*\resolv.conf
+
+# ---------------------------------------------------------------------------
+# Section 7: Docker Compose project files (recursive search)
+# ---------------------------------------------------------------------------
+C:\Users\*\**\docker-compose.yml
+C:\Users\*\**\docker-compose.yaml
+C:\Users\*\**\compose.yml
+C:\Users\*\**\compose.yaml
+
+# ---------------------------------------------------------------------------
+# Section 8: Dockerfiles and ignore rules (recursive search)
+# ---------------------------------------------------------------------------
+C:\Users\*\**\Dockerfile
+C:\Users\*\**\Dockerfile.*
+C:\Users\*\**\.dockerignore
+
+# ---------------------------------------------------------------------------
+# Section 9: Docker volumes data paths
+# ---------------------------------------------------------------------------
+C:\ProgramData\Docker\volumes\*\_data\
+C:\Users\*\AppData\Local\Docker\volumes\
+
+# ---------------------------------------------------------------------------
+# Section 10: Docker log files
+# ---------------------------------------------------------------------------
+C:\ProgramData\Docker\log\
+C:\Users\*\AppData\Local\Docker\log\
+C:\ProgramData\DockerDesktop\service.txt
+C:\ProgramData\DockerDesktop\install-log.txt
+
+# ---------------------------------------------------------------------------
+# Section 11: Docker credential helpers
+# ---------------------------------------------------------------------------
+C:\Program Files\Docker\Docker\resources\credentialspec\
+C:\Users\*\.docker\cred-helpers\
+C:\Users\*\.docker\trust\
+
+# ---------------------------------------------------------------------------
+# Section 12: Docker network & runtime state
+# ---------------------------------------------------------------------------
+C:\ProgramData\Docker\network\
+C:\ProgramData\Docker\swarm\
+C:\ProgramData\Docker\plugins\
