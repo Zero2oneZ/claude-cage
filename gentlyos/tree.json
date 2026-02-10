@@ -88,7 +88,8 @@
       "escalation": { "target": "exec:cto", "threshold": 4, "cascade": ["exec:cto", "root:human"] },
       "metadata": {
         "agent_id": "foundation_director",
-        "crates_owned": ["gentlyos-core-types", "gentlyos-crypto", "gentlyos-errors"],
+        "crates_owned": ["gently-core", "gently-codie", "gently-artisan", "gently-audio", "gently-visual", "gently-goo", "gently-synth"],
+        "tier": 0,
         "sephira_mapping": "Malkuth",
         "output_format": "DEPARTMENT: foundation\nAFFECTED_CRATES: [list]\nAPI_IMPACT: [NONE|ADDITIVE|BREAKING]\nSECURITY_REVIEW_REQUIRED: [bool]"
       }
@@ -111,7 +112,8 @@
       "escalation": { "target": "exec:cto", "threshold": 5, "cascade": ["exec:cto", "root:human"] },
       "metadata": {
         "agent_id": "protocol_director",
-        "crates_owned": ["gentlyos-wire", "gentlyos-p2p", "gentlyos-alexandria", "gentlyos-protocol"],
+        "crates_owned": ["gently-bridge", "gently-network", "gently-dance", "gently-livepeer", "gently-alexandria", "gently-ipfs", "gently-feed"],
+        "tier": [1, 2, 5],
         "sephira_mapping": "Chokmah/Binah"
       }
     },
@@ -133,7 +135,8 @@
       "escalation": { "target": "exec:cto", "threshold": 5, "cascade": ["exec:cto", "root:human"] },
       "metadata": {
         "agent_id": "orchestration_director",
-        "crates_owned": ["gentlyos-codie", "gentlyos-ptc", "gentlyos-context", "gentlyos-orchestrator"],
+        "crates_owned": ["gently-codie", "gently-ged", "gently-document"],
+        "tier": [0, 3, 6],
         "sephira_mapping": "Tiferet"
       }
     },
@@ -155,7 +158,8 @@
       "escalation": { "target": "exec:cto", "threshold": 5, "cascade": ["exec:cto", "root:human"] },
       "metadata": {
         "agent_id": "runtime_director",
-        "crates_owned": ["gentlyos-runtime", "gentlyos-state", "gentlyos-memory", "gentlyos-executor"],
+        "crates_owned": ["gently-brain", "gently-inference", "gently-agents", "gently-micro", "gently-behavior"],
+        "tier": 3,
         "sephira_mapping": "Netzach/Hod",
         "performance_targets": { "hot_path_p99_ms": 1, "mem_per_context_mb": 50, "state_sync_ms": 10 }
       }
@@ -178,7 +182,8 @@
       "escalation": { "target": "exec:cto", "threshold": 5, "cascade": ["exec:cto", "root:human"] },
       "metadata": {
         "agent_id": "tokenomics_director",
-        "crates_owned": ["gentlyos-synth", "gentlyos-proof", "gentlyos-rewards", "gentlyos-economics"],
+        "crates_owned": ["gently-synth", "gently-btc", "gently-commerce"],
+        "tier": [0, 1, 6],
         "sephira_mapping": "Yesod"
       }
     },
@@ -222,7 +227,8 @@
       "escalation": { "target": "exec:cto", "threshold": 5, "cascade": ["exec:cto", "root:human"] },
       "metadata": {
         "agent_id": "interface_director",
-        "crates_owned": ["gentlyos-api", "gentlyos-claude", "gentlyos-interface", "gentlyos-tools"],
+        "crates_owned": ["gently-web", "gently-cli", "gently-mcp", "gently-gateway", "gently-gooey", "gentlyos-tui"],
+        "tier": [3, 5, 6],
         "sephira_mapping": "Keter"
       }
     },
@@ -243,7 +249,8 @@
       "escalation": { "target": "exec:cto", "threshold": 5, "cascade": ["exec:cto", "root:human"] },
       "metadata": {
         "agent_id": "devops_director",
-        "crates_owned": ["gentlyos-build", "gentlyos-ci", "gentlyos-infra"],
+        "crates_owned": ["gently-architect"],
+        "tier": 6,
         "sephira_mapping": "Gevurah/Chesed"
       }
     },
@@ -254,7 +261,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:foundation" }],
       "rules": [{ "name": "type_safety", "condition": "type invariant violated", "action": "block" }, { "name": "backward_compat", "condition": "struct field removed", "action": "escalate" }],
       "escalation": { "target": "dept:foundation", "threshold": 3, "cascade": ["dept:foundation", "exec:cto", "root:human"] },
-      "metadata": { "agent_id": "types_captain", "crates_owned": ["gentlyos-core-types"] }
+      "metadata": { "agent_id": "types_captain", "crates_owned": ["gently-core", "gently-artisan"], "tier": 0 }
     },
     {
       "id": "capt:crypto", "name": "Crypto Captain", "scale": "captain", "parent": "dept:foundation",
@@ -262,7 +269,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:foundation" }],
       "rules": [{ "name": "constant_time", "condition": "timing side-channel possible", "action": "block" }, { "name": "key_protection", "condition": "key material exposed", "action": "block" }],
       "escalation": { "target": "dept:foundation", "threshold": 2, "cascade": ["dept:foundation", "dept:security", "exec:cto", "root:human"] },
-      "metadata": { "agent_id": "crypto_captain", "crates_owned": ["gentlyos-crypto"] }
+      "metadata": { "agent_id": "crypto_captain", "crates_owned": ["gently-cipher", "gently-btc"], "tier": [1, 4] }
     },
     {
       "id": "capt:errors", "name": "Error Captain", "scale": "captain", "parent": "dept:foundation",
@@ -270,7 +277,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:foundation" }],
       "rules": [{ "name": "no_swallowed_errors", "condition": "error not propagated", "action": "block" }, { "name": "panic_justified", "condition": "panic without justification", "action": "block" }],
       "escalation": { "target": "dept:foundation", "threshold": 4, "cascade": ["dept:foundation", "exec:cto"] },
-      "metadata": { "agent_id": "error_captain", "crates_owned": ["gentlyos-errors"] }
+      "metadata": { "agent_id": "error_captain", "crates_owned": [], "tier": 0 }
     },
     {
       "id": "capt:wire", "name": "Wire Captain", "scale": "captain", "parent": "dept:protocol",
@@ -278,7 +285,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:protocol" }],
       "rules": [{ "name": "schema_compat", "condition": "wire schema breaking change", "action": "block" }, { "name": "fuzz_coverage", "condition": "fuzz coverage inadequate", "action": "escalate" }],
       "escalation": { "target": "dept:protocol", "threshold": 3, "cascade": ["dept:protocol", "exec:cto"] },
-      "metadata": { "agent_id": "wire_captain", "crates_owned": ["gentlyos-wire"] }
+      "metadata": { "agent_id": "wire_captain", "crates_owned": ["gently-network", "gently-bridge", "gently-feed"], "tier": [1, 5] }
     },
     {
       "id": "capt:p2p", "name": "P2P Captain", "scale": "captain", "parent": "dept:protocol",
@@ -286,7 +293,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:protocol" }],
       "rules": [{ "name": "timeouts_present", "condition": "connection without timeout", "action": "block" }, { "name": "peer_trust", "condition": "peer not validated", "action": "block" }],
       "escalation": { "target": "dept:protocol", "threshold": 3, "cascade": ["dept:protocol", "exec:cto"] },
-      "metadata": { "agent_id": "p2p_captain", "crates_owned": ["gentlyos-p2p"] }
+      "metadata": { "agent_id": "p2p_captain", "crates_owned": ["gently-ipfs", "gently-dance", "gently-livepeer"], "tier": [2, 5] }
     },
     {
       "id": "capt:alexandria", "name": "Alexandria Captain", "scale": "captain", "parent": "dept:protocol",
@@ -294,7 +301,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:protocol" }],
       "rules": [{ "name": "dag_acyclic", "condition": "cycle detected in DAG", "action": "block" }, { "name": "content_immutable", "condition": "content address modified", "action": "block" }],
       "escalation": { "target": "dept:protocol", "threshold": 2, "cascade": ["dept:protocol", "exec:cto"] },
-      "metadata": { "agent_id": "alexandria_captain", "crates_owned": ["gentlyos-alexandria"] }
+      "metadata": { "agent_id": "alexandria_captain", "crates_owned": ["gently-alexandria", "gently-search"], "tier": 2 }
     },
     {
       "id": "capt:codie", "name": "CODIE Captain", "scale": "captain", "parent": "dept:orchestration",
@@ -302,7 +309,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:orchestration" }],
       "rules": [{ "name": "compression_94", "condition": "ratio < 94%", "action": "block" }, { "name": "fidelity_95", "condition": "semantic fidelity < 0.95", "action": "block" }, { "name": "round_trip_99", "condition": "round-trip < 0.99", "action": "block" }],
       "escalation": { "target": "dept:orchestration", "threshold": 3, "cascade": ["dept:orchestration", "exec:cto"] },
-      "metadata": { "agent_id": "codie_captain", "crates_owned": ["gentlyos-codie", "cage-web"], "files": ["cage-web/src/codie_parser.rs", "cage-web/src/routes/codie.rs"], "status": "implemented", "programs_parsed": 9, "performance_targets": { "compression_ratio": 0.947, "semantic_fidelity": 0.95, "latency_ms": 100 } }
+      "metadata": { "agent_id": "codie_captain", "crates_owned": ["gently-codie", "cage-web"], "tier": 0, "files": ["cage-web/src/codie_parser.rs", "cage-web/src/routes/codie.rs"], "status": "implemented", "programs_parsed": 9, "performance_targets": { "compression_ratio": 0.947, "semantic_fidelity": 0.95, "latency_ms": 100 } }
     },
     {
       "id": "capt:ptc", "name": "PTC Captain", "scale": "captain", "parent": "dept:orchestration",
@@ -310,7 +317,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:orchestration" }],
       "rules": [{ "name": "ownership_atomic", "condition": "task has multiple owners", "action": "block" }, { "name": "chain_immutable", "condition": "chain modified after creation", "action": "block" }],
       "escalation": { "target": "dept:orchestration", "threshold": 3, "cascade": ["dept:orchestration", "exec:cto"] },
-      "metadata": { "agent_id": "ptc_captain", "crates_owned": ["gentlyos-ptc"] }
+      "metadata": { "agent_id": "ptc_captain", "crates_owned": [], "tier": null }
     },
     {
       "id": "capt:context", "name": "Context Captain", "scale": "captain", "parent": "dept:orchestration",
@@ -318,7 +325,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:orchestration" }],
       "rules": [{ "name": "budget_correct", "condition": "budget calculation error", "action": "block" }, { "name": "no_leaks", "condition": "context leak detected", "action": "block" }],
       "escalation": { "target": "dept:orchestration", "threshold": 4, "cascade": ["dept:orchestration", "exec:cto"] },
-      "metadata": { "agent_id": "context_captain", "crates_owned": ["gentlyos-context"] }
+      "metadata": { "agent_id": "context_captain", "crates_owned": ["gently-ged", "gently-document"], "tier": [3, 6] }
     },
     {
       "id": "capt:exec", "name": "Exec Captain", "scale": "captain", "parent": "dept:runtime",
@@ -326,7 +333,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:runtime" }],
       "rules": [{ "name": "hot_path_1ms", "condition": "p99 latency > 1ms", "action": "block" }, { "name": "no_blocking", "condition": "blocking in async context", "action": "block" }],
       "escalation": { "target": "dept:runtime", "threshold": 3, "cascade": ["dept:runtime", "exec:cto"] },
-      "metadata": { "agent_id": "exec_captain", "crates_owned": ["gentlyos-runtime"] }
+      "metadata": { "agent_id": "exec_captain", "crates_owned": ["gently-brain", "gently-inference", "gently-agents", "gently-micro"], "tier": 3 }
     },
     {
       "id": "capt:state", "name": "State Captain", "scale": "captain", "parent": "dept:runtime",
@@ -334,7 +341,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:runtime" }],
       "rules": [{ "name": "mutations_auditable", "condition": "state mutation without audit trail", "action": "block" }, { "name": "acid_where_required", "condition": "non-atomic state update", "action": "escalate" }],
       "escalation": { "target": "dept:runtime", "threshold": 4, "cascade": ["dept:runtime", "exec:cto"] },
-      "metadata": { "agent_id": "state_captain", "crates_owned": ["gentlyos-state"] }
+      "metadata": { "agent_id": "state_captain", "crates_owned": [], "tier": 3 }
     },
     {
       "id": "capt:memory", "name": "Memory Captain", "scale": "captain", "parent": "dept:runtime",
@@ -342,7 +349,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:runtime" }],
       "rules": [{ "name": "no_leaks", "condition": "memory leak detected", "action": "block" }, { "name": "bounded_alloc", "condition": "unbounded allocation", "action": "block" }],
       "escalation": { "target": "dept:runtime", "threshold": 3, "cascade": ["dept:runtime", "exec:cto"] },
-      "metadata": { "agent_id": "memory_captain", "crates_owned": ["gentlyos-memory"] }
+      "metadata": { "agent_id": "memory_captain", "crates_owned": ["gently-behavior"], "tier": 3 }
     },
     {
       "id": "capt:rewards", "name": "Rewards Captain", "scale": "captain", "parent": "dept:tokenomics",
@@ -350,7 +357,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:tokenomics" }],
       "rules": [{ "name": "emission_math", "condition": "emission calculation error", "action": "block" }, { "name": "no_gaming", "condition": "gaming vector detected", "action": "block" }],
       "escalation": { "target": "dept:tokenomics", "threshold": 3, "cascade": ["dept:tokenomics", "exec:cto"] },
-      "metadata": { "agent_id": "rewards_captain", "crates_owned": ["gentlyos-synth"] }
+      "metadata": { "agent_id": "rewards_captain", "crates_owned": ["gently-synth"], "tier": 0 }
     },
     {
       "id": "capt:proof", "name": "Proof Captain", "scale": "captain", "parent": "dept:tokenomics",
@@ -358,7 +365,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:tokenomics" }],
       "rules": [{ "name": "deterministic_gen", "condition": "non-deterministic proof generation", "action": "block" }, { "name": "no_self_verify", "condition": "self-verification attempted", "action": "block" }],
       "escalation": { "target": "dept:tokenomics", "threshold": 2, "cascade": ["dept:tokenomics", "exec:cto"] },
-      "metadata": { "agent_id": "proof_captain", "crates_owned": ["gentlyos-proof"] }
+      "metadata": { "agent_id": "proof_captain", "crates_owned": ["gently-btc"], "tier": 1 }
     },
     {
       "id": "capt:economics", "name": "Economics Captain", "scale": "captain", "parent": "dept:tokenomics",
@@ -366,7 +373,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:tokenomics" }],
       "rules": [{ "name": "game_theory_sound", "condition": "incentive misalignment", "action": "escalate" }, { "name": "slash_bounded", "condition": "slashing exceeds stake", "action": "block" }],
       "escalation": { "target": "dept:tokenomics", "threshold": 4, "cascade": ["dept:tokenomics", "exec:cto"] },
-      "metadata": { "agent_id": "economics_captain", "crates_owned": ["gentlyos-economics"] }
+      "metadata": { "agent_id": "economics_captain", "crates_owned": ["gently-commerce"], "tier": 6 }
     },
     {
       "id": "capt:audit", "name": "Audit Captain", "scale": "captain", "parent": "dept:security",
@@ -374,7 +381,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:security" }],
       "rules": [{ "name": "no_known_vulns", "condition": "known vulnerability present", "action": "block" }, { "name": "all_prs_reviewed", "condition": "PR without security review", "action": "block" }],
       "escalation": { "target": "dept:security", "threshold": 2, "cascade": ["dept:security", "exec:cto", "root:human"] },
-      "metadata": { "agent_id": "audit_captain", "crates_owned": ["gentlyos-audit"] }
+      "metadata": { "agent_id": "audit_captain", "crates_owned": ["gently-security", "gently-sploit"], "tier": 4 }
     },
     {
       "id": "capt:hardening", "name": "Hardening Captain", "scale": "captain", "parent": "dept:security",
@@ -382,7 +389,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:security" }],
       "rules": [{ "name": "least_privilege", "condition": "excess capabilities", "action": "block" }, { "name": "ipc_audited", "condition": "IPC without audit", "action": "block" }],
       "escalation": { "target": "dept:security", "threshold": 3, "cascade": ["dept:security", "exec:cto"] },
-      "metadata": { "agent_id": "hardening_captain", "crates_owned": ["gentlyos-hardening"] }
+      "metadata": { "agent_id": "hardening_captain", "crates_owned": ["gently-guardian", "gently-sim"], "tier": 4 }
     },
     {
       "id": "capt:incident", "name": "Incident Captain", "scale": "captain", "parent": "dept:security",
@@ -398,7 +405,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:interface" }],
       "rules": [{ "name": "contracts_stable", "condition": "contract broken", "action": "block" }, { "name": "openapi_current", "condition": "spec out of date", "action": "escalate" }],
       "escalation": { "target": "dept:interface", "threshold": 4, "cascade": ["dept:interface", "exec:cto"] },
-      "metadata": { "agent_id": "api_captain", "crates_owned": ["gentlyos-api"] }
+      "metadata": { "agent_id": "api_captain", "crates_owned": ["gently-web", "gently-gateway", "gently-commerce", "gently-google", "gently-tiktok"], "tier": [5, 6] }
     },
     {
       "id": "capt:claude", "name": "Claude Captain", "scale": "captain", "parent": "dept:interface",
@@ -406,7 +413,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:interface" }],
       "rules": [{ "name": "prompts_versioned", "condition": "prompt change without version", "action": "block" }, { "name": "tool_schemas_compat", "condition": "tool schema breaking change", "action": "escalate" }],
       "escalation": { "target": "dept:interface", "threshold": 4, "cascade": ["dept:interface", "exec:cto"] },
-      "metadata": { "agent_id": "claude_captain", "crates_owned": ["gentlyos-claude"] }
+      "metadata": { "agent_id": "claude_captain", "crates_owned": ["gently-cli", "gently-mcp"], "tier": [3, 6] }
     },
     {
       "id": "capt:ux", "name": "UX Captain", "scale": "captain", "parent": "dept:interface",
@@ -414,7 +421,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:interface" }],
       "rules": [{ "name": "consistency", "condition": "UI inconsistency", "action": "escalate" }, { "name": "accessibility", "condition": "accessibility failure", "action": "block" }],
       "escalation": { "target": "dept:interface", "threshold": 5, "cascade": ["dept:interface", "exec:cto"] },
-      "metadata": { "agent_id": "ux_captain", "crates_owned": ["gentlyos-interface"] }
+      "metadata": { "agent_id": "ux_captain", "crates_owned": ["gently-gooey", "gently-audio", "gently-visual", "gentlyos-tui"], "tier": [0, 6] }
     },
     {
       "id": "capt:build", "name": "Build Captain", "scale": "captain", "parent": "dept:devops",
@@ -422,7 +429,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:devops" }],
       "rules": [{ "name": "build_times", "condition": "build time regression", "action": "escalate" }, { "name": "deterministic", "condition": "non-deterministic build", "action": "block" }],
       "escalation": { "target": "dept:devops", "threshold": 4, "cascade": ["dept:devops", "exec:cto"] },
-      "metadata": { "agent_id": "build_captain", "crates_owned": ["gentlyos-build"] }
+      "metadata": { "agent_id": "build_captain", "crates_owned": ["gently-architect"], "tier": 6 }
     },
     {
       "id": "capt:release", "name": "Release Captain", "scale": "captain", "parent": "dept:devops",
@@ -438,7 +445,7 @@
       "outputs": [{ "name": "review_result", "type": "result", "to": "dept:devops" }],
       "rules": [{ "name": "env_parity", "condition": "environment drift", "action": "escalate" }, { "name": "secrets_secured", "condition": "secret exposed", "action": "block" }],
       "escalation": { "target": "dept:devops", "threshold": 3, "cascade": ["dept:devops", "exec:cto", "root:human"] },
-      "metadata": { "agent_id": "infra_captain", "crates_owned": ["gentlyos-infra"] }
+      "metadata": { "agent_id": "infra_captain", "crates_owned": [], "tier": null }
     }
   ],
 

@@ -428,6 +428,14 @@ def run(tree_path, intent, target_id=None, dry_run=True):
     nodes, meta, coordination = load_tree(tree_path)
     phases = coordination.get("phases", [])
 
+    # Load crate dependency graph (if available)
+    crate_graph = None
+    try:
+        from ptc.crate_graph import load_graph, blast_radius, build_order
+        crate_graph = load_graph()
+    except (ImportError, FileNotFoundError):
+        pass
+
     store_event("ptc:phase", run_id, {
         "phase": "INTAKE",
         "intent": intent,
@@ -448,12 +456,42 @@ def run(tree_path, intent, target_id=None, dry_run=True):
     })
 
     # ── Phase 3: PLAN ─────────────────────────────────────────
-    tasks = decompose(nodes, intent, target_id)
+    # If crate graph is loaded and intent mentions specific crates,
+    # use blast_radius to find all affected nodes instead of just keyword matching
+    crate_radius = None
+    if crate_graph:
+        mentioned_crates = _extract_crates_from_intent(intent, crate_graph)
+        if mentioned_crates:
+            from ptc.crate_graph import blast_radius as _blast_radius
+            crate_radius = _blast_radius(crate_graph, mentioned_crates)
+            # Target the affected tree nodes
+            affected_nodes = set(crate_radius.get("nodes", []))
+            if affected_nodes and not target_id:
+                # Decompose from each affected leaf node
+                tasks = []
+                for node_id in affected_nodes:
+                    if node_id in nodes:
+                        _walk_down(nodes, node_id, intent, tasks)
+                # Deduplicate
+                seen = set()
+                deduped = []
+                for t in tasks:
+                    if t["node_id"] not in seen:
+                        seen.add(t["node_id"])
+                        deduped.append(t)
+                tasks = deduped
+            else:
+                tasks = decompose(nodes, intent, target_id)
+        else:
+            tasks = decompose(nodes, intent, target_id)
+    else:
+        tasks = decompose(nodes, intent, target_id)
 
     store_event("ptc:phase", run_id, {
         "phase": "PLAN",
         "task_count": len(tasks),
         "leaf_nodes": [t["node_id"] for t in tasks],
+        "crate_radius": crate_radius.get("summary") if crate_radius else None,
     })
 
     if not tasks:
@@ -486,6 +524,10 @@ def run(tree_path, intent, target_id=None, dry_run=True):
     })
 
     # ── Phase 5: EXECUTE ──────────────────────────────────────
+    # Sort approved tasks by crate tier (tier 0 before tier 3) if graph is loaded
+    if crate_graph:
+        approved_tasks = _sort_tasks_by_tier(approved_tasks, nodes, crate_graph)
+
     results = []
     for task in approved_tasks:
         store_event("ptc:execute", f"{run_id}/{task['node_id']}", {
@@ -818,6 +860,43 @@ def _show_tree(nodes, root_id, depth=0):
     print(f"{indent}{'├── '}{node['name']} [{node['scale']}]{extra}{leaf_mark}")
     for child_id in children:
         _show_tree(nodes, child_id, depth + 1)
+
+
+# ── Crate graph helpers ────────────────────────────────────────
+
+
+def _extract_crates_from_intent(intent, crate_graph):
+    """Extract any gently-* crate names mentioned in the intent."""
+    import re
+    crate_names = set(crate_graph["crates"].keys())
+    mentioned = set()
+    # Match gently-<word> and gentlyos-<word> patterns
+    for match in re.finditer(r'(gently-[\w-]+|gentlyos-[\w-]+)', intent.lower()):
+        name = match.group(1)
+        if name in crate_names:
+            mentioned.add(name)
+    return list(mentioned)
+
+
+def _sort_tasks_by_tier(tasks, nodes, crate_graph):
+    """Sort tasks by the minimum crate tier of their owning node.
+
+    Ensures tier 0 nodes execute before tier 3 nodes.
+    Tasks with no tier info sort last.
+    """
+    crate_data = crate_graph["crates"]
+
+    def min_tier(task):
+        node_id = task.get("node_id", "")
+        node = nodes.get(node_id, {})
+        tier_meta = node.get("metadata", {}).get("tier")
+        if tier_meta is None:
+            return 99
+        if isinstance(tier_meta, list):
+            return min(tier_meta) if tier_meta else 99
+        return tier_meta
+
+    return sorted(tasks, key=min_tier)
 
 
 if __name__ == "__main__":

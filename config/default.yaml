@@ -56,5 +56,11 @@ embedding_api: local
 architect_cache_similarity: 0.9
 architect_auto_embed: true
 
+# ── Execution mode ───────────────────────────────────────────────
+# docker   - sandbox all commands in containers (default, for non-NixOS hosts)
+# native   - run cargo/nix directly on host (for NixOS / gently-dev)
+# hybrid   - docker for untrusted, native for cargo/nix
+execution_mode: docker
+
 # ── Logging ──────────────────────────────────────────────────────
 log_level: info

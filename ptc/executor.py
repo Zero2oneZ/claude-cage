@@ -54,6 +54,8 @@ def execute(task):
         return _execute_inspect(task)
     elif mode == "shell":
         return _execute_shell(task)
+    elif mode == "native":
+        return _execute_native(task)
     elif mode == "claude":
         return _execute_claude(task)
     elif mode == "compose":
@@ -73,6 +75,13 @@ def _detect_mode(task):
     # Must be checked first — "codie build" would otherwise match shell_words
     if task.get("codie_program") or "codie" in intent:
         return "codie"
+
+    # Native mode: cargo, nix, or nixos-rebuild commands
+    native_words = ["cargo build", "cargo test", "cargo clippy", "cargo fmt",
+                     "nix build", "nix develop", "nix flake", "nixos-rebuild",
+                     "rebuild crate", "rebuild tier"]
+    if any(w in intent for w in native_words):
+        return "native"
 
     # Keywords that suggest architect/design mode
     design_words = ["design", "architect", "blueprint", "specify", "plan architecture", "draft"]
@@ -247,6 +256,23 @@ def _intent_to_command(task):
     if "tree" in intent and "show" in intent:
         return "make tree"
 
+    # Cargo commands (for shell mode fallback — native mode handles these directly)
+    if "cargo" in intent and "build" in intent:
+        crate = _extract_crate_name(intent)
+        return f"cargo build -p {crate}" if crate else "cargo build --workspace"
+    if "cargo" in intent and "test" in intent:
+        crate = _extract_crate_name(intent)
+        return f"cargo test -p {crate}" if crate else "cargo test --workspace"
+    if "cargo" in intent and "clippy" in intent:
+        crate = _extract_crate_name(intent)
+        return f"cargo clippy -p {crate}" if crate else "cargo clippy --workspace"
+
+    # Nix commands
+    if "nix" in intent and "build" in intent:
+        return "nix build"
+    if "nix" in intent and "flake" in intent:
+        return "nix flake check"
+
     return None
 
 
@@ -412,6 +438,264 @@ def _execute_plan(task):
         "rules_applied": [r["name"] for r in task.get("rules", [])],
         "summary": f"Planning: {task.get('intent', '')}",
     }
+
+
+# ── Native Execution Mode ─────────────────────────────────────
+
+
+def _execute_native(task):
+    """Native mode: run cargo/nix/rebuild commands directly on host.
+
+    Three sub-modes:
+    - cargo: cargo build/test/clippy/fmt for individual crates
+    - nix: nix build/develop/flake-check
+    - rebuild: nixos-rebuild switch (risk 9 — always requires human approval)
+    """
+    intent = task.get("intent", "").lower()
+    node_id = task.get("node_id", "")
+
+    # Check approval gate
+    approval = _check_approval(task)
+    if approval["blocked"]:
+        return {
+            "mode": "native",
+            "status": "blocked",
+            "reason": approval["reason"],
+            "risk": approval["risk"],
+            "escalated_to": approval.get("escalated_to"),
+        }
+
+    # Detect sub-mode
+    if "nixos-rebuild" in intent:
+        return _execute_native_rebuild(task, approval)
+    elif "nix " in intent or "nix build" in intent or "nix develop" in intent or "nix flake" in intent:
+        return _execute_native_nix(task, approval)
+    else:
+        return _execute_native_cargo(task, approval)
+
+
+def _execute_native_cargo(task, approval):
+    """Handle cargo build/test/clippy/fmt for individual crates."""
+    intent = task.get("intent", "").lower()
+    node_id = task.get("node_id", "")
+
+    # Extract crate name from intent
+    crate = _extract_crate_name(intent)
+
+    # Determine cargo sub-command
+    if "test" in intent:
+        cmd = f"cargo test -p {crate}" if crate else "cargo test --workspace"
+    elif "clippy" in intent:
+        cmd = f"cargo clippy -p {crate}" if crate else "cargo clippy --workspace"
+    elif "fmt" in intent:
+        cmd = "cargo fmt --all --check"
+    else:
+        cmd = f"cargo build -p {crate}" if crate else "cargo build --workspace"
+
+    # Workspace root is the Gently-nix project
+    workspace_root = os.path.join(CAGE_ROOT, "projects", "Gently-nix")
+    if not os.path.isdir(workspace_root):
+        workspace_root = CAGE_ROOT
+
+    try:
+        result = subprocess.run(
+            cmd,
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=300,
+            cwd=workspace_root,
+        )
+        return {
+            "mode": "native",
+            "sub_mode": "cargo",
+            "command": cmd,
+            "crate": crate,
+            "exit_code": result.returncode,
+            "stdout": result.stdout[:5000] if result.stdout else "",
+            "stderr": result.stderr[:2000] if result.stderr else "",
+            "approval": approval,
+        }
+    except subprocess.TimeoutExpired:
+        return {
+            "mode": "native",
+            "sub_mode": "cargo",
+            "command": cmd,
+            "status": "timeout",
+            "error": "Cargo command timed out after 300s",
+        }
+    except FileNotFoundError:
+        return {
+            "mode": "native",
+            "sub_mode": "cargo",
+            "command": cmd,
+            "status": "error",
+            "error": "cargo not found in PATH",
+        }
+
+
+def _execute_native_nix(task, approval):
+    """Handle nix build/develop/flake-check commands."""
+    intent = task.get("intent", "").lower()
+
+    if "flake check" in intent or "flake" in intent:
+        cmd = "nix flake check"
+    elif "develop" in intent:
+        cmd = "nix develop --command echo 'devshell OK'"
+    else:
+        # Extract target from intent (e.g., "nix build .#gently-cli")
+        target = _extract_nix_target(intent)
+        cmd = f"nix build .#{target}" if target else "nix build"
+
+    workspace_root = os.path.join(CAGE_ROOT, "projects", "Gently-nix")
+    if not os.path.isdir(workspace_root):
+        workspace_root = CAGE_ROOT
+
+    try:
+        result = subprocess.run(
+            cmd,
+            shell=True,
+            capture_output=True,
+            text=True,
+            timeout=600,
+            cwd=workspace_root,
+        )
+        return {
+            "mode": "native",
+            "sub_mode": "nix",
+            "command": cmd,
+            "exit_code": result.returncode,
+            "stdout": result.stdout[:5000] if result.stdout else "",
+            "stderr": result.stderr[:2000] if result.stderr else "",
+            "approval": approval,
+        }
+    except subprocess.TimeoutExpired:
+        return {
+            "mode": "native",
+            "sub_mode": "nix",
+            "command": cmd,
+            "status": "timeout",
+            "error": "Nix command timed out after 600s",
+        }
+    except FileNotFoundError:
+        return {
+            "mode": "native",
+            "sub_mode": "nix",
+            "command": cmd,
+            "status": "error",
+            "error": "nix not found in PATH",
+        }
+
+
+def _execute_native_rebuild(task, approval):
+    """Handle nixos-rebuild switch — risk 9, always requires human approval."""
+    # Force risk to 9 for rebuild
+    if approval["risk"] < 9:
+        return {
+            "mode": "native",
+            "sub_mode": "rebuild",
+            "status": "blocked",
+            "reason": "nixos-rebuild switch requires human approval (risk 9)",
+            "risk": 9,
+            "escalated_to": "root:human",
+        }
+
+    return {
+        "mode": "native",
+        "sub_mode": "rebuild",
+        "status": "blocked",
+        "reason": "nixos-rebuild switch requires human approval (risk 9)",
+        "risk": 9,
+        "escalated_to": "root:human",
+        "command": "nixos-rebuild switch",
+    }
+
+
+def _execute_tier_rebuild(task, changed_crates):
+    """Tier-aware crate rebuild: load graph, compute blast radius, build in order.
+
+    Given a set of changed crates:
+    1. Load crate graph
+    2. Calculate blast radius (all affected crates)
+    3. Sort by tier (build order)
+    4. Execute cargo build -p <crate> for each in order
+    5. Return results for all builds
+    """
+    from ptc.crate_graph import load_graph, blast_radius, build_order
+
+    graph = load_graph()
+    radius = blast_radius(graph, changed_crates)
+    ordered = radius["affected"]
+
+    workspace_root = os.path.join(CAGE_ROOT, "projects", "Gently-nix")
+    if not os.path.isdir(workspace_root):
+        workspace_root = CAGE_ROOT
+
+    build_results = []
+    all_passed = True
+
+    for crate in ordered:
+        cmd = f"cargo build -p {crate}"
+        try:
+            result = subprocess.run(
+                cmd,
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=300,
+                cwd=workspace_root,
+            )
+            passed = result.returncode == 0
+            build_results.append({
+                "crate": crate,
+                "tier": graph["crates"].get(crate, {}).get("tier"),
+                "command": cmd,
+                "passed": passed,
+                "exit_code": result.returncode,
+                "stderr": result.stderr[:1000] if not passed else "",
+            })
+            if not passed:
+                all_passed = False
+                break  # Stop on first failure
+        except (subprocess.TimeoutExpired, FileNotFoundError) as e:
+            build_results.append({
+                "crate": crate,
+                "tier": graph["crates"].get(crate, {}).get("tier"),
+                "command": cmd,
+                "passed": False,
+                "error": str(e),
+            })
+            all_passed = False
+            break
+
+    return {
+        "mode": "native",
+        "sub_mode": "tier_rebuild",
+        "blast_radius": radius["summary"],
+        "risk": radius["risk"],
+        "affected_crates": len(ordered),
+        "builds_attempted": len(build_results),
+        "all_passed": all_passed,
+        "build_results": build_results,
+    }
+
+
+def _extract_crate_name(intent):
+    """Extract a gently-* crate name from an intent string."""
+    import re
+    match = re.search(r'(gently-[\w-]+|gentlyos-[\w-]+)', intent)
+    return match.group(1) if match else None
+
+
+def _extract_nix_target(intent):
+    """Extract a nix build target from intent (e.g., .#gently-cli)."""
+    import re
+    # Match .#target or just a gently- crate name
+    match = re.search(r'\.#([\w-]+)', intent)
+    if match:
+        return match.group(1)
+    match = re.search(r'(gently-[\w-]+|gentlyos-[\w-]+)', intent)
+    return match.group(1) if match else None
 
 
 # ── CODIE Execution Mode ───────────────────────────────────────
@@ -864,8 +1148,9 @@ class CodieContext:
 
     def _safe_shell(self, command):
         """Run a shell command from the known-safe set."""
-        # Only allow make targets and cargo commands
-        allowed_prefixes = ["make ", "cargo ", "docker ps", "docker info", "node "]
+        # Only allow make targets, cargo, nix, and safe system commands
+        allowed_prefixes = ["make ", "cargo ", "nix ", "rustc ", "rustfmt ",
+                            "docker ps", "docker info", "node "]
         if not any(command.startswith(p) for p in allowed_prefixes):
             return {"command": command, "status": "blocked", "reason": "not in safe command set"}
 
@@ -1387,8 +1672,8 @@ def _calculate_risk(task):
     risk = scale_risk.get(scale, 3)
 
     # Intent risk modifiers
-    high_risk_words = ["delete", "destroy", "drop", "force", "reset", "remove", "wipe", "nuke"]
-    medium_risk_words = ["deploy", "push", "release", "migrate", "update", "modify"]
+    high_risk_words = ["delete", "destroy", "drop", "force", "reset", "remove", "wipe", "nuke", "nixos-rebuild"]
+    medium_risk_words = ["deploy", "push", "release", "migrate", "update", "modify", "nix build", "rebuild tier"]
     if any(w in intent for w in high_risk_words):
         risk += 3
     elif any(w in intent for w in medium_risk_words):

@@ -1,0 +1,255 @@
+{
+  "_meta": {
+    "title": "GentlyOS Crate Dependency Graph",
+    "description": "Source of truth for all Gently-nix workspace crates — tiers, dependencies, paths, and owning tree nodes.",
+    "workspace": "projects/Gently-nix/Cargo.toml",
+    "version": "1.0.0"
+  },
+
+  "crates": {
+    "gently-core": {
+      "tier": 0, "path": "crates/foundation/gently-core",
+      "deps": [],
+      "node": "capt:types",
+      "description": "Foundation types, crypto primitives (SHA2, HMAC, Argon2)"
+    },
+    "gently-codie": {
+      "tier": 0, "path": "crates/foundation/gently-codie",
+      "deps": ["gently-core"],
+      "node": "capt:codie",
+      "description": "12-keyword instruction DSL"
+    },
+    "gently-artisan": {
+      "tier": 0, "path": "crates/foundation/gently-artisan",
+      "deps": ["gently-core"],
+      "node": "capt:types",
+      "description": "Toroidal knowledge storage (BS-ARTISAN)"
+    },
+    "gently-audio": {
+      "tier": 0, "path": "crates/foundation/gently-audio",
+      "deps": ["gently-core"],
+      "node": "capt:ux",
+      "description": "Audio processing (cpal, dasp, rustfft)"
+    },
+    "gently-visual": {
+      "tier": 0, "path": "crates/foundation/gently-visual",
+      "deps": ["gently-core"],
+      "node": "capt:ux",
+      "description": "Visual/SVG rendering"
+    },
+    "gently-goo": {
+      "tier": 0, "path": "crates/foundation/gently-goo",
+      "deps": ["gently-core", "gently-visual"],
+      "node": "capt:ux",
+      "description": "Unified distance field engine (SYNTHESTASIA)"
+    },
+    "gently-synth": {
+      "tier": 0, "path": "crates/foundation/gently-synth",
+      "deps": ["gently-core"],
+      "node": "capt:rewards",
+      "description": "Token and smart contract interface ($SYNTH)"
+    },
+
+    "gently-feed": {
+      "tier": 1, "path": "crates/knowledge/gently-feed",
+      "deps": ["gently-core"],
+      "node": "capt:wire",
+      "description": "Data feed aggregation"
+    },
+    "gently-btc": {
+      "tier": 1, "path": "crates/knowledge/gently-btc",
+      "deps": ["gently-core"],
+      "node": "capt:crypto",
+      "description": "Bitcoin data (genesis anchoring)"
+    },
+
+    "gently-alexandria": {
+      "tier": 2, "path": "crates/knowledge/gently-alexandria",
+      "deps": ["gently-core", "gently-artisan"],
+      "node": "capt:alexandria",
+      "description": "Knowledge graph"
+    },
+    "gently-search": {
+      "tier": 2, "path": "crates/knowledge/gently-search",
+      "deps": ["gently-core", "gently-alexandria"],
+      "node": "capt:alexandria",
+      "description": "Search indexing"
+    },
+    "gently-ipfs": {
+      "tier": 2, "path": "crates/knowledge/gently-ipfs",
+      "deps": ["gently-core"],
+      "node": "capt:p2p",
+      "description": "IPFS integration"
+    },
+
+    "gently-brain": {
+      "tier": 3, "path": "crates/intelligence/gently-brain",
+      "deps": ["gently-core"],
+      "node": "capt:exec",
+      "description": "LLM orchestration"
+    },
+    "gently-inference": {
+      "tier": 3, "path": "crates/intelligence/gently-inference",
+      "deps": ["gently-core", "gently-brain"],
+      "node": "capt:exec",
+      "description": "Model inference engine"
+    },
+    "gently-agents": {
+      "tier": 3, "path": "crates/intelligence/gently-agents",
+      "deps": ["gently-core", "gently-brain"],
+      "node": "capt:exec",
+      "description": "Five-element agent pipeline (SPIRIT->AIR->WATER->EARTH->FIRE)"
+    },
+    "gently-micro": {
+      "tier": 3, "path": "crates/intelligence/gently-micro",
+      "deps": ["gently-core"],
+      "node": "capt:exec",
+      "description": "Microservice runtime"
+    },
+    "gently-mcp": {
+      "tier": 3, "path": "crates/intelligence/gently-mcp",
+      "deps": ["gently-core"],
+      "node": "capt:claude",
+      "description": "MCP protocol support"
+    },
+    "gently-ged": {
+      "tier": 3, "path": "crates/intelligence/gently-ged",
+      "deps": ["gently-core", "gently-brain"],
+      "node": "capt:context",
+      "description": "Generative Educational Device (SYNTHESTASIA)"
+    },
+    "gently-behavior": {
+      "tier": 3, "path": "crates/intelligence/gently-behavior",
+      "deps": ["gently-core", "gently-brain"],
+      "node": "capt:memory",
+      "description": "Behavioral learning + adaptive UI (SYNTHESTASIA)"
+    },
+
+    "gently-security": {
+      "tier": 4, "path": "crates/security/gently-security",
+      "deps": ["gently-core"],
+      "node": "capt:audit",
+      "description": "Core security framework"
+    },
+    "gently-cipher": {
+      "tier": 4, "path": "crates/security/gently-cipher",
+      "deps": ["gently-core"],
+      "node": "capt:crypto",
+      "description": "Encryption/decryption (SHA1, MD5, MD4, BS58)"
+    },
+    "gently-guardian": {
+      "tier": 4, "path": "crates/security/gently-guardian",
+      "deps": ["gently-core", "gently-security"],
+      "node": "capt:hardening",
+      "description": "16 security daemons + SQLite tracking"
+    },
+    "gently-sim": {
+      "tier": 4, "path": "crates/security/gently-sim",
+      "deps": ["gently-core", "gently-security"],
+      "node": "capt:hardening",
+      "description": "Security simulation"
+    },
+    "gently-sploit": {
+      "tier": 4, "path": "crates/security/gently-sploit",
+      "deps": ["gently-core", "gently-security"],
+      "node": "capt:audit",
+      "description": "Exploit detection/analysis"
+    },
+
+    "gently-network": {
+      "tier": 5, "path": "crates/network/gently-network",
+      "deps": ["gently-core"],
+      "node": "capt:wire",
+      "description": "Base networking"
+    },
+    "gently-gateway": {
+      "tier": 5, "path": "crates/network/gently-gateway",
+      "deps": ["gently-core", "gently-network"],
+      "node": "capt:api",
+      "description": "API gateway"
+    },
+    "gently-bridge": {
+      "tier": 5, "path": "crates/network/gently-bridge",
+      "deps": ["gently-core", "gently-network"],
+      "node": "capt:wire",
+      "description": "IPC bridge (Limbo Layer, port 7335)"
+    },
+    "gently-dance": {
+      "tier": 5, "path": "crates/network/gently-dance",
+      "deps": ["gently-core", "gently-cipher"],
+      "node": "capt:p2p",
+      "description": "XOR reconstruction protocol"
+    },
+    "gently-livepeer": {
+      "tier": 5, "path": "crates/network/gently-livepeer",
+      "deps": ["gently-core", "gently-network"],
+      "node": "capt:p2p",
+      "description": "Decentralized video transcoding"
+    },
+
+    "gently-web": {
+      "tier": 6, "path": "crates/application/gently-web",
+      "deps": ["gently-core", "gently-bridge"],
+      "node": "capt:api",
+      "description": "Web interface (HTMX)"
+    },
+    "gently-architect": {
+      "tier": 6, "path": "crates/application/gently-architect",
+      "deps": ["gently-core"],
+      "node": "capt:build",
+      "description": "Architecture tool"
+    },
+    "gently-document": {
+      "tier": 6, "path": "crates/application/gently-document",
+      "deps": ["gently-core", "gently-alexandria"],
+      "node": "capt:context",
+      "description": "Three-chain document engine (SYNTHESTASIA)"
+    },
+    "gently-gooey": {
+      "tier": 6, "path": "crates/application/gently-gooey",
+      "deps": ["gently-core", "gently-goo", "gently-visual"],
+      "node": "capt:ux",
+      "description": "2D application builder (SYNTHESTASIA)"
+    },
+    "gently-commerce": {
+      "tier": 6, "path": "crates/application/gently-commerce",
+      "deps": ["gently-core", "gently-web"],
+      "node": "capt:api",
+      "description": "Vibe commerce + TradingView (SYNTHESTASIA)"
+    },
+    "gently-google": {
+      "tier": 6, "path": "crates/application/gently-google",
+      "deps": ["gently-core", "gently-network"],
+      "node": "capt:api",
+      "description": "Google APIs (YouTube, Ads, Analytics)"
+    },
+    "gently-tiktok": {
+      "tier": 6, "path": "crates/application/gently-tiktok",
+      "deps": ["gently-core", "gently-network"],
+      "node": "capt:api",
+      "description": "TikTok posting infrastructure"
+    },
+    "gently-cli": {
+      "tier": 6, "path": "crates/application/gently-cli",
+      "deps": ["gently-core", "gently-brain", "gently-agents", "gently-bridge", "gently-mcp"],
+      "node": "capt:claude",
+      "description": "Main CLI binary (produces 'gently' executable)"
+    },
+    "gentlyos-tui": {
+      "tier": 6, "path": "crates/application/gentlyos-tui",
+      "deps": ["gently-core"],
+      "node": "capt:ux",
+      "description": "Terminal UI"
+    }
+  },
+
+  "tiers": {
+    "0": { "name": "Foundation", "build_order": 1, "sephira": "bone", "description": "Core primitives, crypto, base types" },
+    "1": { "name": "Knowledge (core)", "build_order": 2, "sephira": "blob", "description": "Data feeds, anchoring" },
+    "2": { "name": "Knowledge (graph)", "build_order": 3, "sephira": "blob", "description": "Knowledge graph, search, IPFS" },
+    "3": { "name": "Intelligence", "build_order": 4, "sephira": "cali", "description": "LLM, agents, reasoning" },
+    "4": { "name": "Security", "build_order": 5, "sephira": "fence", "description": "Crypto, guardians, audit" },
+    "5": { "name": "Network", "build_order": 6, "sephira": "bark", "description": "Networking, gateway, bridge" },
+    "6": { "name": "Application", "build_order": 7, "sephira": "biz", "description": "Web, CLI, user-facing apps" }
+  }
+}
