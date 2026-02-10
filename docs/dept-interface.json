@@ -17,14 +17,14 @@
   "entry_points": [],
   "key_concepts": [
     "error_clarity",
-    "gently-cli",
-    "gently-gateway",
     "prompt_versioned",
     "gently-web",
+    "gentlyos-tui",
+    "api_contracts",
     "gently-gooey",
     "gently-mcp",
-    "api_contracts",
-    "gentlyos-tui"
+    "gently-gateway",
+    "gently-cli"
   ],
   "cross_refs": {
     "structural": {
@@ -32,7 +32,8 @@
       "children": [
         "capt:api",
         "capt:claude",
-        "capt:ux"
+        "capt:ux",
+        "capt:shelf"
       ],
       "siblings": [
         "dept:foundation",
@@ -61,12 +62,12 @@
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:c771f9517d9b6fc4def95f5ec3057a90a33501cd40de001e64dbccb9a6d1d871",
+    "source_hash": "sha256:7c00959052a43826de0fee68b4f2fd3802721d98cc4a4f863d3962444b6d2442",
     "is_stale": false,
-    "last_verified": "2026-02-10T08:18:58.309455+00:00"
+    "last_verified": "2026-02-10T11:27:47.038495+00:00"
   },
-  "content_hash": "sha256:cacae4df988d6241ddbced6471ea9587556507521657dcc6862f6371425c7d20",
+  "content_hash": "sha256:ff17ceaa5842058d49e1afac92eb2d7dbf7fa98b850198f49b99769655b87d06",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-10T08:18:58.309455+00:00"
+  "_ts": "2026-02-10T11:27:47.038495+00:00"
 }

@@ -1,4 +1,5 @@
 mod codie_parser;
+mod middleware;
 mod routes;
 mod subprocess;
 
@@ -68,7 +69,11 @@ async fn main() {
         .merge(routes::sessions::router())
         .merge(routes::gentlyos::router())
         .merge(routes::codie::router())
+        .merge(routes::tier::router())
+        .merge(routes::surface::router())
+        .merge(routes::app::router())
         .nest_service("/static", ServeDir::new(static_dir))
+        .layer(axum::middleware::from_fn(middleware::tier_auth::tier_auth))
         .with_state(state);
 
     let bind = std::env::var("CAGE_WEB_BIND").unwrap_or_else(|_| "0.0.0.0:5000".to_string());

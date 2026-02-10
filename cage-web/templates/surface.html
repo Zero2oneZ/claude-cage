@@ -1,0 +1,33 @@
+<div class="surface-page">
+    <h1>IO Surface</h1>
+    <p class="subtitle">Layer: <span class="tier-badge {{ layer_badge }}">{{ layer_label }}</span> | Active: {{ active_count }} | Locked: {{ locked_count }}</p>
+
+    <div class="shelf-grid">
+        {% for item in shelf_items %}
+        <div class="shelf-item {% if item.locked %}shelf-locked{% else %}shelf-active{% endif %} {% if item.core %}shelf-core{% endif %}">
+            <div class="shelf-icon">{{ item.icon }}</div>
+            <div class="shelf-name">{{ item.name }}</div>
+            <div class="shelf-status">
+                {% if item.core %}
+                <span class="status-badge status-core">CORE</span>
+                {% else if item.locked %}
+                <span class="status-badge status-down">LOCKED</span>
+                {% else %}
+                <span class="status-badge status-up">ACTIVE</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="surface-info">
+        <h2>IO Surface Rendering</h2>
+        <p class="subtitle">The IO Surface is the public-facing output of Mask + ShelfState.</p>
+        <ul class="surface-rules">
+            <li>Core items (alexandria, claude-chat, guarddog-dns, env-vault, shelf) are always visible</li>
+            <li>Locked items are hidden from the surface</li>
+            <li>Mask palette applies as CSS custom properties</li>
+            <li>"Powered by GentlyOS" badge is always visible</li>
+        </ul>
+    </div>
+</div>

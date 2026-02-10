@@ -6,6 +6,8 @@
 x-common: &common
   labels:
     managed-by: claude-cage
+  environment:
+    - GENTLY_TIER=${GENTLY_TIER:-free}
   restart: "no"
   read_only: true
   security_opt:

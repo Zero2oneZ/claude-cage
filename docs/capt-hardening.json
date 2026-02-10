@@ -12,10 +12,10 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "gently-sim",
     "least_privilege",
-    "ipc_audited",
-    "gently-guardian"
+    "gently-guardian",
+    "gently-sim",
+    "ipc_audited"
   ],
   "cross_refs": {
     "structural": {
@@ -37,12 +37,12 @@
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:f102a7543d6c3de8ce19a32132076ac1f1644e0ccf85e2969929a7f522d2b5b3",
+    "source_hash": "sha256:a1d0f4a0f52fd1cd1079674875ef2a5e65cf50ce97a2f3af5109f4a670102907",
     "is_stale": false,
-    "last_verified": "2026-02-10T08:18:58.321418+00:00"
+    "last_verified": "2026-02-10T11:26:42.028939+00:00"
   },
-  "content_hash": "sha256:44eff49d9bd4c00aad752f87f3463030be5ec4446f74e6527c290f25dabc5186",
+  "content_hash": "sha256:597483f079f766a08f023589af6ff8044aa116c32b4b1da3f4d5575d22bec7e0",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-10T08:18:58.321418+00:00"
+  "_ts": "2026-02-10T11:26:42.028939+00:00"
 }

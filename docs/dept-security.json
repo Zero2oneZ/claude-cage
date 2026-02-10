@@ -17,11 +17,11 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "ALL",
+    "mandatory_unsafe_review",
     "mandatory_network_review",
     "mandatory_crypto_review",
     "can_block_any_merge",
-    "mandatory_unsafe_review"
+    "ALL"
   ],
   "cross_refs": {
     "structural": {
@@ -52,12 +52,12 @@
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:e446c792639e1808c2eff56caecf7ac3f1f3a80b185d37993c570cb489fccc3c",
+    "source_hash": "sha256:d51d52412dfd125df17be1d60819f414bd5ada18dbabb61c82eaa154cb40e4ca",
     "is_stale": false,
-    "last_verified": "2026-02-10T08:18:58.308704+00:00"
+    "last_verified": "2026-02-10T11:26:42.025903+00:00"
   },
-  "content_hash": "sha256:99f6f296bb7cb3863d635c2e12c548a8485d12202e54fd364a96e49c37597919",
+  "content_hash": "sha256:1a8726a9c68a9fa47b3a2e7d1622d2ea3518327cdc8dc002b8d8c81110adc8a3",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-10T08:18:58.308704+00:00"
+  "_ts": "2026-02-10T11:26:42.025903+00:00"
 }

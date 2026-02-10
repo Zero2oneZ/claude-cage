@@ -13,13 +13,13 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "openapi_current",
-    "gently-gateway",
+    "gently-google",
     "gently-web",
-    "gently-tiktok",
+    "openapi_current",
     "contracts_stable",
     "gently-commerce",
-    "gently-google"
+    "gently-gateway",
+    "gently-tiktok"
   ],
   "cross_refs": {
     "structural": {
@@ -27,7 +27,8 @@
       "children": [],
       "siblings": [
         "capt:claude",
-        "capt:ux"
+        "capt:ux",
+        "capt:shelf"
       ]
     },
     "code_shared": [
@@ -41,12 +42,12 @@
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:600190e3abc2df81640f40ae1c36b592c51537ce931532f7886ae6764d650886",
+    "source_hash": "sha256:9993744623afbde387a73169447ada58b67bef26a58516ed635dc91d3c9bc849",
     "is_stale": false,
-    "last_verified": "2026-02-10T08:18:58.321528+00:00"
+    "last_verified": "2026-02-10T11:26:46.419012+00:00"
   },
-  "content_hash": "sha256:677fa31c7585e66ca2becea0e0c0801d4889c9f0a38b226b335d267356ffd8e1",
+  "content_hash": "sha256:0fb10d183d3ebee64a408a12d1816fb54f77a82d61214468e735703cb5e58165",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-10T08:18:58.321528+00:00"
+  "_ts": "2026-02-10T11:26:46.419012+00:00"
 }

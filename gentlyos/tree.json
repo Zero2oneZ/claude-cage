@@ -216,7 +216,7 @@
       "name": "Interface Department",
       "scale": "department",
       "parent": "exec:cto",
-      "children": ["capt:api", "capt:claude", "capt:ux"],
+      "children": ["capt:api", "capt:claude", "capt:ux", "capt:shelf"],
       "inputs": [{ "name": "interface_task", "type": "task", "from": "exec:cto" }],
       "outputs": [{ "name": "dept_result", "type": "result", "to": "exec:cto" }],
       "rules": [
@@ -422,6 +422,14 @@
       "rules": [{ "name": "consistency", "condition": "UI inconsistency", "action": "escalate" }, { "name": "accessibility", "condition": "accessibility failure", "action": "block" }],
       "escalation": { "target": "dept:interface", "threshold": 5, "cascade": ["dept:interface", "exec:cto"] },
       "metadata": { "agent_id": "ux_captain", "crates_owned": ["gently-gooey", "gently-audio", "gently-visual", "gentlyos-tui"], "tier": [0, 6] }
+    },
+    {
+      "id": "capt:shelf", "name": "Shelf Captain", "scale": "captain", "parent": "dept:interface",
+      "children": [], "inputs": [{ "name": "shelf_task", "type": "task", "from": "dept:interface" }],
+      "outputs": [{ "name": "review_result", "type": "result", "to": "dept:interface" }],
+      "rules": [{ "name": "core_items_immutable", "condition": "core item locked off", "action": "block" }, { "name": "mask_valid", "condition": "mask validation fails", "action": "block" }, { "name": "route_conflict", "condition": "duplicate route binding", "action": "block" }],
+      "escalation": { "target": "dept:interface", "threshold": 4, "cascade": ["dept:interface", "exec:cto"] },
+      "metadata": { "agent_id": "shelf_captain", "crates_owned": ["gently-core"], "tier": [0, 6], "capabilities": ["shelf_layout", "item_registry", "visibility_control", "mask_application"] }
     },
     {
       "id": "capt:build", "name": "Build Captain", "scale": "captain", "parent": "dept:devops",

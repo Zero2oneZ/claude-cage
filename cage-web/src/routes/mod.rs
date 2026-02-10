@@ -1,8 +1,11 @@
+pub mod app;
 pub mod codie;
 pub mod gentlyos;
 pub mod health;
 pub mod pages;
 pub mod sessions;
+pub mod surface;
+pub mod tier;
 
 /// Check if the request comes from HTMX (has HX-Request header).
 pub fn is_htmx(headers: &axum::http::HeaderMap) -> bool {
@@ -44,6 +47,8 @@ pub fn wrap_page(title: &str, content: &str) -> String {
             <li><a href="/sessions" hx-get="/sessions" hx-target="#main" hx-push-url="true">Sessions</a></li>
             <li><a href="/tree" hx-get="/tree" hx-target="#main" hx-push-url="true">GentlyOS Tree</a></li>
             <li><a href="/codie" hx-get="/codie" hx-target="#main" hx-push-url="true">CODIE Programs</a></li>
+            <li><a href="/tier" hx-get="/tier" hx-target="#main" hx-push-url="true">Tier Hierarchy</a></li>
+            <li><a href="/surface" hx-get="/surface" hx-target="#main" hx-push-url="true">IO Surface</a></li>
         </ul>
         <div class="health-bar" hx-get="/partials/health" hx-trigger="load, every 5s" hx-swap="innerHTML">
             Loading...

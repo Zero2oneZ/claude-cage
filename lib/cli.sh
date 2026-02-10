@@ -220,6 +220,10 @@ cmd_start() {
         config_load_default
     fi
 
+    # Resolve tier for IPC gating (default: free)
+    local tier="${GENTLY_TIER:-free}"
+    env_vars+=("GENTLY_TIER=$tier")
+
     # Auto-GC dead containers before starting
     if [[ "$(config_get gc_on_start true)" == "true" ]]; then
         lifecycle_gc >/dev/null 2>&1 || true

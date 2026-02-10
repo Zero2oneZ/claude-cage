@@ -430,6 +430,140 @@ h3 { font-size: 15px; margin-bottom: 8px; }
     border-top: 1px solid var(--border);
 }
 
+/* GentlyOS Design Tokens (from gentlyos-mock-v2.html) */
+:root {
+    --gently-bg: #08080c;
+    --gently-shelf: #0a0a10;
+    --gently-panel: #0e0e16;
+    --gently-surface: #12121c;
+    --gently-elevated: #18182a;
+    --gently-hover: #1e1e38;
+    --gently-border: #1a1a2e;
+    --gently-focus: #00e5a0;
+    --gently-process: #4d9fff;
+    --gently-proton: #ff6b9d;
+    --gently-code: #c77dff;
+    --gently-dead: #ff4444;
+    --gently-muted: #555577;
+    --gently-vdim: #333355;
+}
+
+/* Tier Badges */
+.tier-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+.tier-founder { color: var(--gently-focus); background: rgba(0, 229, 160, 0.15); border: 1px solid rgba(0, 229, 160, 0.3); }
+.tier-dev { color: var(--gently-code); background: rgba(199, 125, 255, 0.15); border: 1px solid rgba(199, 125, 255, 0.3); }
+.tier-pro { color: var(--gently-process); background: rgba(77, 159, 255, 0.15); border: 1px solid rgba(77, 159, 255, 0.3); }
+.tier-basic { color: var(--gently-muted); background: rgba(85, 85, 119, 0.15); border: 1px solid rgba(85, 85, 119, 0.3); }
+.tier-free { color: var(--gently-vdim); background: rgba(51, 51, 85, 0.15); border: 1px solid rgba(51, 51, 85, 0.3); }
+
+/* Tier Page */
+.tier-page { max-width: 1000px; }
+.tier-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+.tier-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+}
+.tier-card-active {
+    border-color: var(--gently-focus);
+    box-shadow: 0 0 12px rgba(0, 229, 160, 0.1);
+}
+.tier-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.tier-name { font-weight: 600; font-size: 14px; }
+.tier-nft { color: var(--text-muted); font-size: 12px; font-family: var(--font-mono); margin-left: auto; }
+.tier-features { list-style: none; padding: 0; }
+.tier-features li {
+    padding: 3px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(48, 54, 61, 0.3);
+}
+.tier-features li:last-child { border-bottom: none; }
+.tier-current-marker {
+    margin-top: 12px;
+    text-align: center;
+    color: var(--gently-focus);
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+.tier-matrix { margin-top: 24px; }
+.check-on { color: var(--green); font-family: var(--font-mono); font-size: 12px; text-align: center; }
+.check-off { color: var(--text-muted); font-family: var(--font-mono); font-size: 12px; text-align: center; }
+
+/* IO Surface */
+.surface-page { max-width: 1000px; }
+.shelf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+}
+.shelf-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    transition: border-color 0.15s, opacity 0.15s;
+}
+.shelf-active { border-color: var(--gently-focus); }
+.shelf-active:hover { box-shadow: 0 0 8px rgba(0, 229, 160, 0.1); }
+.shelf-locked { opacity: 0.4; }
+.shelf-core { border-left: 3px solid var(--gently-focus); }
+.shelf-icon {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gently-process);
+    margin-bottom: 8px;
+}
+.shelf-locked .shelf-icon { color: var(--text-muted); }
+.shelf-name {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+.shelf-status { font-size: 11px; }
+.status-core { color: var(--gently-focus); background: rgba(0, 229, 160, 0.15); }
+
+.surface-info { margin-top: 24px; }
+.surface-rules {
+    list-style: none;
+    padding: 0;
+}
+.surface-rules li {
+    padding: 6px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(48, 54, 61, 0.3);
+}
+.surface-rules li:before {
+    content: "-> ";
+    color: var(--gently-focus);
+    font-family: var(--font-mono);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .sidebar { width: 100%; height: auto; position: static; }

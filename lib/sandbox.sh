@@ -91,11 +91,69 @@ sandbox_create_network() {
     fi
 }
 
+# Returns allowed hosts for a given tier (additive — higher tiers include lower)
+sandbox_tier_hosts() {
+    local tier="${1:-free}"
+    local hosts="api.anthropic.com,cdn.anthropic.com"
+
+    case "$tier" in
+        basic)
+            hosts="$hosts,github.com,pypi.org,files.pythonhosted.org"
+            ;;
+        pro)
+            hosts="$hosts,github.com,pypi.org,files.pythonhosted.org"
+            hosts="$hosts,registry-1.docker.io,auth.docker.io,production.cloudflare.docker.com"
+            hosts="$hosts,registry.npmjs.org"
+            ;;
+        dev|founder|admin)
+            # Full outbound — return empty to skip filtering
+            return 0
+            ;;
+    esac
+
+    echo "$hosts"
+}
+
+# Returns allowed ports for a given tier
+sandbox_tier_ports() {
+    local tier="${1:-free}"
+    # All tiers need HTTPS (443) and DNS (53)
+    local ports="443,53"
+
+    case "$tier" in
+        basic)
+            ports="$ports,22"  # SSH for git
+            ;;
+        pro)
+            ports="$ports,22,5000"  # SSH + registry
+            ;;
+        dev|founder|admin)
+            # Full outbound
+            echo ""
+            return 0
+            ;;
+    esac
+
+    echo "$ports"
+}
+
 # Apply firewall rules for filtered mode (restrict to allowed hosts only)
 sandbox_apply_network_filter() {
     local container_name="$1"
+    local tier="${2:-free}"
+
+    # Dev+ tiers get full outbound — skip filtering
+    if [[ "$tier" == "dev" || "$tier" == "founder" || "$tier" == "admin" ]]; then
+        echo "==> Tier '$tier': full outbound access (no filtering)"
+        return 0
+    fi
+
     local allowed_hosts
-    allowed_hosts="$(config_get allowed_hosts "api.anthropic.com")"
+    # Use tier-specific hosts, falling back to config
+    allowed_hosts="$(sandbox_tier_hosts "$tier")"
+    if [[ -z "$allowed_hosts" ]]; then
+        allowed_hosts="$(config_get allowed_hosts "api.anthropic.com")"
+    fi
 
     if ! command -v iptables &>/dev/null; then
         echo "Warning: iptables not available — network filtering not applied." >&2

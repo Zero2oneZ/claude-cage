@@ -1,0 +1,78 @@
+<div class="tier-page">
+    <h1>Layer Hierarchy</h1>
+    <p class="subtitle">Current: <span class="tier-badge {{ current_badge }}">{{ current_label }}</span></p>
+
+    <div class="tier-grid">
+        {% for t in tiers %}
+        <div class="tier-card {% if t.is_current %}tier-card-active{% endif %}">
+            <div class="tier-header">
+                <span class="tier-badge {{ t.badge_class }}">L{{ t.level }}</span>
+                <span class="tier-name">{{ t.name }}</span>
+                <span class="tier-nft">{{ t.nft_tier }}</span>
+            </div>
+            <ul class="tier-features">
+                {% for f in t.features %}
+                <li>{{ f }}</li>
+                {% endfor %}
+            </ul>
+            {% if t.is_current %}
+            <div class="tier-current-marker">CURRENT</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="tier-matrix">
+        <h2>Feature Matrix</h2>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Free</th>
+                    <th>Basic</th>
+                    <th>Pro</th>
+                    <th>Dev</th>
+                    <th>Founder</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>GuardDog DNS</td>
+                    <td class="check-on">ON</td><td class="check-on">ON</td><td class="check-on">ON</td><td class="check-on">ON</td><td class="check-on">ON</td>
+                </tr>
+                <tr>
+                    <td>Claude Chat</td>
+                    <td class="check-on">ON</td><td class="check-on">ON</td><td class="check-on">ON</td><td class="check-on">ON</td><td class="check-on">ON</td>
+                </tr>
+                <tr>
+                    <td>Workbench</td>
+                    <td class="check-off">--</td><td class="check-on">ON</td><td class="check-on">ON</td><td class="check-on">ON</td><td class="check-on">ON</td>
+                </tr>
+                <tr>
+                    <td>Fork Tree</td>
+                    <td class="check-off">--</td><td class="check-on">5</td><td class="check-on">INF</td><td class="check-on">INF</td><td class="check-on">INF</td>
+                </tr>
+                <tr>
+                    <td>Env Vault</td>
+                    <td class="check-off">--</td><td class="check-on">10</td><td class="check-on">INF</td><td class="check-on">INF</td><td class="check-on">INF</td>
+                </tr>
+                <tr>
+                    <td>Docker</td>
+                    <td class="check-off">--</td><td class="check-off">--</td><td class="check-on">ON</td><td class="check-on">ON</td><td class="check-on">ON</td>
+                </tr>
+                <tr>
+                    <td>Agent Swarm</td>
+                    <td class="check-off">--</td><td class="check-off">--</td><td class="check-on">8</td><td class="check-on">34</td><td class="check-on">34</td>
+                </tr>
+                <tr>
+                    <td>Limbo Layer</td>
+                    <td class="check-off">--</td><td class="check-off">--</td><td class="check-off">--</td><td class="check-on">ON</td><td class="check-on">ON</td>
+                </tr>
+                <tr>
+                    <td>Upstream Push</td>
+                    <td class="check-off">--</td><td class="check-off">--</td><td class="check-off">--</td><td class="check-off">--</td><td class="check-on">ON</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
