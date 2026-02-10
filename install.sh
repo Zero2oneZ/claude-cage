@@ -107,14 +107,43 @@ CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/claude-cage"
 DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/claude-cage"
 COMPLETIONS_DIR="$PREFIX/share/bash-completion/completions"
 
+# ── Privilege escalation helper ──────────────────────────────────
+# Detects whether we need sudo for the chosen PREFIX.
+# User-local dirs (CONFIG_DIR, DATA_DIR) never use sudo.
+SUDO=""
+_detect_sudo() {
+    # Check: can we write to PREFIX (or its parent if PREFIX doesn't exist yet)?
+    local can_write=false
+    if [[ -d "$PREFIX" && -w "$PREFIX" ]]; then
+        can_write=true
+    elif [[ ! -d "$PREFIX" && -w "$(dirname "$PREFIX")" ]]; then
+        can_write=true
+    fi
+
+    if $can_write; then
+        SUDO=""
+    elif [[ "$(id -u)" -eq 0 ]]; then
+        SUDO=""
+    elif command -v sudo &>/dev/null; then
+        SUDO="sudo"
+        info "System prefix $PREFIX requires elevated permissions — using sudo"
+    else
+        fatal "Cannot write to $PREFIX and sudo is not available.\n    Run as root or use: ./install.sh --prefix ~/.local"
+    fi
+}
+
+# Run a command with sudo only when needed for system dirs
+priv() { $SUDO "$@"; }
+
 # ── Uninstall ────────────────────────────────────────────────────
 if $UNINSTALL; then
     banner
+    _detect_sudo
     info "Uninstalling claude-cage..."
 
-    rm -f "$BIN_DIR/claude-cage"         && ok "Removed $BIN_DIR/claude-cage"        || true
-    rm -rf "$SHARE_DIR"                  && ok "Removed $SHARE_DIR"                  || true
-    rm -f "$COMPLETIONS_DIR/claude-cage" && ok "Removed shell completions"           || true
+    priv rm -f "$BIN_DIR/claude-cage"         && ok "Removed $BIN_DIR/claude-cage"        || true
+    priv rm -rf "$SHARE_DIR"                  && ok "Removed $SHARE_DIR"                  || true
+    priv rm -f "$COMPLETIONS_DIR/claude-cage" && ok "Removed shell completions"           || true
 
     echo ""
     info "User data preserved at: $CONFIG_DIR"
@@ -221,13 +250,14 @@ if ! $SKIP_DEPS; then
 fi
 
 # ── Step 3: Create directories ──────────────────────────────────
+_detect_sudo
 info "Creating directories..."
 
-mkdir -p "$BIN_DIR"
-mkdir -p "$SHARE_DIR"/{lib,docker/cli,docker/desktop,security,config}
+priv mkdir -p "$BIN_DIR"
+priv mkdir -p "$SHARE_DIR/lib" "$SHARE_DIR/docker/cli" "$SHARE_DIR/docker/desktop" "$SHARE_DIR/security" "$SHARE_DIR/config"
 mkdir -p "$CONFIG_DIR"
-mkdir -p "$DATA_DIR"/{sessions,logs}
-mkdir -p "$COMPLETIONS_DIR" 2>/dev/null || true
+mkdir -p "$DATA_DIR/sessions" "$DATA_DIR/logs"
+priv mkdir -p "$COMPLETIONS_DIR" 2>/dev/null || true
 
 ok "Directories created"
 
@@ -235,29 +265,29 @@ ok "Directories created"
 info "Installing files..."
 
 # Core binary
-cp "$CAGE_DIR/bin/claude-cage" "$BIN_DIR/claude-cage"
-chmod +x "$BIN_DIR/claude-cage"
+priv cp "$CAGE_DIR/bin/claude-cage" "$BIN_DIR/claude-cage"
+priv chmod +x "$BIN_DIR/claude-cage"
 
 # Libraries
 for f in "$CAGE_DIR"/lib/*.sh; do
-    cp "$f" "$SHARE_DIR/lib/"
+    [[ -f "$f" ]] && priv cp "$f" "$SHARE_DIR/lib/"
 done
 
 # Docker files
-cp "$CAGE_DIR/docker/cli/Dockerfile" "$SHARE_DIR/docker/cli/"
-cp "$CAGE_DIR/docker/desktop/Dockerfile" "$SHARE_DIR/docker/desktop/"
-cp "$CAGE_DIR/docker/desktop/entrypoint-desktop.sh" "$SHARE_DIR/docker/desktop/"
-cp "$CAGE_DIR/docker/desktop/openbox-rc.xml" "$SHARE_DIR/docker/desktop/"
+priv cp "$CAGE_DIR/docker/cli/Dockerfile" "$SHARE_DIR/docker/cli/"
+priv cp "$CAGE_DIR/docker/desktop/Dockerfile" "$SHARE_DIR/docker/desktop/"
+priv cp "$CAGE_DIR/docker/desktop/entrypoint-desktop.sh" "$SHARE_DIR/docker/desktop/"
+priv cp "$CAGE_DIR/docker/desktop/openbox-rc.xml" "$SHARE_DIR/docker/desktop/"
 
 # Security profiles
-cp "$CAGE_DIR/security/seccomp-default.json" "$SHARE_DIR/security/"
-cp "$CAGE_DIR/security/apparmor-profile" "$SHARE_DIR/security/"
+priv cp "$CAGE_DIR/security/seccomp-default.json" "$SHARE_DIR/security/"
+priv cp "$CAGE_DIR/security/apparmor-profile" "$SHARE_DIR/security/"
 
 # Default config
-cp "$CAGE_DIR/config/default.yaml" "$SHARE_DIR/config/"
+priv cp "$CAGE_DIR/config/default.yaml" "$SHARE_DIR/config/"
 
 # Docker Compose
-cp "$CAGE_DIR/docker-compose.yml" "$SHARE_DIR/"
+priv cp "$CAGE_DIR/docker-compose.yml" "$SHARE_DIR/"
 
 # User config (only if not existing — don't overwrite user customizations)
 if [[ ! -f "$CONFIG_DIR/config.yaml" ]]; then
@@ -266,15 +296,15 @@ if [[ ! -f "$CONFIG_DIR/config.yaml" ]]; then
 fi
 
 # Patch CAGE_ROOT in the installed binary to point to SHARE_DIR
-sed -i "s|CAGE_ROOT=.*|CAGE_ROOT=\"$SHARE_DIR\"|" "$BIN_DIR/claude-cage" 2>/dev/null || \
-    sed -i '' "s|CAGE_ROOT=.*|CAGE_ROOT=\"$SHARE_DIR\"|" "$BIN_DIR/claude-cage" 2>/dev/null || true
+priv sed -i "s|CAGE_ROOT=.*|CAGE_ROOT=\"$SHARE_DIR\"|" "$BIN_DIR/claude-cage" 2>/dev/null || \
+    priv sed -i '' "s|CAGE_ROOT=.*|CAGE_ROOT=\"$SHARE_DIR\"|" "$BIN_DIR/claude-cage" 2>/dev/null || true
 
 ok "Files installed"
 
 # ── Step 5: Shell completions ───────────────────────────────────
 info "Installing shell completions..."
 
-cat > "$COMPLETIONS_DIR/claude-cage" 2>/dev/null <<'COMP' || warn "Could not install completions"
+priv tee "$COMPLETIONS_DIR/claude-cage" > /dev/null 2>&1 <<'COMP' || warn "Could not install completions (non-fatal)"
 _claude_cage() {
     local cur prev commands
     COMPREPLY=()
