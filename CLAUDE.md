@@ -54,6 +54,14 @@ claude-cage destroy <name>        # Remove container + volume
 claude-cage config [--validate]   # Show or validate configuration
 ```
 
+## Import Bucket (`.import-bucket/`)
+
+Staging area for external imports — 3rd party repos, data exports, downloads, research material. Contents are **transient and never committed** (gitignored). Only the README is tracked.
+
+**Use for:** Claude data exports, cloned reference repos, zip archives, datasets, papers, anything project-purpose-centric that needs a landing zone before being processed into the proper project location.
+
+**Workflow:** drop it in, extract/process what you need, clean up when done. No secrets.
+
 ## Architecture
 
 ### Bash Library Architecture (`lib/`)

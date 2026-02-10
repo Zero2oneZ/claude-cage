@@ -410,39 +410,54 @@ def store_artifact(name, artifact_type, content, project="claude-cage"):
 def run(tree_path, intent, target_id=None, dry_run=True):
     """Run a full PTC cycle.
 
-    1. Load tree
-    2. Decompose intent → leaf tasks (TOP → DOWN)
-    3. Execute leaf tasks (LEAVES DO THE WORK)
-    4. Aggregate results (BOTTOM → UP)
-    5. Store everything (→ MongoDB)
+    1. INTAKE   — Load tree, log intent
+    2. TRIAGE   — Route intent to matching nodes
+    3. PLAN     — Decompose to leaf tasks
+    4. REVIEW   — Check approval gates before execution
+    5. EXECUTE  — Leaf nodes do the work
+    6. VERIFY   — Check results, detect failures
+    7. INTEGRATE — Aggregate bottom-up, apply rules, escalate failures
+    8. SHIP     — Final report, store trace, update tree state
 
     Returns the full execution trace.
     """
     ts_start = time.time()
     run_id = f"ptc-{int(ts_start)}"
 
-    # Phase 1: Load
+    # ── Phase 1: INTAKE ───────────────────────────────────────
     nodes, meta, coordination = load_tree(tree_path)
     phases = coordination.get("phases", [])
 
-    store_event("ptc:start", run_id, {
+    store_event("ptc:phase", run_id, {
+        "phase": "INTAKE",
         "intent": intent,
         "target": target_id,
         "dry_run": dry_run,
         "tree": os.path.basename(tree_path),
-        "phase": "INTAKE",
+        "node_count": len(nodes),
     })
 
-    # Phase 2: Decompose (TRIAGE + PLAN)
+    # ── Phase 2: TRIAGE ───────────────────────────────────────
+    matches = route_intent(nodes, intent)
+    matched_nodes = [(score, nid) for score, nid, _ in matches[:10]]
+
+    store_event("ptc:phase", run_id, {
+        "phase": "TRIAGE",
+        "matches": len(matches),
+        "top_matches": matched_nodes[:5],
+    })
+
+    # ── Phase 3: PLAN ─────────────────────────────────────────
     tasks = decompose(nodes, intent, target_id)
 
-    store_event("ptc:decompose", run_id, {
+    store_event("ptc:phase", run_id, {
+        "phase": "PLAN",
         "task_count": len(tasks),
         "leaf_nodes": [t["node_id"] for t in tasks],
-        "phase": "PLAN",
     })
 
     if not tasks:
+        store_event("ptc:phase", run_id, {"phase": "SHIP", "status": "no_match"})
         return {
             "run_id": run_id,
             "intent": intent,
@@ -451,34 +466,118 @@ def run(tree_path, intent, target_id=None, dry_run=True):
             "duration_ms": int((time.time() - ts_start) * 1000),
         }
 
-    # Phase 3: Execute leaves (EXECUTE)
-    results = []
+    # ── Phase 4: REVIEW (approval gates) ──────────────────────
+    blocked_tasks = []
+    approved_tasks = []
     for task in tasks:
+        approval = _review_task(task)
+        task["_approval"] = approval
+        if approval["blocked"]:
+            blocked_tasks.append(task)
+        else:
+            approved_tasks.append(task)
+
+    store_event("ptc:phase", run_id, {
+        "phase": "REVIEW",
+        "total": len(tasks),
+        "approved": len(approved_tasks),
+        "blocked": len(blocked_tasks),
+        "blocked_nodes": [t["node_id"] for t in blocked_tasks],
+    })
+
+    # ── Phase 5: EXECUTE ──────────────────────────────────────
+    results = []
+    for task in approved_tasks:
         store_event("ptc:execute", f"{run_id}/{task['node_id']}", {
             "node": task["node_id"],
             "intent": task["intent"],
             "phase": "EXECUTE",
+            "approval_level": task["_approval"].get("level", "unknown"),
         })
 
         result = execute_leaf(task, dry_run=dry_run)
         results.append(result)
 
-        store_event("ptc:result", f"{run_id}/{task['node_id']}", {
-            "node": task["node_id"],
-            "status": result["status"],
-            "phase": "VERIFY",
+    # Add blocked tasks as blocked results
+    for task in blocked_tasks:
+        results.append({
+            "node_id": task["node_id"],
+            "node_name": task["node_name"],
+            "scale": task["scale"],
+            "intent": task["intent"],
+            "lineage": task["lineage"],
+            "status": "blocked",
+            "output": {
+                "reason": task["_approval"]["reason"],
+                "risk": task["_approval"]["risk"],
+                "escalated_to": task["_approval"].get("escalated_to"),
+            },
+            "started_at": None,
+            "completed_at": datetime.now(timezone.utc).isoformat(),
+            "error": None,
+            "artifacts": [],
         })
 
-    # Phase 4: Aggregate (INTEGRATE)
-    aggregated = aggregate(nodes, results, target_id)
+    # ── Phase 6: VERIFY ───────────────────────────────────────
+    completed = sum(1 for r in results if r.get("status") in ("completed", "planned"))
+    failed = sum(1 for r in results if r.get("status") == "failed")
+    blocked = sum(1 for r in results if r.get("status") == "blocked")
+    escalations = []
 
-    store_event("ptc:aggregate", run_id, {
-        "status": aggregated.get("status") if aggregated else "empty",
-        "phase": "INTEGRATE",
+    for r in results:
+        if r.get("status") == "failed":
+            node_id = r.get("node_id", "")
+            node = nodes.get(node_id, {})
+            esc = node.get("escalation", {})
+            if esc.get("target"):
+                escalations.append({
+                    "from": node_id,
+                    "to": esc["target"],
+                    "reason": r.get("error", "execution failed"),
+                    "cascade": esc.get("cascade", []),
+                })
+
+    store_event("ptc:phase", run_id, {
+        "phase": "VERIFY",
+        "completed": completed,
+        "failed": failed,
+        "blocked": blocked,
+        "escalations": len(escalations),
     })
 
-    # Phase 5: Final report (SHIP)
+    # ── Phase 7: INTEGRATE (aggregate bottom-up) ──────────────
+    aggregated = aggregate(nodes, results, target_id)
+
+    # Process escalations
+    for esc in escalations:
+        store_event("ptc:escalation", run_id, {
+            "from": esc["from"],
+            "to": esc["to"],
+            "reason": esc["reason"],
+            "cascade": esc["cascade"],
+            "phase": "INTEGRATE",
+        })
+
+    store_event("ptc:phase", run_id, {
+        "phase": "INTEGRATE",
+        "aggregate_status": aggregated.get("status") if aggregated else "empty",
+        "escalations_fired": len(escalations),
+    })
+
+    # ── Phase 8: SHIP ─────────────────────────────────────────
     duration_ms = int((time.time() - ts_start) * 1000)
+
+    # Determine overall status
+    if failed > 0 and completed == 0:
+        overall_status = "failed"
+    elif blocked > 0 and completed == 0:
+        overall_status = "blocked"
+    elif failed > 0:
+        overall_status = "partial"
+    elif blocked > 0:
+        overall_status = "partial_blocked"
+    else:
+        overall_status = "completed"
 
     trace = {
         "run_id": run_id,
@@ -487,22 +586,30 @@ def run(tree_path, intent, target_id=None, dry_run=True):
         "dry_run": dry_run,
         "tree_path": tree_path,
         "tree_title": meta.get("title", "unknown"),
-        "phases_used": ["INTAKE", "TRIAGE", "PLAN", "EXECUTE", "VERIFY", "INTEGRATE", "SHIP"],
+        "status": overall_status,
+        "phases_used": ["INTAKE", "TRIAGE", "PLAN", "REVIEW", "EXECUTE", "VERIFY", "INTEGRATE", "SHIP"],
         "tasks_decomposed": len(tasks),
+        "tasks_approved": len(approved_tasks),
+        "tasks_blocked": len(blocked_tasks),
         "tasks_executed": len(results),
-        "tasks_completed": sum(1 for r in results if r.get("status") in ("completed", "planned")),
-        "tasks_failed": sum(1 for r in results if r.get("status") == "failed"),
+        "tasks_completed": completed,
+        "tasks_failed": failed,
+        "escalations": escalations,
         "leaf_results": results,
         "aggregated": aggregated,
         "duration_ms": duration_ms,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
-    store_event("ptc:complete", run_id, {
-        "status": "completed",
-        "tasks": len(tasks),
-        "duration_ms": duration_ms,
+    store_event("ptc:phase", run_id, {
         "phase": "SHIP",
+        "status": overall_status,
+        "tasks": len(tasks),
+        "completed": completed,
+        "failed": failed,
+        "blocked": blocked,
+        "escalations": len(escalations),
+        "duration_ms": duration_ms,
     })
 
     # Store full trace as artifact
@@ -513,6 +620,20 @@ def run(tree_path, intent, target_id=None, dry_run=True):
     )
 
     return trace
+
+
+def _review_task(task):
+    """Review a task for approval before execution.
+
+    Checks:
+    1. Risk level from task properties
+    2. Node escalation threshold
+    3. Returns approval decision
+
+    This is the REVIEW phase gate.
+    """
+    from ptc.executor import _check_approval
+    return _check_approval(task)
 
 
 # ── Display: render results for humans ─────────────────────────

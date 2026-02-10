@@ -49,6 +49,11 @@ Cargo.lock
 # Audit logs (runtime-generated, not source)
 audit/
 
+# Import bucket — staging area for 3rd party repos, data exports, downloads
+# Contents are transient; never committed. Only the folder + README are tracked.
+.import-bucket/*
+!.import-bucket/README.md
+
 # Nested repos / stale clones
 claude-cage/
 projects/Gently-nix/
