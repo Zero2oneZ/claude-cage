@@ -80,7 +80,7 @@ async function main() {
     { path: '.claude/skills/tom-collab/references/idea-inventory.md', type: 'reference', project: 'tom-collab' },
     { path: '.claude/skills/atlas-cli/SKILL.md', type: 'skill', project: 'atlas-cli' },
     { path: '.claude/commands/atlas.md', type: 'command', project: 'atlas-cli' },
-    { path: 'projects/gentlyos-workstation/GentlyWorkstation.jsx', type: 'code', project: 'gentlyos-workstation' },
+    // GentlyWorkstation.jsx removed — superseded by cage-web HTMX dashboard
     { path: 'mongodb/store.js', type: 'code', project: 'claude-cage' },
     { path: 'lib/mongodb.sh', type: 'code', project: 'claude-cage' },
     { path: 'CLAUDE.md', type: 'docs', project: 'claude-cage' },
@@ -104,9 +104,10 @@ async function main() {
 
   // .docx files (store as metadata + truncated text)
   const docxFiles = [
-    'projects/gentlyos-docs/Gently_Studio_Protocols.docx',
-    'projects/gentlyos-docs/GentlyOS_Workspace_System.docx',
-    'projects/gentlyos-docs/Google_Infrastructure_Research.docx',
+    'docs/Gently_Studio_Protocols.docx',
+    'docs/GentlyOS_Workspace_System.docx',
+    'docs/Google_Infrastructure_Research.docx',
+    'docs/GentlyOS_Virtual_Organization_System.docx',
   ];
 
   for (const f of docxFiles) {
@@ -117,7 +118,7 @@ async function main() {
         name: path.basename(f),
         path: f,
         type: 'docx',
-        project: 'gentlyos-docs',
+        project: 'claude-cage',
         content: extractDocxText(fullPath),
         size: stats.size,
         ...meta,
@@ -130,8 +131,7 @@ async function main() {
     { name: 'claude-cage', desc: 'Dockerized sandbox for Claude CLI & Desktop', status: 'active' },
     { name: 'tom-collab', desc: 'Tom Collaboration Engine skill', status: 'active' },
     { name: 'atlas-cli', desc: 'MongoDB Atlas CLI skill + /atlas command', status: 'active' },
-    { name: 'gentlyos-workstation', desc: 'GentlyOS Workstation React UI prototype', status: 'prototype' },
-    { name: 'gentlyos-docs', desc: 'Gently Studio specs, workspace system, security research', status: 'reference' },
+    { name: 'codie-maps', desc: 'CODIE orchestration programs (12-keyword DSL)', status: 'active' },
     { name: 'headless-ubuntu-auto', desc: 'GPU server provisioning (2x RTX 3090)', status: 'active' },
     { name: 'Gently-nix', desc: 'NixOS provisioning ecosystem', status: 'active' },
   ];

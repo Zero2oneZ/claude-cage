@@ -152,8 +152,6 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 |---------|-------------|
 | `Gently-nix` | The 38-crate GentlyOS Rust workspace |
 | `headless-ubuntu-auto` | GPU server provisioning (2x RTX 3090) |
-| `gentlyos-docs` | Design documents |
-| `gentlyos-workstation` | Workstation configuration |
 | `test-apps` | Test applications (JS) |
 | `test-apps-rust` | Test applications (Rust) |
 

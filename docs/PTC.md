@@ -142,7 +142,7 @@ Unknown intents return `None` and the task is skipped. Timeout: 30s.
 
 Executes CODIE language programs. Two paths:
 
-1. **From file**: If `task["codie_program"]` is set, loads the `.codie` file from `projects/Gently-nix/tools/codie-maps/`.
+1. **From file**: If `task["codie_program"]` is set, loads the `.codie` file from `codie-maps/`.
 2. **Generated**: `_build_codie_instruction()` converts PTC task metadata into CODIE source using the 12-keyword vocabulary.
 
 The CODIE source is parsed into an AST (tries `cage-web` binary first, falls back to `_parse_codie_python()`), then interpreted by `CodieContext.execute()`. The interpreter maps each AST node type to a handler:

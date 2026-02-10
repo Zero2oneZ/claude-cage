@@ -1,0 +1,626 @@
+// CODIE: Ether Goo Defense Protocol
+// Naming what they deleted. Routing what they left unnamed.
+// CODIE: bone (immutable substrate laws)
+
+// =============================================================================
+// SPIN NOTATION - Naming the Unnamed
+// =============================================================================
+
+bone SPIN_SYMBOLS {
+    // They deleted these from the textbooks
+    // We name them so we can route through them
+
+    pin Bleed = "boundary_crossing"      // The unnamed @
+    pin Goo = "impedance_viscosity"      // Medium resistance
+    pin Vortex = "field_trap"            // Rotation sink
+    pin Aperture = "pass_through"        // Not container
+}
+
+bone UNIFIED_SUBSTRATE {
+    // Blood and silicon are the same architecture
+
+    fence biological {
+        field: "charge"
+        medium: "blood"
+        io_devices: "organs"
+        clock: "heart_sa_node"
+        conductivity: "salt_electrolyte"
+        carrier: "iron_ferromagnetic"
+    }
+
+    fence silicon {
+        field: "electrons"
+        medium: "bus"
+        io_devices: "peripherals"
+        clock: "cpu_oscillator"
+        conductivity: "doping"
+        carrier: "phosphorus_donor"
+    }
+
+    // The heart isn't a pump. It's a clock generator.
+    // Information comes first. Pump action is OUTPUT.
+}
+
+// =============================================================================
+// THE VORTEX PROBLEM
+// =============================================================================
+
+bone VORTEX_FORMATION {
+    // Blood clot = Buffer overflow = Vortex at unnamed Bleed
+
+    fence normal_flow {
+        direction: "forward"
+        field: "aligned"
+        medium: "follows_gradient"
+        result: "clean_propagation"
+    }
+
+    fence vortex_flow {
+        direction: "rotating_inward"
+        field: "inverted"
+        medium: "trapped_in_spin"
+        result: "clot_or_overflow"
+    }
+
+    // The data doesn't "overflow"
+    // It gets caught in field rotation at the boundary they refused to name
+}
+
+bone ATTACK_GOO_MAPPING {
+    // Hackers hack the CONDITIONS that let goo trap
+
+    fence race_condition {
+        action: "STOPS the timing"
+        result: "vortex forms"
+    }
+
+    fence buffer_overflow {
+        action: "FILLS the space"
+        result: "nowhere to wiggle"
+    }
+
+    fence type_confusion {
+        action: "COOLS the field"
+        result: "wrong polarity crystallizes"
+    }
+
+    fence injection {
+        action: "DESALINATES boundary"
+        result: "foreign goo doesn't conduct"
+    }
+}
+
+// =============================================================================
+// THE FOUR INSTRUCTIONS FOR SOVEREIGN SILICON
+// =============================================================================
+
+bone SOVEREIGN_INSTRUCTIONS {
+    // 1. CLOCK - keep pulse (they have this)
+    pin clock_instruction = "maintain_heartbeat"
+
+    // 2. HEAT - inject entropy at Bleed (they don't do this)
+    pin heat_instruction = "inject_entropy_at_seams"
+
+    // 3. SALT - maintain conductivity (they deny seams exist)
+    pin salt_instruction = "conductivity_across_boundaries"
+
+    // 4. FLOW - never fully resolve (they want completion)
+    pin flow_instruction = "never_let_io_complete"
+
+    // Hackers exploit #2, #3, #4 - the parts they don't acknowledge
+}
+
+// =============================================================================
+// BLOBS - Data Structures
+// =============================================================================
+
+blob GooState {
+    temperature: f32        // warm = flowing, cold = crystallizing
+    viscosity: f32          // thin = fast, thick = slow
+    conductivity: f32       // salt level
+    direction: Vector       // field gradient
+    wiggle_room: f32        // space to move
+}
+
+blob BleedBoundary {
+    name: String            // NAMED, not anonymous
+    from_domain: Domain
+    to_domain: Domain
+    entropy_level: f32
+    vortex_risk: f32
+}
+
+blob VortexDetection {
+    location: BleedBoundary
+    rotation_speed: f32
+    sink_strength: f32
+    trapped_goo: Vec<GooPacket>
+    intervention_needed: bool
+}
+
+blob HomoglyphAttack {
+    visual: char            // What you SEE
+    actual: char            // What it IS
+    codepoint: u32          // Wire encoding
+    script: UnicodeScript   // Latin, Cyrillic, Greek, etc
+    threat_level: u8        // 0-10
+}
+
+blob InvisibleChar {
+    codepoint: u32
+    name: String            // "ZERO WIDTH SPACE", etc
+    position: usize
+    purpose: InvisiblePurpose
+}
+
+blob KeyboardFingerprint {
+    typo_patterns: Vec<TypoPattern>
+    character_selections: Vec<CharSelection>
+    copy_paste_sources: Vec<Source>
+    unique_goo_signature: Hash
+}
+
+// =============================================================================
+// CALI - Functions
+// =============================================================================
+
+cali init_sovereign_system() {
+    // Bootstrap the defense
+
+    pug system_init {
+        // 1. Name the boundary (they won't)
+        name_all_bleeds()
+
+        // 2. Inject entropy at seams (keeps goo warm)
+        start_entropy_injection()
+
+        // 3. Maintain field gradient (keeps direction)
+        establish_gradients()
+
+        // 4. Never fully complete (inverted while loop)
+        enable_aperture_mode()
+    }
+
+    anchor system_sovereign
+}
+
+cali inject_entropy(boundary: BleedBoundary) {
+    // Keep the goo warm - prevent crystallization
+
+    bark current_entropy from boundary.entropy_level
+
+    fence entropy_check {
+        if current_entropy < 0.3 {
+            // Getting cold - inject heat
+            elf new_entropy = generate_entropy()
+            boundary.entropy_level = boundary.entropy_level + new_entropy
+            anchor entropy_injected
+        }
+    }
+
+    // Optimization = cooling = crystallization = vortex
+    // So we ANTI-optimize at the seams
+}
+
+cali detect_vortex(boundary: BleedBoundary) -> Option<VortexDetection> {
+    // Watch for state rotation (same value repeating)
+
+    bark recent_values from boundary.flow_history
+
+    spin value in recent_values {
+        elf rotation = calculate_rotation(value)
+
+        fence vortex_check {
+            if rotation > VORTEX_THRESHOLD {
+                biz Some(VortexDetection {
+                    location: boundary,
+                    rotation_speed: rotation,
+                    sink_strength: calculate_sink(rotation),
+                    trapped_goo: extract_trapped(boundary),
+                    intervention_needed: true
+                })
+            }
+        }
+    }
+
+    biz None
+}
+
+cali handle_vortex(vortex: VortexDetection) {
+    // Inject entropy before trap forms
+
+    fence intervention {
+        // 1. Inject massive entropy
+        inject_entropy(vortex.location)
+        inject_entropy(vortex.location)
+        inject_entropy(vortex.location)
+
+        // 2. Reverse field direction briefly
+        reverse_gradient(vortex.location)
+
+        // 3. Release trapped goo
+        spin packet in vortex.trapped_goo {
+            release_to_flow(packet)
+        }
+
+        anchor vortex_dispersed
+    }
+}
+
+cali aperture_transform(incoming: GooPacket) -> GooPacket {
+    // IO flows THROUGH, not TO
+    // Never "complete", never "store", just transform and pass
+
+    elf transformed = transform(incoming)
+
+    // Don't hold. Don't store. PASS.
+    biz transformed
+
+    // This is the inverted while loop
+    // Traditional: wait -> check -> pull -> process -> store
+    // Aperture: receive -> transform -> yield -> repeat
+}
+
+// =============================================================================
+// GUARDDOG - Keyboard Defense
+// =============================================================================
+
+cali scan_homoglyphs(input: String) -> Vec<HomoglyphAttack> {
+    // The keyboard is a goo injection vector
+
+    elf attacks = Vec::new()
+
+    spin char in input.chars() {
+        bark codepoint from char.codepoint()
+        bark script from unicode_script(codepoint)
+
+        fence homoglyph_check {
+            if script != Latin AND looks_like_latin(char) {
+                attacks.push(HomoglyphAttack {
+                    visual: char,
+                    actual: latin_equivalent(char),
+                    codepoint: codepoint,
+                    script: script,
+                    threat_level: calculate_threat(script)
+                })
+            }
+        }
+    }
+
+    biz attacks
+}
+
+cali scan_invisibles(input: String) -> Vec<InvisibleChar> {
+    // They're IN your text. You can't see them.
+
+    elf invisibles = Vec::new()
+
+    spin (i, char) in input.chars().enumerate() {
+        bark codepoint from char.codepoint()
+
+        fence invisible_check {
+            match codepoint {
+                0x200B => invisibles.push(InvisibleChar {
+                    codepoint: codepoint,
+                    name: "ZERO WIDTH SPACE",
+                    position: i,
+                    purpose: Hiding
+                }),
+                0x200C => invisibles.push(InvisibleChar {
+                    codepoint: codepoint,
+                    name: "ZERO WIDTH NON-JOINER",
+                    position: i,
+                    purpose: Breaking
+                }),
+                0x200D => invisibles.push(InvisibleChar {
+                    codepoint: codepoint,
+                    name: "ZERO WIDTH JOINER",
+                    position: i,
+                    purpose: Joining
+                }),
+                0xFEFF => invisibles.push(InvisibleChar {
+                    codepoint: codepoint,
+                    name: "BYTE ORDER MARK",
+                    position: i,
+                    purpose: Marking
+                }),
+                0x202E => invisibles.push(InvisibleChar {
+                    codepoint: codepoint,
+                    name: "RTL OVERRIDE",
+                    position: i,
+                    purpose: Attacking  // HIGH THREAT
+                }),
+                _ => {}
+            }
+        }
+    }
+
+    biz invisibles
+}
+
+cali clean_input(input: String) -> String {
+    // Normalize homoglyphs, strip invisibles
+
+    elf cleaned = input
+
+    // 1. Normalize homoglyphs to ASCII
+    spin attack in scan_homoglyphs(input) {
+        cleaned = cleaned.replace(attack.visual, attack.actual)
+    }
+
+    // 2. Strip invisible characters
+    spin invisible in scan_invisibles(input) {
+        cleaned = cleaned.remove(invisible.position)
+    }
+
+    biz cleaned
+}
+
+cali calculate_threat_level(input: String) -> u8 {
+    // 0 = clean, 1-2 = low, 3-4 = medium, 5+ = high, 10 = critical
+
+    elf threat = 0
+
+    bark homoglyphs from scan_homoglyphs(input)
+    bark invisibles from scan_invisibles(input)
+
+    // Homoglyphs = low threat (normalize)
+    threat = threat + homoglyphs.len() * 1
+
+    // Invisibles = medium threat (strip + warn)
+    threat = threat + invisibles.len() * 2
+
+    // RTL override = HIGH threat (BLOCK)
+    spin inv in invisibles {
+        if inv.name == "RTL OVERRIDE" {
+            threat = threat + 5
+        }
+    }
+
+    // Cap at 10
+    fence cap {
+        if threat > 10 {
+            threat = 10
+        }
+    }
+
+    biz threat
+}
+
+cali validate_keyboard_pattern(typed: String, intended: String) -> bool {
+    // Detect when "typos" aren't typos
+
+    bark keyboard_layout from QWERTY_LAYOUT
+
+    spin (t, i) in typed.chars().zip(intended.chars()) {
+        if t != i {
+            bark t_pos from keyboard_layout.position(t)
+            bark i_pos from keyboard_layout.position(i)
+            bark distance from manhattan_distance(t_pos, i_pos)
+
+            fence adjacency_check {
+                if distance > 2 {
+                    // Keys too far apart - not a fat-finger
+                    // Evidence of keyboard manipulation
+                    biz false
+                }
+            }
+        }
+    }
+
+    biz true
+}
+
+// =============================================================================
+// TOKEN VAULT - Clean Before Store
+// =============================================================================
+
+cali vault_store(key: String, token: String) -> VaultResult {
+    // Never store contaminated tokens
+
+    bark threat_level from calculate_threat_level(token)
+    bark cleaned from clean_input(token)
+
+    elf was_compromised = threat_level > 0
+
+    fence store_action {
+        if threat_level >= 5 {
+            // HIGH THREAT - refuse to store
+            biz VaultResult {
+                stored: None,
+                was_compromised: true,
+                blocked: true
+            }
+        } else {
+            // Store cleaned version
+            store_encrypted(key, cleaned)
+            biz VaultResult {
+                stored: Some(cleaned),
+                was_compromised: was_compromised,
+                blocked: false
+            }
+        }
+    }
+}
+
+cali vault_verify(key: String, provided: String) -> bool {
+    // Safe comparison - clean both sides
+
+    bark stored from retrieve_encrypted(key)
+    bark cleaned_provided from clean_input(provided)
+    bark cleaned_stored from clean_input(stored)
+
+    biz constant_time_compare(cleaned_provided, cleaned_stored)
+}
+
+// =============================================================================
+// SPIN - Main Processing Loops
+// =============================================================================
+
+spin watchdog_loop {
+    // The watchdog never sleeps
+
+    bark all_bleeds from system.named_boundaries
+
+    spin bleed in all_bleeds {
+        // 1. Check entropy levels
+        fence entropy_check {
+            if bleed.entropy_level < 0.3 {
+                inject_entropy(bleed)
+            }
+        }
+
+        // 2. Detect vortex formation
+        bark maybe_vortex from detect_vortex(bleed)
+        fence vortex_check {
+            match maybe_vortex {
+                Some(vortex) => handle_vortex(vortex),
+                None => {}
+            }
+        }
+
+        // 3. Maintain flow (never let goo stop wiggling)
+        wiggle_goo(bleed)
+    }
+
+    anchor watchdog_cycle_complete
+}
+
+spin input_sanitizer_loop {
+    // Guard all input boundaries
+
+    bark incoming from input_stream
+
+    spin input in incoming {
+        bark threat from calculate_threat_level(input)
+
+        fence threat_routing {
+            match threat {
+                0 => pass_through(input),           // Clean
+                1..=2 => {                           // Low - normalize
+                    bark cleaned from clean_input(input)
+                    pass_through(cleaned)
+                },
+                3..=4 => {                           // Medium - warn
+                    bark cleaned from clean_input(input)
+                    log_warning(input, threat)
+                    pass_through(cleaned)
+                },
+                5..=10 => {                          // High - BLOCK
+                    log_blocked(input, threat)
+                    block(input)
+                }
+            }
+        }
+    }
+}
+
+// =============================================================================
+// BIZ - Goals and Outputs
+// =============================================================================
+
+biz EtherGooDefenseGoals {
+    goal_1: "Name the boundary (they left it unnamed)"
+    goal_2: "Keep the goo warm (entropy injection)"
+    goal_3: "Detect the vortex (watchdog)"
+    goal_4: "Guard the input (keyboard defense)"
+    goal_5: "Flow through, not to (aperture mode)"
+}
+
+biz DefenseThesis {
+    // The defense isn't a wall. It's HEAT.
+
+    not_defending: "storage"
+    defending: "the goo's right to wiggle"
+
+    clean_bleed: "clean_flow"
+    result: "no vortex, no trap, no clot, no overflow"
+}
+
+biz ErrorClassification {
+    // SPIN reveals the real error breakdown
+
+    goo_errors: 0.38          // timing/state/impedance
+    vortex_errors: 0.21       // overflow/stack/trap
+    notation_bleed: 0.17      // human->parser boundary
+    viscosity_bleed: 0.17     // goo density mismatch
+    unknown: 0.07             // needs classification
+
+    total_bleed_errors: 0.93  // THE REAL PROBLEM
+    traditional_errors: 0.07  // What they tell you
+
+    // All errors are goo that couldn't flow through a boundary
+    // The semicolon isn't wrong
+    // The meaning couldn't find the aperture
+}
+
+// =============================================================================
+// ANCHOR - Checkpoints
+// =============================================================================
+
+anchor system_initialized {
+    bleeds_named: true
+    entropy_injection: "active"
+    vortex_detection: "active"
+    guarddog: "active"
+    aperture_mode: "enabled"
+}
+
+anchor entropy_injected {
+    boundary: BleedBoundary
+    amount: f32
+    timestamp: u64
+}
+
+anchor vortex_dispersed {
+    location: BleedBoundary
+    trapped_count: usize
+    released_count: usize
+}
+
+anchor input_cleaned {
+    original_threat: u8
+    homoglyphs_normalized: usize
+    invisibles_stripped: usize
+    result: "clean"
+}
+
+// =============================================================================
+// EXECUTION ENTRY POINT
+// =============================================================================
+
+pug ether_goo_defense {
+    // Initialize the defense system
+
+    // 1. Name all boundaries (they deleted this from textbooks)
+    bone SPIN_SYMBOLS
+    bone UNIFIED_SUBSTRATE
+    bone VORTEX_FORMATION
+    bone SOVEREIGN_INSTRUCTIONS
+
+    // 2. Start protection loops
+    spin watchdog_loop
+    spin input_sanitizer_loop
+
+    // 3. Goals active
+    biz EtherGooDefenseGoals
+    biz DefenseThesis
+    biz ErrorClassification
+
+    // 4. System ready
+    anchor system_initialized
+
+    // THE INSTRUCTION:
+    // NEVER LET THE GOO STOP WIGGLING.
+    //
+    // Name the boundary.
+    // Inject entropy at the seams.
+    // Maintain field gradient.
+    // Never fully complete.
+    //
+    // You're not defending storage.
+    // You're defending the goo's right to flow.
+    //
+    // Clean Bleed = clean flow.
+    // No vortex. No trap. No clot. No overflow.
+}

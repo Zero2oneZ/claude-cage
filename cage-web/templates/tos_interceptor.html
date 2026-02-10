@@ -1,0 +1,80 @@
+<div class="tos-interceptor-page">
+<div class="tool-header">
+  <span class="tool-title">ToS Interceptor</span>
+  <span class="badge {{ layer_badge }}">{{ layer_label }}</span>
+</div>
+
+<div class="tos-stats-bar">
+  <span>Services: <strong>{{ total_services }}</strong></span>
+  <span>Clauses Flagged: <strong>{{ total_clauses }}</strong></span>
+  <span>Hostile: <strong class="tos-hostile-count">{{ hostile_total }}</strong></span>
+  <span>Danger: <strong class="tos-danger-count">{{ danger_total }}</strong></span>
+  <span class="tos-verdicts">
+    <span class="verdict-accept">{{ accept_count }} Accept</span> /
+    <span class="verdict-review">{{ review_count }} Review</span> /
+    <span class="verdict-reject">{{ reject_count }} Reject</span>
+  </span>
+</div>
+
+<div class="tos-service-list">
+  {% for service in services %}
+  <div class="tos-service-card" onclick="this.classList.toggle('tos-expanded')">
+    <div class="tos-service-header">
+      <div class="tos-service-info">
+        <span class="tos-service-name">{{ service.service }}</span>
+        <span class="tos-service-url">{{ service.url }}</span>
+      </div>
+      <div class="tos-service-meta">
+        <span class="tos-word-count">{{ service.word_count }} words / {{ service.read_time_min }} min read</span>
+        <span class="tos-verdict {{ service.verdict_class }}">{{ service.verdict_label }}</span>
+      </div>
+    </div>
+
+    <div class="tos-service-drawer">
+      <div class="tos-drawer-meta">
+        <span>Last updated: {{ service.last_updated }}</span>
+        {% if service.hostile_count > 0 %}
+        <span class="tos-hostile-flag">{{ service.hostile_count }} HOSTILE clauses</span>
+        {% endif %}
+        {% if service.danger_count > 0 %}
+        <span class="tos-danger-flag">{{ service.danger_count }} DANGER clauses</span>
+        {% endif %}
+      </div>
+
+      <div class="tos-clauses-header">
+        <span>Section</span>
+        <span>Category</span>
+        <span>Risk</span>
+      </div>
+
+      {% for clause in service.clauses %}
+      <div class="tos-clause-row">
+        <div class="tos-clause-summary">
+          <span class="tos-clause-section">{{ clause.section }}</span>
+          <span class="tos-clause-category">{{ clause.category }}</span>
+          <span class="tos-clause-risk {{ clause.risk_class }}">{{ clause.risk_label }}</span>
+        </div>
+        <div class="tos-clause-detail">
+          <div class="tos-clause-legal">{{ clause.summary }}</div>
+          <div class="tos-clause-plain">{{ clause.plain_english }}</div>
+        </div>
+      </div>
+      {% endfor %}
+
+      {% if can_override %}
+      <div class="tos-service-actions">
+        <button class="btn btn-sm btn-vault-keep">Override: Accept</button>
+        <button class="btn btn-sm btn-vault-reject">Override: Reject</button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if can_add_service %}
+<div class="tos-add-section" style="margin-top:20px;">
+  <button class="btn btn-sm btn-primary">Add Service ToS</button>
+</div>
+{% endif %}
+</div>

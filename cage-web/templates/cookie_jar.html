@@ -1,0 +1,103 @@
+<div class="vault-page">
+    <div class="vault-header">
+        <div class="vault-title">
+            <span class="vault-icon">&#9672;</span>
+            <h1>Cookie Jar <span class="vault-sub">// sub-os vault</span></h1>
+        </div>
+        <div class="vault-stats">
+            <span class="vault-stat">Domains: <strong>{{ total_domains }}</strong></span>
+            <span class="vault-stat">Cookies: <strong>{{ total_cookies }}</strong></span>
+            <span class="vault-stat">Tracking: <strong class="vault-tracking-count">{{ total_tracking }}</strong></span>
+            {% if breach_count > 0 %}
+            <span class="vault-stat vault-stat-breach">Breach: <strong>{{ breach_count }}</strong></span>
+            {% endif %}
+            <span class="vault-stat">Net: <strong class="vault-net-none">NONE</strong></span>
+        </div>
+        <span class="tier-badge {{ layer_badge }}">{{ layer_label }}</span>
+    </div>
+
+    <div class="vault-layer-strip">
+        <span class="vault-layer-path">GentlyOS &rarr; Sub-OS Vault &rarr; Cookie Store</span>
+        <span class="vault-layer-net">AIRGAPPED FROM OUTER NET</span>
+    </div>
+
+    <div class="vault-body">
+        <div class="vault-sidebar">
+            <div class="vault-sidebar-header">DOMAINS</div>
+            {% for d in domains %}
+            <div class="vault-domain-item{% if d.selected %} vault-domain-selected{% endif %}"
+                 hx-get="/cookie-jar/domain/{{ d.domain }}"
+                 hx-target="#cookie-grid"
+                 hx-swap="innerHTML">
+                <span class="vault-domain-icon">{{ d.domain.chars().next().unwrap_or('?').to_uppercase().next().unwrap_or('?') }}</span>
+                <span class="vault-domain-name">{{ d.domain }}</span>
+                <span class="vault-domain-count">{{ d.cookie_count }}</span>
+                <span class="vault-threat-dot {{ d.threat_class }}"></span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="vault-content">
+            <div id="cookie-grid">
+                {% include "partials/cookie_domain.html" %}
+            </div>
+
+            {% if can_breach_sim %}
+            <div class="vault-breach-controls">
+                <button class="btn btn-vault-breach" onclick="document.getElementById('breach-banner').classList.toggle('breach-active')">
+                    Simulate Breach
+                </button>
+            </div>
+            <div id="breach-banner" class="vault-breach-banner">
+                <span class="breach-icon">&#9888;</span>
+                BREACH CONTAINMENT ACTIVE -- Honeypot floor engaged. Intruder trapped. All actions logged.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if can_breach_sim %}
+    <div class="vault-arch-section">
+        <button class="btn btn-vault-arch" onclick="document.getElementById('arch-overlay').classList.add('arch-open')">
+            Architecture
+        </button>
+    </div>
+    <div id="arch-overlay" class="vault-arch-overlay" onclick="if(event.target===this)this.classList.remove('arch-open')">
+        <div class="vault-arch-card">
+            <h2>Cookie Vault Architecture</h2>
+            <div class="arch-layers">
+                <div class="arch-layer">
+                    <span class="arch-layer-num">L0</span>
+                    <span class="arch-layer-name">Outer Network</span>
+                    <span class="arch-layer-desc">Internet, CDNs, hostile web</span>
+                </div>
+                <div class="arch-arrow">&darr; NO PATH DOWN</div>
+                <div class="arch-layer">
+                    <span class="arch-layer-num">L1</span>
+                    <span class="arch-layer-name">Browser Boundary</span>
+                    <span class="arch-layer-desc">Set-Cookie headers intercepted at network edge</span>
+                </div>
+                <div class="arch-arrow">&darr; Write-only IPC</div>
+                <div class="arch-layer">
+                    <span class="arch-layer-num">L2</span>
+                    <span class="arch-layer-name">Sub-OS Membrane</span>
+                    <span class="arch-layer-desc">Separate process namespace, no shared memory</span>
+                </div>
+                <div class="arch-arrow">&darr; One-way pipe</div>
+                <div class="arch-layer arch-layer-current">
+                    <span class="arch-layer-num">L3</span>
+                    <span class="arch-layer-name">Cookie Vault (You Are Here)</span>
+                    <span class="arch-layer-desc">Domain-isolated storage, user approval workflow</span>
+                </div>
+                <div class="arch-arrow">&darr; Containment</div>
+                <div class="arch-layer">
+                    <span class="arch-layer-num">L4</span>
+                    <span class="arch-layer-name">Honeypot Floor</span>
+                    <span class="arch-layer-desc">Decoy data served to intruders. No path up.</span>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="document.getElementById('arch-overlay').classList.remove('arch-open')">Close</button>
+        </div>
+    </div>
+    {% endif %}
+</div>

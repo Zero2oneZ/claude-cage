@@ -1,0 +1,62 @@
+<div class="semantic-chars-page">
+<div class="tool-header">
+  <span class="tool-title">Semantic Chars</span>
+  <span class="badge {{ layer_badge }}">{{ layer_label }}</span>
+</div>
+
+<div class="chars-stats-bar">
+  <span>Threats: <strong>{{ total_threats }}</strong></span>
+  <span>Critical: <strong class="chars-critical-count">{{ critical_count }}</strong></span>
+  <span>High: <strong class="chars-high-count">{{ high_count }}</strong></span>
+  <span>Safe Codepoints: <strong class="chars-safe-count">{{ safe_codepoints }}</strong></span>
+</div>
+
+<div class="chars-section-label">THREAT REGISTRY</div>
+<div class="threat-list">
+  {% for threat in threats %}
+  <div class="threat-card" onclick="this.classList.toggle('threat-expanded')">
+    <div class="threat-summary">
+      <span class="threat-codepoint">{{ threat.codepoint }}</span>
+      <span class="threat-name">{{ threat.name }}</span>
+      <span class="threat-class-badge {{ threat.threat_class }}">{{ threat.threat_label }}</span>
+      <span class="sev-badge {{ threat.severity_class }}">{{ threat.severity_label }}</span>
+    </div>
+    <div class="threat-drawer">
+      <div class="threat-drawer-row">
+        <span class="threat-drawer-label">Description</span>
+        <span class="threat-drawer-value">{{ threat.description }}</span>
+      </div>
+      <div class="threat-drawer-row">
+        <span class="threat-drawer-label">Attack Vector</span>
+        <span class="threat-drawer-value threat-attack-vector">{{ threat.attack_vector }}</span>
+      </div>
+      <div class="threat-drawer-row">
+        <span class="threat-drawer-label">Example</span>
+        <span class="threat-drawer-value threat-example">{{ threat.example }}</span>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="chars-section-label" style="margin-top:24px;">SAFE CHARACTER SET</div>
+<div class="safe-ranges-list">
+  {% for range in safe_ranges %}
+  <div class="safe-range-row">
+    <span class="range-name">{{ range.name }}</span>
+    <span class="range-codes">{{ range.range }}</span>
+    <span class="range-count">{{ range.count }} chars</span>
+    <span class="range-desc">{{ range.description }}</span>
+  </div>
+  {% endfor %}
+</div>
+
+{% if can_scan %}
+<div class="chars-scan-section">
+  <div class="chars-section-label" style="margin-top:24px;">SCAN TEXT</div>
+  <textarea class="chars-scan-input" placeholder="Paste text to scan for dangerous Unicode characters..." rows="3"></textarea>
+  <button class="btn btn-sm btn-primary" style="margin-top:8px;">Scan</button>
+  <div class="chars-scan-output"></div>
+</div>
+{% endif %}
+</div>

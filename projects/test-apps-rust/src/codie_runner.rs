@@ -283,7 +283,7 @@ async fn api_list(State(state): State<Arc<AppState>>) -> impl IntoResponse {
 #[tokio::main]
 async fn main() {
     let codie_dir = std::env::var("CODIE_DIR")
-        .unwrap_or_else(|_| "../../projects/Gently-nix/tools/codie-maps".to_string());
+        .unwrap_or_else(|_| "../../codie-maps".to_string());
 
     let mut programs = HashMap::new();
 

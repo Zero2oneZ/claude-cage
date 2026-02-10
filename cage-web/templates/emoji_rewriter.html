@@ -1,0 +1,73 @@
+<div class="emoji-rewriter-page">
+<div class="tool-header">
+  <span class="tool-title">Emoji Rewriter</span>
+  <span class="badge {{ layer_badge }}">{{ layer_label }}</span>
+</div>
+
+<div class="rewriter-stats-bar">
+  <span>Rules: <strong>{{ total_rules }}</strong></span>
+  <span>Unicode Killed: <strong class="rewriter-kill-count">{{ total_kills }}</strong></span>
+  <span>Pipeline Drops: <strong class="rewriter-drop-count">{{ total_drops }}</strong></span>
+  <span>Glyph Maps: <strong class="rewriter-map-count">{{ total_maps }}</strong></span>
+</div>
+
+<div class="rewriter-section-label">REWRITE PIPELINE</div>
+<div class="pipeline-flow">
+  {% for stage in pipeline %}
+  <div class="pipeline-stage">
+    <div class="pipeline-order">{{ stage.order }}</div>
+    <div class="pipeline-info">
+      <div class="pipeline-name">{{ stage.name }}</div>
+      <div class="pipeline-desc">{{ stage.description }}</div>
+    </div>
+    <div class="pipeline-metrics">
+      {% if stage.drops > 0 %}<span class="pipeline-drops">-{{ stage.drops }} drops</span>{% endif %}
+      {% if stage.maps > 0 %}<span class="pipeline-maps">+{{ stage.maps }} maps</span>{% endif %}
+    </div>
+  </div>
+  <div class="pipeline-arrow">|</div>
+  {% endfor %}
+</div>
+
+<div class="rewriter-section-label" style="margin-top:24px;">REWRITE RULES</div>
+<div class="rewrite-rules-list">
+  {% for rule in rules %}
+  <div class="rewrite-rule-card" onclick="this.classList.toggle('rule-expanded')">
+    <div class="rule-summary">
+      <span class="rule-category">{{ rule.category }}</span>
+      <span class="rule-pattern">{{ rule.codepoint_range }}</span>
+      <span class="rewrite-action {{ rule.action_class }}">{{ rule.action_label }}</span>
+      {% if rule.kill_count > 0 %}
+      <span class="rule-kill-count">{{ rule.kill_count }} killed</span>
+      {% endif %}
+    </div>
+    <div class="rule-drawer">
+      <div class="rule-drawer-row">
+        <span class="rule-drawer-label">Pattern</span>
+        <span class="rule-drawer-value">{{ rule.pattern }}</span>
+      </div>
+      <div class="rule-drawer-row">
+        <span class="rule-drawer-label">Description</span>
+        <span class="rule-drawer-value">{{ rule.description }}</span>
+      </div>
+      <div class="rule-drawer-row">
+        <span class="rule-drawer-label">Input</span>
+        <span class="rule-drawer-value rule-example-input">{{ rule.example_input }}</span>
+      </div>
+      <div class="rule-drawer-row">
+        <span class="rule-drawer-label">Output</span>
+        <span class="rule-drawer-value rule-example-output">{{ rule.example_output }}</span>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% if can_test %}
+<div class="rewriter-test-section">
+  <div class="rewriter-section-label" style="margin-top:24px;">LIVE TEST</div>
+  <textarea class="rewriter-test-input" placeholder="Paste text with emoji to test the rewrite pipeline..." rows="3"></textarea>
+  <div class="rewriter-test-output"></div>
+</div>
+{% endif %}
+</div>

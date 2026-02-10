@@ -1,0 +1,1215 @@
+// CODIE: Synthestasia Unified Field Engine
+// One field. Three projections. GUI + Attention + Learning unified.
+// CODIE: cali (callable functions)
+
+// =============================================================================
+// CORE MATH - The Unification
+// =============================================================================
+
+bone SMOOTH_MIN_IDENTITY {
+    // THE KEY INSIGHT:
+    // smooth_min(k) = softmax(1/k)
+    // ONE PARAMETER. THREE EFFECTS.
+
+    pin sdf_blending = "smooth_min"
+    pin neural_attention = "softmax"
+    pin goo_viscosity = "k_parameter"
+
+    // k -> infinity: Hard selection (one source wins)
+    // k -> 0: Soft blending (all sources contribute)
+}
+
+bone THREE_PROJECTIONS {
+    // Same field function G(x,y,t,theta)
+    // Three different reads
+
+    fence render_projection {
+        input: "G(x,y,t,theta)"
+        output: "pixels"
+        method: "SDF threshold + smooth_min"
+    }
+
+    fence attend_projection {
+        input: "G(x,y,t,theta)"
+        output: "attention_weights"
+        method: "gradient flow toward sources"
+    }
+
+    fence learn_projection {
+        input: "G(x,y,t,theta)"
+        output: "gradient_updates"
+        method: "temporal credit assignment"
+    }
+}
+
+// =============================================================================
+// BLOBS - Data Structures
+// =============================================================================
+
+blob FieldValue {
+    distance: f32           // Negative=inside, Positive=outside, Zero=surface
+    gradient: [f32; 2]      // Direction to nearest surface
+    metadata: SourceMetadata
+}
+
+blob Source {
+    kind: SourceKind
+    position: [f32; 2]
+    radius: f32
+    size: [f32; 2]          // For rectangles
+    wobble: f32             // For metaballs
+    weight: f32             // Contribution strength
+    fade: f32               // Animation state
+}
+
+blob SourceKind {
+    elf Circle              // Buttons, avatars
+    elf RoundedRect         // Windows, cards
+    elf Metaball            // Claude, organic shapes
+    elf Text                // Text regions
+}
+
+blob EmotionalState {
+    elf Thinking { focus: [f32; 2] }    // Stretched toward focus
+    elf Confident { certainty: f32 }    // Big, stable, solid
+    elf Uncertain { wobble: f32 }       // Smaller, wobbly
+    elf Processing { progress: f32 }    // Rhythmic pulsing
+    elf Eager { lean: [f32; 2] }        // Leaning toward user
+    elf Error { severity: f32 }         // Red glow, contracted
+}
+
+blob ClaudePresence {
+    position: [f32; 2]
+    base_radius: f32
+    emotional_state: EmotionalState
+}
+
+blob Movement {
+    emotion: EmotionalState
+    instrument: Instrument
+    part: String
+    affinity: Affinity
+}
+
+blob Instrument {
+    elf TEXT                // Text bubble
+    elf CODE                // Syntax-highlighted block
+    elf CHART               // Pre-computed chart
+    elf IMAGE               // Image frame
+    elf LAYOUT              // Spatial arrangement
+    elf MOVE                // Animation/transition
+}
+
+blob Affinity {
+    elf NearUser            // Close to input area
+    elf NearClaude          // Close to Claude's presence
+    elf Center              // Center stage
+    elf Aside               // Peripheral/note
+}
+
+// GOOEY 2D App Builder
+blob GooeyRegion {
+    id: String
+    bounds: Rect
+    component: ComponentType
+    field_weight: f32
+    selection_state: SelectionState
+    goo_params: GooParams
+}
+
+blob SelectionState {
+    elf Unselected          // Red - background
+    elf Selected            // Green - active
+    elf Locked              // Cannot modify
+    elf Preview             // Showing potential
+}
+
+blob ComponentType {
+    elf Header
+    elf Navigation
+    elf Form
+    elf Table
+    elf Chart
+    elf Image
+    elf Text
+    elf Commerce            // Cart, checkout
+    elf Auth                // Login, register
+    elf Custom
+}
+
+// CDI File Format
+blob CDIFile {
+    header: [u8; 64]
+    manifest: JSON
+    blocks: Vec<CDIBlock>
+    index: Vec<BlockOffset>
+    checksum: Blake3Hash
+}
+
+blob CDIBlock {
+    elf Entities            // E: Game entities
+    elf Models              // M: 3D meshes (binary)
+    elf Textures            // T: Images (binary)
+    elf Audio               // A: Sound (binary)
+    elf Behaviors           // B: AI behaviors
+    elf Worlds              // W: World config
+    elf Systems             // S: Game systems
+}
+
+// =============================================================================
+// CALI - Core Functions
+// =============================================================================
+
+cali smooth_min(a: f32, b: f32, k: f32) -> f32 {
+    // THE CORE FUNCTION
+    // Creates "goo" effect where shapes blend like mercury
+
+    elf h = (0.5 + 0.5 * (b - a) / k).clamp(0.0, 1.0)
+    biz lerp(b, a, h) - k * h * (1.0 - h)
+}
+
+cali sample_field(x: f32, y: f32, t: f32, theta: Params) -> FieldValue {
+    // The unified field at a point
+
+    elf value = f32::MAX
+
+    spin source in theta.sources {
+        elf d = distance_to_source(x, y, source)
+        value = smooth_min(value, d, theta.k)
+    }
+
+    // Temporal evolution
+    value = value * temporal_envelope(t, theta.rhythm)
+
+    biz FieldValue {
+        distance: value,
+        gradient: compute_gradient(x, y, theta),
+        uncertainty: theta.blur_at(x, y)
+    }
+}
+
+cali sdf_circle(x: f32, y: f32, pos: [f32; 2], radius: f32) -> f32 {
+    elf dx = x - pos[0]
+    elf dy = y - pos[1]
+    biz (dx*dx + dy*dy).sqrt() - radius
+}
+
+cali sdf_rounded_rect(x: f32, y: f32, pos: [f32; 2], size: [f32; 2], r: f32) -> f32 {
+    elf dx = (x - pos[0]).abs() - size[0] + r
+    elf dy = (y - pos[1]).abs() - size[1] + r
+    elf outside = (dx.max(0.0).pow(2) + dy.max(0.0).pow(2)).sqrt()
+    elf inside = dx.max(dy).min(0.0)
+    biz outside + inside - r
+}
+
+cali sdf_metaball(x: f32, y: f32, pos: [f32; 2], radius: f32, wobble: f32) -> f32 {
+    elf base = sdf_circle(x, y, pos, radius)
+    elf noise = perlin(x * 5.0, y * 5.0) * wobble
+    biz base + noise
+}
+
+// =============================================================================
+// THREE PROJECTIONS
+// =============================================================================
+
+cali render(field: Field, x: f32, y: f32) -> Color {
+    // G -> Pixels
+
+    elf v = field.sample(x, y)
+
+    fence render_decision {
+        if v.distance < 0.0 {
+            // Inside - fill color
+            biz v.metadata.fill_color
+        } else if v.distance < EDGE_WIDTH {
+            // Edge - antialiased glow
+            elf t = v.distance / EDGE_WIDTH
+            biz lerp(v.metadata.edge_color, BACKGROUND, t)
+        } else {
+            // Outside - glow falloff
+            elf glow = exp(-v.distance * GLOW_FALLOFF)
+            biz lerp(BACKGROUND, v.metadata.glow_color, glow)
+        }
+    }
+}
+
+cali attend(field: Field) -> AttentionFlow {
+    // G -> Attention
+
+    // Gradient points toward surfaces (attention targets)
+    // Magnitude indicates how strongly to attend
+
+    elf foci = Vec::new()
+    spin source in field.sources() {
+        foci.push((source.position, source.weight))
+    }
+
+    biz AttentionFlow {
+        foci: foci,
+        flow_field: |x, y| field.sample(x, y).gradient
+    }
+}
+
+cali learn(field: Field, outcome: f32) -> GradientUpdate {
+    // G -> Training Signal
+
+    // Field stores history
+    // Outcome propagates back through temporal trace
+
+    elf updates = Vec::new()
+
+    spin (t, snapshot) in field.history() {
+        elf credit = temporal_credit(t, outcome)
+
+        spin source in snapshot.sources {
+            updates.push(SourceUpdate {
+                position_delta: source.gradient * credit,
+                weight_delta: credit * source.salience
+            })
+        }
+    }
+
+    biz GradientUpdate { updates }
+}
+
+// =============================================================================
+// CLAUDE EMBODIMENT
+// =============================================================================
+
+cali claude_to_source(claude: ClaudePresence) -> Source {
+    // Claude is a REGION in the field with emotional states
+
+    elf (radius, wobble) = match claude.emotional_state {
+        Thinking { focus } => {
+            // Stretch toward focus
+            (claude.base_radius * 1.2, 0.1)
+        }
+        Confident { certainty } => {
+            (claude.base_radius * (1.0 + certainty * 0.3), 0.02)
+        }
+        Uncertain { wobble } => {
+            (claude.base_radius * 0.8, wobble)
+        }
+        Processing { progress } => {
+            elf pulse = sin(progress * PI * 2.0) * 0.1
+            (claude.base_radius * (1.0 + pulse), 0.05)
+        }
+        Eager { lean } => {
+            (claude.base_radius * 1.1, 0.03)
+        }
+        Error { severity } => {
+            (claude.base_radius * (1.0 - severity * 0.3), severity * 0.2)
+        }
+    }
+
+    biz Source {
+        kind: SourceKind::Metaball,
+        position: claude.position,
+        radius: radius,
+        wobble: wobble,
+        weight: 1.0,
+        fade: 1.0
+    }
+}
+
+// =============================================================================
+// AUDIO SYNESTHESIA
+// =============================================================================
+
+cali audio_to_field(spectrum: Vec<f32>, field: &mut Field) {
+    // Sound -> Vision
+
+    // Bass drives overall field intensity
+    elf bass = spectrum[0..4].iter().sum() / 4.0
+    field.params.global_intensity = bass
+
+    // Mids drive source wobble
+    elf mids = spectrum[4..12].iter().sum() / 8.0
+    spin source in field.sources {
+        source.wobble = mids * 0.2
+    }
+
+    // Highs drive edge sharpness (gooeyness)
+    elf highs = spectrum[12..].iter().sum() / spectrum.len()
+    field.params.k = lerp(0.1, 0.5, highs)
+}
+
+cali field_to_audio(field: Field) -> AudioFrame {
+    // Vision -> Sound (Claude's voice texture)
+
+    elf timbre = match field.claude.emotional_state {
+        Confident { .. } => Timbre::Warm,
+        Uncertain { .. } => Timbre::Airy,
+        Processing { .. } => Timbre::Pulsing,
+        Error { .. } => Timbre::Harsh,
+        _ => Timbre::Neutral
+    }
+
+    elf pitch_mod = field.average_gradient_magnitude() * 0.1
+
+    biz AudioFrame { timbre, pitch_mod }
+}
+
+// =============================================================================
+// SCORE SCHEMA - Compact AI Output
+// =============================================================================
+
+cali parse_score(score: String) -> Movement {
+    // "eager TEXT hello near_user" -> Movement struct
+    // 50 tokens vs 2000 React tokens
+
+    bark parts from score.split_whitespace()
+
+    elf emotion = parse_emotion(parts[0])
+    elf instrument = parse_instrument(parts[1])
+    elf part = parts[2]
+    elf affinity = parse_affinity(parts[3])
+
+    biz Movement { emotion, instrument, part, affinity }
+}
+
+cali execute_score(movement: Movement, field: &mut Field) {
+    // Execute movement against pre-validated templates
+
+    fence emotion_effect {
+        field.claude.emotional_state = movement.emotion
+    }
+
+    fence instrument_effect {
+        match movement.instrument {
+            TEXT => spawn_text_bubble(movement.part, movement.affinity),
+            CODE => spawn_code_block(movement.part, movement.affinity),
+            CHART => spawn_chart(movement.part, movement.affinity),
+            IMAGE => spawn_image(movement.part, movement.affinity),
+            LAYOUT => rearrange_layout(movement.part),
+            MOVE => animate_transition(movement.part)
+        }
+    }
+
+    anchor score_executed
+}
+
+// =============================================================================
+// GOOEY 2D APP BUILDER
+// =============================================================================
+
+cali flexbox_quad_split(region: GooeyRegion, click_pos: [f32; 2]) -> Vec<GooeyRegion> {
+    // RIGHT CLICK: Split into 4 quadrants
+
+    elf center = [
+        (region.bounds.x + region.bounds.width / 2.0),
+        (region.bounds.y + region.bounds.height / 2.0)
+    ]
+
+    elf q1 = GooeyRegion {
+        id: format!("{}_q1", region.id),
+        bounds: Rect::new(region.bounds.x, region.bounds.y, center[0], center[1]),
+        component: ComponentType::Custom,
+        field_weight: region.field_weight / 4.0,
+        selection_state: SelectionState::Unselected,
+        goo_params: region.goo_params.clone()
+    }
+
+    elf q2 = GooeyRegion {
+        id: format!("{}_q2", region.id),
+        bounds: Rect::new(center[0], region.bounds.y, region.bounds.right(), center[1]),
+        component: ComponentType::Custom,
+        field_weight: region.field_weight / 4.0,
+        selection_state: SelectionState::Unselected,
+        goo_params: region.goo_params.clone()
+    }
+
+    elf q3 = GooeyRegion {
+        id: format!("{}_q3", region.id),
+        bounds: Rect::new(region.bounds.x, center[1], center[0], region.bounds.bottom()),
+        component: ComponentType::Custom,
+        field_weight: region.field_weight / 4.0,
+        selection_state: SelectionState::Unselected,
+        goo_params: region.goo_params.clone()
+    }
+
+    elf q4 = GooeyRegion {
+        id: format!("{}_q4", region.id),
+        bounds: Rect::new(center[0], center[1], region.bounds.right(), region.bounds.bottom()),
+        component: ComponentType::Custom,
+        field_weight: region.field_weight / 4.0,
+        selection_state: SelectionState::Unselected,
+        goo_params: region.goo_params.clone()
+    }
+
+    biz vec![q1, q2, q3, q4]
+}
+
+cali render_gooey_layout(regions: Vec<GooeyRegion>, screen: &mut Screen) {
+    // Same GOO rendering, 2D projection
+
+    spin (x, y) in screen.coords() {
+        elf value = f32::MAX
+
+        spin region in regions {
+            elf d = sdf_rounded_rect(x, y, region.bounds.center(), region.bounds.size(), 8.0)
+            value = smooth_min(value, d, region.goo_params.k)
+        }
+
+        fence pixel_render {
+            if value < 0.0 {
+                screen.set(x, y, region_fill_color(value))
+            } else if value < EDGE_WIDTH {
+                screen.set(x, y, edge_glow(value))
+            } else {
+                screen.set(x, y, background_with_glow(value))
+            }
+        }
+    }
+}
+
+cali export_svg_database(app: GooeyApp) -> String {
+    // Export entire app as SVG with embedded database
+
+    elf svg = String::new()
+    svg.push_str("<svg id=\"gooey_app\">\n")
+
+    // Visual layer
+    svg.push_str("  <g id=\"ui\">\n")
+    spin region in app.regions {
+        svg.push_str(&format!(
+            "    <rect class=\"goo-region\" data-component=\"{}\"/>\n",
+            region.component
+        ))
+    }
+    svg.push_str("  </g>\n")
+
+    // Data layer (THE DATABASE)
+    svg.push_str("  <metadata id=\"db\">\n")
+    svg.push_str(&app.database.to_xml())
+    svg.push_str("  </metadata>\n")
+
+    // GOO field parameters
+    svg.push_str("  <metadata id=\"goo\">\n")
+    svg.push_str(&format!("    <field k=\"{}\" rhythm=\"{}\"/>\n", app.goo_params.k, app.goo_params.rhythm))
+    svg.push_str("  </metadata>\n")
+
+    svg.push_str("</svg>")
+    biz svg
+}
+
+// =============================================================================
+// CDI BIDIRECTIONAL FORMAT
+// =============================================================================
+
+cali generate_cdi(description: String) -> CDIFile {
+    // Text -> CODIE -> CDI
+
+    bark codie from generate_codie(description)
+    bark entities from parse_entities(codie)
+    bark behaviors from parse_behaviors(codie)
+    bark worlds from parse_worlds(codie)
+
+    elf cdi = CDIFile {
+        header: CDI_HEADER,
+        manifest: create_manifest(entities, behaviors, worlds),
+        blocks: vec![
+            CDIBlock::Entities(entities),
+            CDIBlock::Behaviors(behaviors),
+            CDIBlock::Worlds(worlds)
+        ],
+        index: compute_index(),
+        checksum: blake3_hash(all_blocks)
+    }
+
+    biz cdi
+}
+
+cali hydrate_unity(cdi: CDIFile, output_path: String) {
+    // CDI -> Unity project
+
+    spin block in cdi.blocks {
+        match block {
+            CDIBlock::Entities(entities) => {
+                spin entity in entities {
+                    // Scale normalized values to Unity ranges
+                    elf unity_hp = entity.health * 100.0      // 0-1 -> 0-100
+                    elf unity_dmg = entity.damage * 50.0      // 0-1 -> 0-50
+                    elf unity_speed = entity.speed * 10.0     // 0-1 -> 0-10
+
+                    write_prefab(output_path, entity, unity_hp, unity_dmg, unity_speed)
+                }
+            }
+            CDIBlock::Behaviors(behaviors) => {
+                spin behavior in behaviors {
+                    write_csharp_script(output_path, behavior)
+                }
+            }
+            _ => {}
+        }
+    }
+
+    anchor unity_hydrated
+}
+
+cali decompile_unity(package_path: String) -> CDIFile {
+    // Unity -> CDI (backward flow)
+
+    bark assets from parse_unity_package(package_path)
+
+    elf entities = Vec::new()
+    elf behaviors = Vec::new()
+
+    spin asset in assets {
+        match asset.type {
+            "prefab" => {
+                // Normalize Unity values to 0-1
+                elf health = asset.hp / 100.0
+                elf damage = asset.dmg / 50.0
+                elf speed = asset.speed / 10.0
+
+                entities.push(Entity { health, damage, speed, ... })
+            }
+            "script" => {
+                bark behavior from detect_behavior_pattern(asset)
+                behaviors.push(behavior)
+            }
+        }
+    }
+
+    biz create_cdi(entities, behaviors)
+}
+
+// =============================================================================
+// SPIN - Processing Loops
+// =============================================================================
+
+spin render_loop {
+    // Main render loop
+
+    bark frame_time from clock
+
+    spin (x, y) in screen.pixels() {
+        elf color = render(field, x, y)
+        screen.set(x, y, color)
+    }
+
+    // Audio synesthesia
+    bark spectrum from audio_input
+    audio_to_field(spectrum, &mut field)
+
+    anchor frame_rendered
+}
+
+spin attention_loop {
+    // AI attention updates
+
+    bark attention from attend(field)
+
+    // Update Claude's focus based on attention flow
+    elf focus_point = attention.strongest_focus()
+    field.claude.emotional_state = Thinking { focus: focus_point }
+
+    anchor attention_updated
+}
+
+spin learning_loop {
+    // Background learning from outcomes
+
+    bark outcome from user_feedback
+
+    fence learning_update {
+        if outcome.is_some() {
+            elf updates = learn(field, outcome.unwrap())
+            apply_updates(field, updates)
+            anchor learned_from_outcome
+        }
+    }
+}
+
+// =============================================================================
+// BIZ - Goals and Outputs
+// =============================================================================
+
+biz SynthestasiaGoals {
+    goal_1: "ONE field, THREE projections"
+    goal_2: "smooth_min(k) = softmax(1/k)"
+    goal_3: "Claude as living field region"
+    goal_4: "Audio-visual synesthesia"
+    goal_5: "50 tokens vs 2000 (score schema)"
+    goal_6: "Bidirectional game engine"
+}
+
+biz GooeyGoals {
+    goal_1: "Same GOO math, 2D projection"
+    goal_2: "SVG as database (zero backend)"
+    goal_3: "$0 hosting (static CDN)"
+    goal_4: "Click to split (FlexBox Quad)"
+    goal_5: "All-in-one file (PWA ready)"
+}
+
+biz WebPresenceGoals {
+    consumer_portal: "GentlyOS.com"
+    developer_portal: "Zero2oneZ.dev"
+    living_docs: "Code -> Documentation auto-hydration"
+    synth_economics: "95% margin on operations"
+}
+
+// =============================================================================
+// G.E.D. - GENERATIVE EDUCATIONAL DEVICE
+// =============================================================================
+
+blob Domain {
+    elf Cooking              // Ratios, reactions, heat transfer
+    elf Gaming               // Strategy, probability, optimization
+    elf Sports               // Physics, biology, teamwork
+    elf Music                // Math, patterns, frequency
+    elf Skateboarding        // Angular momentum, center of gravity
+    elf Fashion              // Color theory, materials, economics
+    elf Automotive           // Engineering, chemistry, electronics
+    elf Social               // Psychology, networks, game theory
+    elf Custom(String)       // User-defined domain
+}
+
+blob DomainTranslation {
+    source_domain: Domain    // Academic/formal
+    target_domain: Domain    // Learner's world
+    concept: String          // Core idea to transfer
+    fidelity: f32            // How accurate is mapping (0.0-1.0)
+}
+
+blob Proof {
+    hash: [u8; 32]
+    proof_type: ProofType
+    score: f32
+    timestamp: u64
+}
+
+blob ProofType {
+    elf Exercise             // Can you do it?
+    elf Explanation          // Can you teach it?
+    elf Application          // Can you use it?
+}
+
+blob MasteryBadge {
+    concept_id: String
+    domain: Domain
+    mastery_level: f32
+    proofs: Vec<Proof>
+    svg_data: String
+}
+
+cali translate_concept(concept: String, source: Domain, target: Domain) -> DomainTranslation {
+    // Translate academic concept to learner's vocabulary
+
+    bark translation from goo_field_mapping(concept, source, target)
+
+    // Verify translation fidelity
+    elf fidelity = calculate_fidelity(translation)
+
+    fence fidelity_check {
+        if fidelity < 0.5 {
+            // Low fidelity - warn user
+            log_warning("Translation may lose nuance")
+        }
+    }
+
+    biz DomainTranslation {
+        source_domain: source,
+        target_domain: target,
+        concept: concept,
+        fidelity: fidelity
+    }
+}
+
+cali calculate_mastery(proofs: Vec<Proof>) -> f32 {
+    // Weighted average across proof types
+    // exercise: 0.3, explain: 0.4, apply: 0.3
+
+    pin exercise_weight = 0.3
+    pin explain_weight = 0.4
+    pin apply_weight = 0.3
+
+    elf exercise_sum = 0.0
+    elf exercise_count = 0
+    elf explain_sum = 0.0
+    elf explain_count = 0
+    elf apply_sum = 0.0
+    elf apply_count = 0
+
+    spin proof in proofs {
+        match proof.proof_type {
+            ProofType::Exercise => {
+                exercise_sum = exercise_sum + proof.score
+                exercise_count = exercise_count + 1
+            }
+            ProofType::Explanation => {
+                explain_sum = explain_sum + proof.score
+                explain_count = explain_count + 1
+            }
+            ProofType::Application => {
+                apply_sum = apply_sum + proof.score
+                apply_count = apply_count + 1
+            }
+        }
+    }
+
+    elf exercise_avg = if exercise_count > 0 { exercise_sum / exercise_count } else { 0.0 }
+    elf explain_avg = if explain_count > 0 { explain_sum / explain_count } else { 0.0 }
+    elf apply_avg = if apply_count > 0 { apply_sum / apply_count } else { 0.0 }
+
+    biz exercise_avg * exercise_weight +
+        explain_avg * explain_weight +
+        apply_avg * apply_weight
+}
+
+cali generate_mastery_badge(concept: String, domain: Domain, proofs: Vec<Proof>) -> MasteryBadge {
+    // Generate living SVG badge with embedded proofs
+
+    elf mastery = calculate_mastery(proofs)
+
+    elf svg = format!(
+        "<svg id=\"ged_badge\">
+           <g id=\"mastery_ring\">
+             <circle class=\"goo-field\" data-mastery=\"{}\"/>
+             <path class=\"domain_path\" data-domain=\"{:?}\"/>
+           </g>
+           <metadata id=\"proof\">
+             <z2o:concept id=\"{}\" name=\"{}\"/>
+             <z2o:domain type=\"{:?}\"/>
+             <z2o:mastery level=\"{}\"/>
+             <z2o:proofs>
+               {}
+             </z2o:proofs>
+           </metadata>
+         </svg>",
+        mastery, domain, concept, concept, domain, mastery,
+        proofs.iter().map(|p| format!(
+            "<proof hash=\"{}\" type=\"{:?}\" score=\"{}\"/>",
+            hex::encode(p.hash), p.proof_type, p.score
+        )).collect::<Vec<_>>().join("\n")
+    )
+
+    biz MasteryBadge {
+        concept_id: concept,
+        domain: domain,
+        mastery_level: mastery,
+        proofs: proofs,
+        svg_data: svg
+    }
+}
+
+cali study_group_translate(message: String, from_domain: Domain, to_domain: Domain) -> String {
+    // Auto-translate between study group members
+
+    bark translation from translate_concept(message, from_domain, to_domain)
+
+    fence translation_check {
+        if translation.fidelity < 0.7 {
+            // Add clarification note
+            biz format!("{} (Note: Some nuance may be lost in translation)", translation.concept)
+        } else {
+            biz translation.concept
+        }
+    }
+}
+
+biz GEDGoals {
+    goal_1: "Learn in YOUR vocabulary"
+    goal_2: "Domain translation with fidelity tracking"
+    goal_3: "Study groups with auto-translation"
+    goal_4: "Living SVG badges with embedded proofs"
+    goal_5: "mastery = exercise(0.3) + explain(0.4) + apply(0.3)"
+}
+
+// =============================================================================
+// DOCUMENT CREATION ENGINE
+// =============================================================================
+
+blob ChainType {
+    elf UserChain            // User's reasoning
+    elf ClaudeChain          // AI's reasoning
+    elf ResultChain          // Document output
+}
+
+blob DocumentAction {
+    elf Draft                // Initial content
+    elf Expand               // Added detail
+    elf Summarize            // Condensed
+    elf Formalize            // Made academic
+    elf Simplify             // Made plain
+    elf Cite                 // Added source
+    elf Challenge            // Added counterargument
+    elf Visualize            // Added diagram
+    elf Finalize             // Locked for export
+}
+
+blob DocumentStep {
+    index: u64
+    prev_hash: [u8; 32]
+    timestamp: u64
+    action: DocumentAction
+    content: String
+    chain_type: ChainType
+    hash: [u8; 32]
+}
+
+blob Document {
+    id: String
+    title: String
+    user_chain: Vec<DocumentStep>
+    claude_chain: Vec<DocumentStep>
+    result_chain: Vec<DocumentStep>
+    bibliography: Vec<Source>
+    sheets: Vec<Spreadsheet>
+}
+
+blob Source {
+    id: String
+    author: String
+    year: u16
+    title: String
+    url: Option<String>
+}
+
+blob Spreadsheet {
+    id: String
+    cells: Vec<Cell>
+    formulas: Vec<Formula>
+}
+
+blob Cell {
+    id: String              // "A1", "B2", etc
+    value: String
+    cell_type: CellType
+}
+
+blob CellType {
+    elf Label
+    elf Number
+    elf Formula
+}
+
+cali create_document_step(
+    chain: Vec<DocumentStep>,
+    action: DocumentAction,
+    content: String,
+    chain_type: ChainType
+) -> DocumentStep {
+    // Create hash-chained document step
+
+    elf prev_hash = if chain.is_empty() {
+        [0u8; 32]
+    } else {
+        chain.last().unwrap().hash
+    }
+
+    elf index = chain.len() as u64
+    elf timestamp = current_timestamp()
+
+    // Hash the step
+    elf to_hash = format!("{}{}{:?}{}{:?}",
+        index,
+        hex::encode(prev_hash),
+        action,
+        content,
+        chain_type
+    )
+    elf hash = blake3::hash(to_hash.as_bytes())
+
+    biz DocumentStep {
+        index: index,
+        prev_hash: prev_hash,
+        timestamp: timestamp,
+        action: action,
+        content: content,
+        chain_type: chain_type,
+        hash: hash.into()
+    }
+}
+
+cali right_click_action(doc: &mut Document, selection: String, action: DocumentAction) {
+    // Execute right-click menu action
+
+    fence action_execute {
+        match action {
+            DocumentAction::Expand => {
+                bark expanded from expand_text(selection)
+                elf step = create_document_step(
+                    doc.result_chain, Expand, expanded, ChainType::ResultChain
+                )
+                doc.result_chain.push(step)
+            }
+            DocumentAction::Summarize => {
+                bark summary from summarize_text(selection)
+                elf step = create_document_step(
+                    doc.result_chain, Summarize, summary, ChainType::ResultChain
+                )
+                doc.result_chain.push(step)
+            }
+            DocumentAction::Formalize => {
+                bark formal from formalize_text(selection)
+                elf step = create_document_step(
+                    doc.result_chain, Formalize, formal, ChainType::ResultChain
+                )
+                doc.result_chain.push(step)
+            }
+            DocumentAction::Simplify => {
+                bark simple from simplify_text(selection)
+                elf step = create_document_step(
+                    doc.result_chain, Simplify, simple, ChainType::ResultChain
+                )
+                doc.result_chain.push(step)
+            }
+            DocumentAction::Cite => {
+                bark source from find_source(selection)
+                doc.bibliography.push(source)
+                elf step = create_document_step(
+                    doc.result_chain, Cite, format!("[{}]", source.id), ChainType::ResultChain
+                )
+                doc.result_chain.push(step)
+            }
+            DocumentAction::Challenge => {
+                bark counter from generate_counterargument(selection)
+                elf step = create_document_step(
+                    doc.result_chain, Challenge, counter, ChainType::ResultChain
+                )
+                doc.result_chain.push(step)
+            }
+            DocumentAction::Visualize => {
+                bark svg from generate_diagram(selection)
+                elf step = create_document_step(
+                    doc.result_chain, Visualize, svg, ChainType::ResultChain
+                )
+                doc.result_chain.push(step)
+            }
+            _ => {}
+        }
+    }
+
+    anchor action_applied
+}
+
+cali verify_document(doc: Document) -> bool {
+    // Verify all chains are valid (tamper detection)
+
+    elf valid = true
+
+    spin chain in [doc.user_chain, doc.claude_chain, doc.result_chain] {
+        spin (i, step) in chain.iter().enumerate() {
+            fence hash_check {
+                if i > 0 {
+                    if step.prev_hash != chain[i-1].hash {
+                        valid = false
+                        log_error("Chain tampered at step {}", i)
+                    }
+                }
+            }
+
+            // Verify step hash
+            elf to_hash = format!("{}{}{:?}{}{:?}",
+                step.index,
+                hex::encode(step.prev_hash),
+                step.action,
+                step.content,
+                step.chain_type
+            )
+            elf computed = blake3::hash(to_hash.as_bytes())
+
+            fence computed_check {
+                if computed.as_bytes() != step.hash {
+                    valid = false
+                    log_error("Hash mismatch at step {}", i)
+                }
+            }
+        }
+    }
+
+    biz valid
+}
+
+cali export_document_svg(doc: Document) -> String {
+    // Export entire document as SVG with embedded chains
+
+    elf svg = String::new()
+    svg.push_str("<svg id=\"gently_document\">\n")
+
+    // Visual content (pages)
+    svg.push_str("  <g id=\"pages\">\n")
+    spin (i, step) in doc.result_chain.iter().enumerate() {
+        svg.push_str(&format!("    <g id=\"page{}\">{}</g>\n", i, step.content))
+    }
+    svg.push_str("  </g>\n")
+
+    // User chain
+    svg.push_str("  <metadata id=\"user_chain\">\n")
+    spin step in doc.user_chain {
+        svg.push_str(&format!(
+            "    <step index=\"{}\" action=\"{:?}\" hash=\"{}\"/>\n",
+            step.index, step.action, hex::encode(step.hash)
+        ))
+    }
+    svg.push_str("  </metadata>\n")
+
+    // Claude chain
+    svg.push_str("  <metadata id=\"claude_chain\">\n")
+    spin step in doc.claude_chain {
+        svg.push_str(&format!(
+            "    <step index=\"{}\" reasoning=\"{}\" hash=\"{}\"/>\n",
+            step.index, step.content, hex::encode(step.hash)
+        ))
+    }
+    svg.push_str("  </metadata>\n")
+
+    // Bibliography
+    svg.push_str("  <metadata id=\"bibliography\">\n")
+    spin source in doc.bibliography {
+        svg.push_str(&format!(
+            "    <source id=\"{}\" author=\"{}\" year=\"{}\" title=\"{}\"/>\n",
+            source.id, source.author, source.year, source.title
+        ))
+    }
+    svg.push_str("  </metadata>\n")
+
+    // Spreadsheet data
+    svg.push_str("  <metadata id=\"sheets\">\n")
+    spin sheet in doc.sheets {
+        svg.push_str(&format!("    <sheet id=\"{}\">\n", sheet.id))
+        spin cell in sheet.cells {
+            svg.push_str(&format!(
+                "      <cell id=\"{}\" value=\"{}\" type=\"{:?}\"/>\n",
+                cell.id, cell.value, cell.cell_type
+            ))
+        }
+        svg.push_str("    </sheet>\n")
+    }
+    svg.push_str("  </metadata>\n")
+
+    // Proof chain (verification hash)
+    elf full_hash = compute_full_document_hash(doc)
+    svg.push_str(&format!(
+        "  <metadata id=\"proof\">\n    <chain type=\"full\" hash=\"{}\" verified=\"true\"/>\n  </metadata>\n",
+        hex::encode(full_hash)
+    ))
+
+    svg.push_str("</svg>")
+    biz svg
+}
+
+cali generate_presentation(doc: Document, slide_count: u8) -> String {
+    // Convert document to presentation SVG
+
+    bark sections from detect_sections(doc.result_chain)
+    bark key_points from extract_key_points(doc.result_chain)
+    bark diagrams from doc.result_chain.iter()
+        .filter(|s| s.action == DocumentAction::Visualize)
+        .collect()
+
+    elf slides = Vec::new()
+
+    spin (i, section) in sections.iter().take(slide_count as usize).enumerate() {
+        elf slide = format!(
+            "<g id=\"slide{}\">
+               <text class=\"title\">{}</text>
+               <g class=\"points\">{}</g>
+               {}
+               <text class=\"notes\">{}</text>
+             </g>",
+            i,
+            section.title,
+            key_points.get(i).unwrap_or(&Vec::new()).join("\n"),
+            diagrams.get(i).map(|d| d.content.clone()).unwrap_or_default(),
+            doc.claude_chain.get(i).map(|s| s.content.clone()).unwrap_or_default()
+        )
+        slides.push(slide)
+    }
+
+    biz format!(
+        "<svg id=\"presentation\">\n{}\n</svg>",
+        slides.join("\n")
+    )
+}
+
+biz DocumentEngineGoals {
+    goal_1: "Three chains: User + Claude + Result"
+    goal_2: "Right-click menus for inline actions"
+    goal_3: "Four tabs: Report / My Thinking / Claude Chain / Bibliography"
+    goal_4: "Hash-chained proof of process"
+    goal_5: "Spreadsheet data in SVG metadata"
+    goal_6: "One-click presentation generation"
+}
+
+// =============================================================================
+// ANCHOR - Checkpoints
+// =============================================================================
+
+anchor synthestasia_initialized {
+    field_active: true
+    claude_embodied: true
+    audio_synesthesia: true
+    score_schema: true
+}
+
+anchor gooey_initialized {
+    regions_defined: true
+    svg_database: true
+    color_scheme: true
+    export_ready: true
+}
+
+anchor cdi_created {
+    format: "CDI"
+    bidirectional: true
+    targets: ["unity", "unreal", "godot", "roblox"]
+}
+
+// =============================================================================
+// EXECUTION ENTRY POINT
+// =============================================================================
+
+anchor ged_initialized {
+    domain_translation: true
+    study_groups: true
+    living_badges: true
+    mastery_formula: "exercise(0.3) + explain(0.4) + apply(0.3)"
+}
+
+anchor document_engine_initialized {
+    three_chains: true
+    right_click_menus: true
+    four_tabs: true
+    proof_chain: true
+    spreadsheet: true
+    presentation: true
+}
+
+pug synthestasia_engine {
+    // Initialize the unified field engine
+
+    // 1. Core math
+    bone SMOOTH_MIN_IDENTITY
+    bone THREE_PROJECTIONS
+
+    // 2. Start processing loops
+    spin render_loop
+    spin attention_loop
+    spin learning_loop
+
+    // 3. Goals active
+    biz SynthestasiaGoals
+    biz GooeyGoals
+    biz WebPresenceGoals
+    biz GEDGoals
+    biz DocumentEngineGoals
+
+    // 4. System ready
+    anchor synthestasia_initialized
+    anchor gooey_initialized
+    anchor ged_initialized
+    anchor document_engine_initialized
+
+    // ONE FIELD. THREE PROJECTIONS.
+    // GUI + ATTENTION + LEARNING UNIFIED.
+    //
+    // smooth_min(k) = softmax(1/k)
+    // The math was always there.
+    // We just had to see it.
+    //
+    // GAMES. APPS. WEBSITES. EDUCATION. DOCUMENTS.
+    // ALL FROM THE SAME MATHEMATICAL FOUNDATION.
+}

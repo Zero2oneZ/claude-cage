@@ -698,7 +698,7 @@ pub struct AppState {
     pub cage_root: PathBuf,
     pub store_js: PathBuf,       // mongodb/store.js
     pub tree_path: PathBuf,      // gentlyos/tree.json
-    pub codie_dir: PathBuf,      // projects/Gently-nix/tools/codie-maps
+    pub codie_dir: PathBuf,      // codie-maps
     pub codie_programs: RwLock<Vec<Program>>,
 }
 ```

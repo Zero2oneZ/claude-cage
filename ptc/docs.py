@@ -78,7 +78,7 @@ def load_tree(path=None):
     """Load tree.json, return nodes_by_id dict.
 
     Args:
-        path: path to tree.json (defaults to CAGE_ROOT/tree.json)
+        path: path to tree.json (defaults to CAGE_ROOT/gentlyos/tree.json)
 
     Returns:
         dict: {node_id: node_dict, ...}

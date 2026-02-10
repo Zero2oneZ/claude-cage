@@ -153,7 +153,7 @@ async fn main() {
 
     // Train on CODIE corpus from codie-maps
     let codie_dir = std::env::var("CODIE_DIR")
-        .unwrap_or_else(|_| "../../projects/Gently-nix/tools/codie-maps".to_string());
+        .unwrap_or_else(|_| "../../codie-maps".to_string());
 
     let mut file_count = 0;
     if let Ok(entries) = std::fs::read_dir(&codie_dir) {

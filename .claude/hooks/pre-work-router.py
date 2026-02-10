@@ -66,7 +66,7 @@ PATH_MAP = [
     ("security/", "dept:security"),
     ("mongodb/", "capt:context"),
     ("gentlyos/", "dept:orchestration"),
-    ("tree.json", "dept:orchestration"),
+    ("codie-maps/", "capt:codie"),
     ("Makefile", "capt:build"),
     ("bin/claude-cage", "capt:api"),
 ]

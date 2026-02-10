@@ -1,0 +1,91 @@
+<div class="consent-gate-page">
+<div class="tool-header">
+  <span class="tool-title">Consent Gate</span>
+  <span class="badge {{ layer_badge }}">{{ layer_label }}</span>
+</div>
+
+<div class="gate-stats-bar">
+  <span>Requests: <strong>{{ total_requests }}</strong></span>
+  <span>Pending: <strong class="gate-pending-count">{{ pending_count }}</strong></span>
+  <span>Approved: <strong class="gate-approved-count">{{ approved_count }}</strong></span>
+  <span>Denied: <strong class="gate-denied-count">{{ denied_count }}</strong></span>
+</div>
+
+<div class="gate-section-label">APPROVAL CASCADE</div>
+<div class="cascade-table">
+  <div class="cascade-header">
+    <span>Risk</span>
+    <span>Approver</span>
+    <span>Min Tier</span>
+    <span>Examples</span>
+  </div>
+  {% for rule in cascade_rules %}
+  <div class="cascade-row">
+    <span class="cascade-risk">{{ rule.risk_range }}</span>
+    <span class="cascade-approver">{{ rule.approver }}</span>
+    <span class="cascade-tier">{{ rule.tier }}</span>
+    <span class="cascade-example">{{ rule.example }}</span>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="gate-section-label" style="margin-top:20px;">CONSENT REQUESTS</div>
+<div class="gate-request-list">
+  {% for req in requests %}
+  <div class="gate-request-card" onclick="this.classList.toggle('gate-expanded')">
+    <div class="gate-request-summary">
+      <span class="gate-req-id">{{ req.id }}</span>
+      <span class="gate-req-action">{{ req.action }}</span>
+      <span class="risk-badge {{ req.risk_class }}">{{ req.risk_label }} ({{ req.risk_score }})</span>
+      <span class="gate-status {{ req.status_class }}">{{ req.status_label }}</span>
+    </div>
+    <div class="gate-request-drawer">
+      <div class="gate-drawer-row">
+        <span class="gate-drawer-label">Description</span>
+        <span class="gate-drawer-value">{{ req.description }}</span>
+      </div>
+      <div class="gate-drawer-row">
+        <span class="gate-drawer-label">Requester</span>
+        <span class="gate-drawer-value">{{ req.requester }}</span>
+      </div>
+      <div class="gate-drawer-row">
+        <span class="gate-drawer-label">Required Tier</span>
+        <span class="gate-drawer-value">{{ req.required_tier }}</span>
+      </div>
+      <div class="gate-drawer-row">
+        <span class="gate-drawer-label">Cascade</span>
+        <span class="gate-drawer-value gate-cascade-path">{{ req.cascade_path }}</span>
+      </div>
+      <div class="gate-drawer-row">
+        <span class="gate-drawer-label">Timestamp</span>
+        <span class="gate-drawer-value">{{ req.timestamp }}</span>
+      </div>
+      {% if req.can_approve %}
+      <div class="gate-drawer-actions">
+        <button class="btn btn-sm btn-vault-keep">Approve</button>
+        <button class="btn btn-sm btn-vault-reject">Deny</button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="gate-tier-info">
+  <div class="gate-section-label" style="margin-top:20px;">YOUR APPROVAL POWER</div>
+  <div class="gate-power-grid">
+    <div class="gate-power-item {% if can_approve_medium %}gate-power-active{% else %}gate-power-locked{% endif %}">
+      <span class="gate-power-label">Medium Risk (4-6)</span>
+      <span class="gate-power-status">{% if can_approve_medium %}AUTHORIZED{% else %}LOCKED{% endif %}</span>
+    </div>
+    <div class="gate-power-item {% if can_approve_high %}gate-power-active{% else %}gate-power-locked{% endif %}">
+      <span class="gate-power-label">High Risk (7-8)</span>
+      <span class="gate-power-status">{% if can_approve_high %}AUTHORIZED{% else %}LOCKED{% endif %}</span>
+    </div>
+    <div class="gate-power-item {% if can_approve_critical %}gate-power-active{% else %}gate-power-locked{% endif %}">
+      <span class="gate-power-label">Critical Risk (9-10)</span>
+      <span class="gate-power-status">{% if can_approve_critical %}AUTHORIZED{% else %}LOCKED{% endif %}</span>
+    </div>
+  </div>
+</div>
+</div>

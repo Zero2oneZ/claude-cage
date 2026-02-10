@@ -1,0 +1,468 @@
+# COMPREHENSIVE BUILD CHAIN
+# Complete GentlyOS build following tier governance
+# CODIE: pug (master entry point)
+
+pug COMPREHENSIVE_BUILD
+|
++-- fence ABSOLUTE_LAWS
+|   +-- bone NOT: bypass guardian database
+|   +-- bone NOT: skip validation for multi-governed
+|   +-- bone NOT: execute without PTC in sandbox
+|   +-- bone NOT: modify bone-tagged entities without ARCHITECT
+|   +-- bone NOT: disable security daemons
+|   +-- bone NOT: proceed if lower tier incomplete
+|
++-- elf config
+|   +-- elf db_path <- "~/.gently/guardian.db"
+|   +-- elf build_log <- "~/.gently/build.log"
+|   +-- elf workspace <- @env/GENTLYOS_ROOT
+|
++-- anchor #build_start
+
+# ============================================
+# PHASE 0: INITIALIZATION
+# ============================================
+
++-- cali PHASE_0_INIT
+|   |
+|   +-- bark db_exists <- @fs/check(config.db_path)
+|   +-- ? NOT db_exists
+|   |   +-- cali INIT_DATABASE()
+|   |   +-- anchor #database_created
+|   |
+|   +-- bark entities <- @guardian/entities?entity_type=crate
+|   +-- ? count(entities) < 25
+|   |   +-- bark @guardian/execute <- "tools/guardian/guardian.sql"
+|   |   +-- bark @guardian/execute <- "tools/guardian/governance.sql"
+|   |   +-- bark @guardian/execute <- "tools/guardian/build_tracking.sql"
+|   |   +-- anchor #seed_data_loaded
+|   |
+|   +-- # Create build session
+|   +-- elf session
+|   |   +-- elf session_name <- "Full Build " || now()
+|   |   +-- elf total_crates <- count(entities)
+|   +-- bark @guardian/build_sessions <- session
+|   |
+|   +-- biz -> "Phase 0 complete"
+|       +-- anchor #phase_0_complete
+
+# ============================================
+# PHASE 1: TIER 0 - FOUNDATION
+# ============================================
+
++-- cali PHASE_1_TIER_0
+|   |
+|   +-- fence TIER_0_RULES
+|   |   +-- bone REQUIRES: Phase 0 complete
+|   |   +-- bone NOT: skip security validation for crypto
+|   |
+|   +-- elf tier_0_crates <- ["C001", "C002", "C003", "C004", "C027"]
+|   +-- elf order <- ["C001", "C004", "C002", "C003", "C027"]  // dependency order
+|   |
+|   +-- spin crate_id IN order
+|   |   |
+|   |   +-- bark entity <- @guardian/entities/{crate_id}
+|   |   +-- bark @guardian/entities/{crate_id} <- {status: "in_progress"}
+|   |   |
+|   |   +-- # Check dependencies
+|   |   +-- bark deps <- @guardian/daath_links?from_entity={crate_id}&link_type=depends
+|   |   +-- spin dep IN deps
+|   |   |   +-- bark dep_status <- @guardian/entities/{dep.to_entity}
+|   |   |   +-- ? dep_status.status != "active"
+|   |   |       +-- error "Dependency " || dep.to_entity || " not ready"
+|   |   |
+|   |   +-- # Build crate
+|   |   +-- bark result <- @cargo/build(entity.name)
+|   |   +-- ? result.failed
+|   |   |   +-- cali CONFESS(entity, result)
+|   |   |   +-- ? confession.escalated -> error "Build failed: " || entity.name
+|   |   |
+|   |   +-- # PTC checkpoint for crypto crates
+|   |   +-- ? entity.codie == "bone" OR crate_id IN ["C001", "C027"]
+|   |   |   +-- bark ptc <- @guardian/ptc_checkpoints?entity_id={crate_id}
+|   |   |   +-- cali REQUEST_PTC_APPROVAL(ptc)
+|   |   |   +-- ? NOT ptc.approved -> error "PTC required for " || entity.name
+|   |   |
+|   |   +-- # Request validation
+|   |   +-- cali REQUEST_SECURITY_VALIDATION(entity)
+|   |   |
+|   |   +-- # Mark complete
+|   |   +-- bark @guardian/entities/{crate_id} <- {status: "active"}
+|   |   +-- anchor #tier_0_{crate_id}
+|   |
+|   +-- # Run tier tests
+|   +-- bark tests <- @cargo/test?packages=tier_0_crates
+|   +-- ? tests.failed > 0
+|   |   +-- spin failure IN tests.failures
+|   |       +-- cali CONFESS(failure.crate, failure)
+|   |
+|   +-- biz -> "Tier 0 complete"
+|       +-- anchor #tier_0_complete
+
+# ============================================
+# PHASE 2: TIER 1 - CORE
+# ============================================
+
++-- cali PHASE_2_TIER_1
+|   |
+|   +-- fence TIER_1_RULES
+|   |   +-- bone REQUIRES: Tier 0 complete
+|   |   +-- bone NOT: skip knowledge validation
+|   |
+|   +-- # Verify tier 0
+|   +-- bark tier_0 <- @guardian/entities?tier=0&entity_type=crate
+|   +-- elf active_count <- count(tier_0 WHERE status="active")
+|   +-- ? active_count < 5 -> error "Tier 0 incomplete"
+|   |
+|   +-- elf tier_1_crates <- ["C005", "C006", "C007", "C008", "C009"]
+|   |
+|   +-- spin crate_id IN tier_1_crates
+|   |   |
+|   |   +-- bark entity <- @guardian/entities/{crate_id}
+|   |   +-- cali BUILD_WITH_VALIDATION(entity, "KNOWLEDGE")
+|   |   +-- anchor #tier_1_{crate_id}
+|   |
+|   +-- cali RUN_TIER_TESTS(1)
+|   +-- biz -> "Tier 1 complete"
+|       +-- anchor #tier_1_complete
+
+# ============================================
+# PHASE 3: TIER 2 - KNOWLEDGE
+# ============================================
+
++-- cali PHASE_3_TIER_2
+|   |
+|   +-- fence TIER_2_RULES
+|   |   +-- bone REQUIRES: Tiers 0,1 complete
+|   |   +-- bone NOT: build security without ARCHITECT
+|   |
+|   +-- cali VERIFY_TIER_COMPLETE(0)
+|   +-- cali VERIFY_TIER_COMPLETE(1)
+|   |
+|   +-- elf tier_2_crates <- ["C010", "C011", "C012", "C013"]
+|   |
+|   +-- spin crate_id IN tier_2_crates
+|   |   |
+|   |   +-- bark entity <- @guardian/entities/{crate_id}
+|   |   |
+|   |   +-- # Special handling for security crate
+|   |   +-- ? crate_id == "C013"
+|   |   |   +-- cali REQUIRE_ARCHITECT_APPROVAL(entity)
+|   |   |   +-- ? NOT approved -> error "Security requires ARCHITECT"
+|   |   |
+|   |   +-- cali BUILD_WITH_VALIDATION(entity, "INTELLIGENCE")
+|   |   +-- anchor #tier_2_{crate_id}
+|   |
+|   +-- cali RUN_TIER_TESTS(2)
+|   +-- biz -> "Tier 2 complete"
+|       +-- anchor #tier_2_complete
+
+# ============================================
+# PHASE 4: TIER 3 - INTELLIGENCE
+# ============================================
+
++-- cali PHASE_4_TIER_3
+|   |
+|   +-- fence TIER_3_RULES
+|   |   +-- bone REQUIRES: Tiers 0,1,2 complete
+|   |   +-- bone NOT: skip security threat audit
+|   |   +-- bone NOT: build inference without alexandria
+|   |
+|   +-- cali VERIFY_LOWER_TIERS(2)
+|   |
+|   +-- # Critical path: Alexandria -> Search -> Inference
+|   +-- elf critical_path <- ["C014", "C015", "C016"]
+|   +-- spin crate_id IN critical_path
+|   |   +-- bark entity <- @guardian/entities/{crate_id}
+|   |   +-- cali BUILD_WITH_SECURITY_AUDIT(entity)
+|   |   +-- anchor #tier_3_critical_{crate_id}
+|   |
+|   +-- # Remaining tier 3
+|   +-- elf remaining <- ["C017", "C018", "C019", "C028"]
+|   +-- spin crate_id IN remaining
+|   |   +-- bark entity <- @guardian/entities/{crate_id}
+|   |   +-- cali BUILD_WITH_VALIDATION(entity, "SECURITY")
+|   |   +-- anchor #tier_3_{crate_id}
+|   |
+|   +-- cali RUN_TIER_TESTS(3)
+|   +-- biz -> "Tier 3 complete"
+|       +-- anchor #tier_3_complete
+
+# ============================================
+# PHASE 5: TIER 4 - INTEGRATION (Multi-Governed)
+# ============================================
+
++-- cali PHASE_5_TIER_4
+|   |
+|   +-- fence TIER_4_RULES
+|   |   +-- bone REQUIRES: 2 validators for each crate
+|   |   +-- bone REQUIRES: both governors approve
+|   |   +-- bone NOT: skip secondary validation
+|   |
+|   +-- cali VERIFY_LOWER_TIERS(3)
+|   |
+|   +-- elf tier_4_crates <- ["C020", "C021", "C022", "C023", "C024"]
+|   |
+|   +-- spin crate_id IN tier_4_crates
+|   |   |
+|   |   +-- bark entity <- @guardian/entities/{crate_id}
+|   |   +-- bark governance <- @guardian/governance?entity_id={crate_id}
+|   |   |
+|   |   +-- # Require both governors
+|   |   +-- elf primary <- governance WHERE governance_type="primary"
+|   |   +-- elf secondary <- governance WHERE governance_type="secondary"
+|   |   |
+|   |   +-- cali REQUEST_GOVERNOR_APPROVAL(entity, primary.governor_dept)
+|   |   +-- ? secondary
+|   |       +-- cali REQUEST_GOVERNOR_APPROVAL(entity, secondary.governor_dept)
+|   |   |
+|   |   +-- cali BUILD_CRATE(entity)
+|   |   |
+|   |   +-- # Require 2 validators
+|   |   +-- bark validators <- @guardian/validator_assignments?entity_id={crate_id}
+|   |   +-- ? count(validators) < 2 -> error "Dual validation required"
+|   |   |
+|   |   +-- spin v IN validators
+|   |       +-- cali REQUEST_VALIDATION(entity, v)
+|   |   |
+|   |   +-- bark @guardian/entities/{crate_id} <- {status: "active"}
+|   |   +-- anchor #tier_4_{crate_id}
+|   |
+|   +-- cali RUN_TIER_TESTS(4)
+|   +-- biz -> "Tier 4 complete"
+|       +-- anchor #tier_4_complete
+
+# ============================================
+# PHASE 6: TIER 5 - ONE SCENE APPLICATION
+# ============================================
+
++-- cali PHASE_6_TIER_5_ONE_SCENE
+|   |
+|   +-- fence ONE_SCENE_RULES
+|   |   +-- bone REQUIRES: All lower tiers complete
+|   |   +-- bone REQUIRES: All tier heads approve
+|   |   +-- bone NOT: deploy without full validation
+|   |
+|   +-- cali VERIFY_ALL_TIERS()
+|   |
+|   +-- # Build application components
+|   +-- elf app_crates <- ["C029", "C030", "C025"]
+|   +-- spin crate_id IN app_crates
+|   |   +-- bark entity <- @guardian/entities/{crate_id}
+|   |   +-- cali BUILD_CRATE(entity)
+|   |   +-- cali REGISTER_SHELF(entity)
+|   |   +-- anchor #tier_5_app_{crate_id}
+|   |
+|   +-- # Build binaries
+|   +-- elf binaries <- ["B001", "B002"]
+|   +-- spin bin_id IN binaries
+|   |   +-- bark entity <- @guardian/entities/{bin_id}
+|   |   +-- bark result <- @cargo/build(entity.name, "--release")
+|   |   +-- ? result.failed -> cali CONFESS(entity, result)
+|   |   +-- anchor #binary_{bin_id}
+|   |
+|   +-- # Request all tier head validation
+|   +-- elf tier_heads <- ["FoundationHead", "KnowledgeHead", "IntelligenceHead",
+|   |                      "SecurityHead", "NetworkHead"]
+|   +-- spin head IN tier_heads
+|   |   +-- cali REQUEST_HEAD_VALIDATION("APPLICATION", head)
+|   |   +-- ? NOT approved -> error "Tier head " || head || " did not approve"
+|   |
+|   +-- # Initialize ONE SCENE
+|   +-- cali INIT_SHELF_STATES()
+|   +-- cali INIT_TRANSITION_HANDLERS()
+|   +-- cali VERIFY_HTMX_ROUTES()
+|   |
+|   +-- biz -> "ONE SCENE deployed"
+|       +-- anchor #one_scene_deployed
+
+# ============================================
+# PHASE 7: FINAL VALIDATION
+# ============================================
+
++-- cali PHASE_7_FINAL
+|   |
+|   +-- # Run full integration tests
+|   +-- bark integration <- @cargo/test("--workspace", "--features", "integration")
+|   +-- ? integration.failed > 0
+|   |   +-- spin f IN integration.failures
+|   |       +-- cali CONFESS(f.crate, f)
+|   |
+|   +-- # Verify no pending confessions
+|   +-- bark confessions <- @guardian/confessions?status=pending
+|   +-- ? count(confessions) > 0
+|   |   +-- error "Pending confessions: " || count(confessions)
+|   |
+|   +-- # BTC anchor
+|   +-- bark btc_block <- @btc/latest
+|   +-- elf anchor_hash <- hash(build_session || btc_block.hash)
+|   +-- bark @guardian/build_sessions <- {
+|   |     status: "completed",
+|   |     completed_at: now(),
+|   |     btc_anchor_block: btc_block.height,
+|   |     btc_anchor_hash: anchor_hash
+|   | }
+|   |
+|   +-- anchor #build_anchored
+|   +-- biz -> "Build complete and anchored"
+
++-- biz -> "GENTLYOS BUILD COMPLETE"
+    +-- anchor #comprehensive_build_complete
+
+# ============================================
+# HELPER FUNCTIONS
+# ============================================
+
+cali VERIFY_TIER_COMPLETE
+|
++-- bark tier <- @input
++-- bark crates <- @guardian/entities?tier={tier}&entity_type=crate
++-- elf active <- count(crates WHERE status="active")
++-- elf total <- count(crates)
++-- ? active < total -> error "Tier " || tier || " incomplete: " || active || "/" || total
++-- biz -> true
+
+cali VERIFY_ALL_TIERS
+|
++-- spin tier IN [0, 1, 2, 3, 4]
+    +-- cali VERIFY_TIER_COMPLETE(tier)
+
+cali VERIFY_LOWER_TIERS
+|
++-- bark max_tier <- @input
++-- spin tier IN range(0, max_tier + 1)
+    +-- cali VERIFY_TIER_COMPLETE(tier)
+
+cali BUILD_CRATE
+|
++-- bark entity <- @input
++-- bark @guardian/entities/{entity.id} <- {status: "in_progress"}
++-- bark result <- @cargo/build(entity.name, "--release")
++-- ? result.failed
+|   +-- cali CONFESS(entity, result)
+|   +-- error "Build failed: " || entity.name
++-- bark @guardian/entities/{entity.id} <- {status: "active"}
++-- biz -> result
+
+cali BUILD_WITH_VALIDATION
+|
++-- bark entity <- @input.entity
++-- bark validator_dept <- @input.validator_dept
++-- cali BUILD_CRATE(entity)
++-- bark validator <- @guardian/validators?source_dept={validator_dept}&validates_tier={entity.tier}
++-- cali REQUEST_VALIDATION(entity, validator[0])
++-- biz -> "Built and validated"
+
+cali BUILD_WITH_SECURITY_AUDIT
+|
++-- bark entity <- @input
++-- bark ptc <- @guardian/ptc_checkpoints?entity_id={entity.id}
++-- ? ptc EXISTS
+|   +-- cali REQUEST_PTC_APPROVAL(ptc)
++-- cali BUILD_CRATE(entity)
++-- bark auditor <- @guardian/validators?specialty="Threat Detection"
++-- cali REQUEST_VALIDATION(entity, auditor[0])
++-- biz -> "Built with security audit"
+
+cali REQUEST_VALIDATION
+|
++-- bark entity <- @input.entity
++-- bark validator <- @input.validator
++-- elf request
+|   +-- elf id <- uuid()
+|   +-- elf entity_id <- entity.id
+|   +-- elf validator_id <- validator.id
+|   +-- elf requested_at <- now()
++-- bark @guardian/instruction_log <- request
++-- # In production, this would wait for approval
++-- biz -> "Validation requested"
+
+cali REQUEST_PTC_APPROVAL
+|
++-- bark checkpoint <- @input
++-- elf approvers <- parse(checkpoint.required_approvers)
++-- spin approver IN approvers
+|   +-- # Request approval from each required approver
+|   +-- bark @guardian/ptc_checkpoints/{checkpoint.id} <- {
+|       approved_by: append(checkpoint.approved_by, approver)
+|   }
++-- bark @guardian/ptc_checkpoints/{checkpoint.id} <- {status: "approved", resolved_at: now()}
++-- biz -> "PTC approved"
+
+cali REGISTER_SHELF
+|
++-- bark entity <- @input
++-- bark existing <- @guardian/shelf_states?entity_id={entity.id}
++-- ? NOT existing
+|   +-- elf shelf
+|   |   +-- elf id <- "SHELF_" || upper(entity.name)
+|   |   +-- elf shelf_name <- entity.name
+|   |   +-- elf entity_id <- entity.id
+|   |   +-- elf state <- "hidden"
+|   +-- bark @guardian/shelf_states <- shelf
++-- biz -> "Shelf registered"
+
+cali INIT_SHELF_STATES
+|
++-- bark shelves <- @guardian/shelf_states
++-- spin shelf IN shelves
+|   +-- bark entity <- @guardian/entities/{shelf.entity_id}
+|   +-- ? entity.status == "active"
+|       +-- bark @guardian/shelf_states/{shelf.id} <- {state: "hidden"}
++-- # Set main canvas to fullscreen
++-- bark @guardian/shelf_states/SHELF_CANVAS <- {state: "fullscreen"}
++-- biz -> "Shelves initialized"
+
+cali CONFESS
+|
++-- bark entity <- @input.entity
++-- bark error <- @input.error
+|
++-- elf confession
+|   +-- elf id <- uuid()
+|   +-- elf penitent_path <- entity.path
+|   +-- elf sin_type <- classify_error(error)
+|   +-- elf severity <- calculate_severity(error)
+|   +-- elf message <- error.message
+|   +-- elf status <- "pending"
+|
++-- bark @guardian/confessions <- confession
+|
++-- # Get routing
++-- bark routing <- @guardian/confession_routing?sin_type={confession.sin_type}
++-- bark penance <- @priest/prescribe(confession, routing)
+|
++-- # Execute penance in isolation
++-- ? penance.isolation_level == "QUARANTINE"
+|   +-- cali QUARANTINE_EXECUTE(penance)
++-- ? penance.isolation_level == "SANDBOX"
+|   +-- cali SANDBOX_EXECUTE(penance)
++-- ? penance.isolation_level == "CHAPEL"
+|   +-- cali CHAPEL_EXECUTE(penance)
+|
++-- # Verify
++-- bark tests <- @cargo/test(entity.name)
++-- ? tests.passed
+|   +-- bark @guardian/confessions/{confession.id} <- {status: "absolved"}
+|   +-- biz -> confession
+|
++-- # Retry or escalate
++-- elf attempt_count <- count(@guardian/penance_attempts?confession_id={confession.id})
++-- ? attempt_count < routing.auto_escalate_after
+|   +-- cali CONFESS(entity, error)  // retry
+|
++-- bark @guardian/confessions/{confession.id} <- {status: "escalated"}
++-- elf confession.escalated <- true
++-- biz -> confession
+
+cali RUN_TIER_TESTS
+|
++-- bark tier <- @input
++-- bark crates <- @guardian/entities?tier={tier}&entity_type=crate&status=active
++-- elf packages <- join(crates.name, " -p ")
++-- bark result <- @cargo/test("-p", packages)
++-- ? result.failed > 0
+|   +-- spin f IN result.failures
+|       +-- bark entity <- @guardian/entities?name={f.crate}
+|       +-- cali CONFESS(entity[0], f)
++-- biz -> result

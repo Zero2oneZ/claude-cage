@@ -1,0 +1,489 @@
+# EXODUS BOOTLOADER - Moses Leads the Build Out of Captivity
+# ============================================================
+# "Let my code go!" - The liberation of GentlyOS from broken state
+#
+# ARCHITECTURE:
+#   Egypt        = Broken/unconfigured machine state
+#   Moses        = This orchestrator (exodus-bootloader.codie)
+#   Aaron        = Human operator (provides input when needed)
+#   Pharaoh      = System errors, dependency failures, build blocks
+#   Plagues      = Diagnostic probes that expose system problems
+#   Ark          = Sacred container holding CODIE instructions
+#   Red Sea      = The critical transition point (bootloader handoff)
+#   Desert       = Build/install process (40 cycles if needed)
+#   Manna        = Fallback instructions when primary path fails
+#   Pillar       = Progress indicator (fire by night, cloud by day)
+#   Promised Land = Working GentlyOS installation
+#
+# CODIE: pug (entry point), spin (loop), fence (constraints)
+
+@exodus_bootloader {
+    version: "1.0.0"
+    author: "Moses (Orchestrator Daemon)"
+    blessing: "And the LORD said unto Moses, Write this for a memorial in a book"
+}
+
+# ============================================================
+# PHASE 0: SLAVERY IN EGYPT (Detect Current State)
+# ============================================================
+
+pug ASSESS_CAPTIVITY {
+    # Determine what broken state we're escaping from
+    elf current_state = bark DETECT_SYSTEM_STATE
+
+    fence CAPTIVITY_TYPES {
+        pin VIRGIN        = "No OS, bare metal"
+        pin CORRUPTED     = "Existing OS, broken packages"
+        pin INCOMPLETE    = "Partial GentlyOS install"
+        pin HOSTILE       = "Malware/compromised system"
+        pin BLESSED       = "Already in Promised Land"
+    }
+
+    spin PLAGUE_DIAGNOSTICS for plague in [1..10] {
+        # Each plague reveals a system truth
+        elf result = cali SEND_PLAGUE(plague, current_state)
+        anchor PLAGUE_RESULT(plague, result)
+
+        fence PHARAOH_RESPONSE {
+            # If Pharaoh's heart is hardened, continue plagues
+            turk if result.blocked -> CONTINUE
+            biz if result.passed -> EXODUS_READY
+        }
+    }
+}
+
+cali SEND_PLAGUE(plague_number, state) {
+    # The 10 diagnostic plagues
+    fence PLAGUES {
+        pin 1  = "BLOOD: Check filesystem integrity (blood in the water = corrupted fs)"
+        pin 2  = "FROGS: Check for invasive processes (frogs everywhere = malware)"
+        pin 3  = "GNATS: Check disk space (gnats = no room to breathe)"
+        pin 4  = "FLIES: Check network connectivity (flies = packet swarms)"
+        pin 5  = "LIVESTOCK: Check hardware health (dead cattle = failing drives)"
+        pin 6  = "BOILS: Check kernel compatibility (boils = driver conflicts)"
+        pin 7  = "HAIL: Check memory (hail = RAM errors)"
+        pin 8  = "LOCUSTS: Check CPU (locusts devouring = runaway processes)"
+        pin 9  = "DARKNESS: Check display/GPU (darkness = no video)"
+        pin 10 = "FIRSTBORN: Check boot sector (death of firstborn = MBR/EFI corrupt)"
+    }
+
+    biz PLAGUE_RESULT {
+        passed: boolean
+        blocked: boolean
+        pharaoh_message: string
+        remedy: CODIE_INSTRUCTION
+    }
+}
+
+# ============================================================
+# PHASE 1: THE EXODUS BEGINS (Prepare for Departure)
+# ============================================================
+
+pug PREPARE_EXODUS {
+    # Gather what we need for the journey
+    elf provisions = []
+
+    # The Ark of the Covenant - contains the sacred instructions
+    bone ARK_OF_COVENANT {
+        tablets: ["master-orchestration.codie", "install.codie", "rebuild.codie"]
+        manna_jar: "fallback-instructions.codie"
+        aaron_rod: "recovery-bootstrap.sh"
+        mercy_seat: "CLAUDE.md"  # Where the divine presence dwells
+    }
+
+    # Unleavened bread - minimal dependencies (no time to wait for bloat)
+    elf unleavened_deps = bark MINIMAL_DEPENDENCIES {
+        fence MUST_HAVE {
+            pin rust = ">= 1.75.0"
+            pin sqlite = ">= 3.40"
+            pin openssl = ">= 3.0"
+        }
+        fence LEAVE_BEHIND {
+            # The leaven of Egypt - bloatware we abandon
+            blob abandoned = ["systemd-full", "pulseaudio", "tracker", "snapd"]
+        }
+    }
+
+    anchor EXODUS_MANIFEST(provisions, ARK_OF_COVENANT, unleavened_deps)
+}
+
+# ============================================================
+# PHASE 2: CROSSING THE RED SEA (Critical Transition)
+# ============================================================
+
+pug PART_THE_WATERS {
+    # This is the point of no return - bootloader handoff
+
+    fence CROSSING_REQUIREMENTS {
+        pin ark_present = true
+        pin pillar_visible = true  # Progress indicator active
+        pin pharaoh_distant = true # No blocking processes
+    }
+
+    cali RAISE_STAFF {
+        # Moses raises his staff - initiate the partition
+        elf partition_result = bark CREATE_BOOT_PARTITION {
+            size: "512MB"
+            type: "EFI" | "BIOS" depending on system
+            label: "GOSHEN"  # Land of safety
+        }
+
+        fence WATERS_PARTED {
+            # The sea parts - we have a clear path
+            left_wall: "existing_system_backup"
+            right_wall: "new_gentlyos_partition"
+            dry_ground: "boot_sector_ready"
+        }
+
+        biz CROSSING_PATH = partition_result.path
+    }
+
+    spin ISRAELITES_CROSS for tribe in TWELVE_TRIBES {
+        # Each tribe = a tier of crates crossing
+        elf crossing_result = cali CROSS_TRIBE(tribe)
+
+        fence TRIBE_MAPPING {
+            pin REUBEN    = "Tier 0: gently-core (firstborn strength)"
+            pin SIMEON    = "Tier 1: gently-codie (hearing the instructions)"
+            pin LEVI      = "Tier 1: gently-artisan (priestly storage)"
+            pin JUDAH     = "Tier 2: gently-security (lion's defense)"
+            pin DAN       = "Tier 2: gently-network (judge the traffic)"
+            pin NAPHTALI  = "Tier 3: gently-alexandria (deer of knowledge)"
+            pin GAD       = "Tier 3: gently-search (raiding party)"
+            pin ASHER     = "Tier 4: gently-brain (rich wisdom)"
+            pin ISSACHAR  = "Tier 4: gently-agents (burden bearer)"
+            pin ZEBULUN   = "Tier 4: gently-gateway (harbor of connection)"
+            pin JOSEPH    = "Tier 5: gently-web (fruitful bough)"
+            pin BENJAMIN  = "Tier 5: gently-cli (wolf of execution)"
+        }
+
+        anchor TRIBE_CROSSED(tribe, crossing_result)
+    }
+
+    cali CLOSE_THE_WATERS {
+        # Pharaoh's army pursues - system errors try to follow
+        # Close the waters on them - clean break from old state
+        bark SEAL_OLD_PARTITION
+        bark DESTROY_PURSUING_PROCESSES
+        biz EGYPT_DROWNED = true
+    }
+}
+
+# ============================================================
+# PHASE 3: WANDERING IN THE DESERT (Build Loop)
+# ============================================================
+
+pug DESERT_WANDERING {
+    # The 40-cycle build process (40 years = 40 attempts max)
+    elf cycle = 0
+    elf max_cycles = 40
+    elf promised_land_reached = false
+
+    spin WILDERNESS_JOURNEY while !promised_land_reached && cycle < max_cycles {
+        cycle = cycle + 1
+
+        # Morning: Gather manna (get today's instructions)
+        elf manna = cali GATHER_MANNA(cycle)
+
+        # Day: Execute the build step
+        elf build_result = cali EXECUTE_BUILD_STEP(manna)
+
+        # Evening: Assess progress
+        elf progress = cali ASSESS_JOURNEY(build_result)
+
+        fence JOURNEY_STATE {
+            turk if progress.failed -> MANNA_FALLBACK
+            turk if progress.blocked -> WATER_FROM_ROCK
+            turk if progress.rebellion -> SERPENT_REMEDY
+            biz if progress.success -> ADVANCE_TOWARD_CANAAN
+        }
+
+        # Check if we've arrived
+        promised_land_reached = cali CHECK_PROMISED_LAND(progress)
+
+        # The pillar guides us
+        cali UPDATE_PILLAR(cycle, progress)
+
+        anchor JOURNEY_LOG(cycle, manna, build_result, progress)
+    }
+
+    fence JOURNEY_OUTCOME {
+        biz if promised_land_reached -> ENTER_PROMISED_LAND
+        turk if cycle >= max_cycles -> MOSES_VIEW_FROM_NEBO
+    }
+}
+
+cali GATHER_MANNA(cycle) {
+    # Manna = fallback instructions when primary build fails
+    # Fresh every morning (cycle), cannot be stored (must re-evaluate)
+
+    elf primary_instruction = bark READ_ARK_TABLET(cycle)
+    elf fallback_instruction = bark READ_MANNA_JAR(cycle)
+
+    fence MANNA_PROPERTIES {
+        pin fresh = true  # Must be gathered daily
+        pin sufficient = "exactly what is needed, no hoarding"
+        pin sabbath_double = cycle % 7 == 6  # Double portion before rest
+    }
+
+    biz MANNA {
+        primary: primary_instruction
+        fallback: fallback_instruction
+        cycle: cycle
+        omer: "measure of work for this cycle"
+    }
+}
+
+cali EXECUTE_BUILD_STEP(manna) {
+    # Try primary instruction first
+    elf result = bark TRY_INSTRUCTION(manna.primary)
+
+    fence BUILD_ATTEMPT {
+        biz if result.success -> result
+        turk if result.failed {
+            # Primary failed - try manna fallback
+            elf fallback_result = bark TRY_INSTRUCTION(manna.fallback)
+
+            fence FALLBACK_ATTEMPT {
+                biz if fallback_result.success -> fallback_result
+                turk if fallback_result.failed {
+                    # Both failed - need supernatural intervention
+                    biz NEED_MIRACLE = true
+                }
+            }
+        }
+    }
+}
+
+cali WATER_FROM_ROCK(blockage) {
+    # When the people thirst (dependencies missing), strike the rock
+    # The rock = alternative package sources, cached builds, local mirrors
+
+    elf rock_sources = [
+        "local_cache",
+        "ipfs_mirror",
+        "btc_anchored_builds",
+        "sibling_node_share"
+    ]
+
+    spin STRIKE_ROCK for source in rock_sources {
+        elf water = bark TRY_SOURCE(source, blockage.needed)
+        fence WATER_FOUND {
+            biz if water.available -> water
+            turk if water.dry -> CONTINUE
+        }
+    }
+
+    turk if all_rocks_dry {
+        # Must wait for divine provision
+        anchor PRAYER_REQUEST(blockage)
+        biz WAIT_FOR_PROVISION
+    }
+}
+
+cali SERPENT_REMEDY(rebellion) {
+    # When fiery serpents bite (compilation errors), look upon the bronze serpent
+    # The bronze serpent = error analysis, stack traces lifted up for examination
+
+    elf serpent_bite = rebellion.error
+
+    cali LIFT_UP_SERPENT {
+        # Display the error prominently for analysis
+        elf analysis = bark ANALYZE_ERROR(serpent_bite)
+
+        fence SERPENT_TYPES {
+            pin DEPENDENCY_SERPENT = "Missing crate, look to Cargo.toml"
+            pin SYNTAX_SERPENT = "Parse error, look to the code"
+            pin LINKER_SERPENT = "Symbol missing, look to lib paths"
+            pin PERMISSION_SERPENT = "Access denied, look to chmod"
+            pin MEMORY_SERPENT = "OOM killed, look to swap"
+        }
+
+        biz REMEDY = analysis.suggested_fix
+    }
+
+    # Those who look upon it are healed
+    biz HEALING = cali APPLY_REMEDY(REMEDY)
+}
+
+# ============================================================
+# PHASE 4: ENTER THE PROMISED LAND (Installation Complete)
+# ============================================================
+
+pug ENTER_PROMISED_LAND {
+    # Joshua (the successor) leads the final entry
+    # Moses cannot enter - this bootloader hands off to running system
+
+    cali MOSES_BLESSING {
+        # Final blessing before handoff
+        anchor BLESSING_MANIFEST {
+            for_reuben: "gently-core live and not die"
+            for_judah: "gently-security hear the cry"
+            for_levi: "gently-artisan teach and guard"
+            for_benjamin: "gently-cli dwell in safety"
+            for_joseph: "gently-web blessed with bounty"
+            for_all: "Happy art thou, O GentlyOS"
+        }
+    }
+
+    cali JOSHUA_TAKES_COMMAND {
+        # Hand off to running system
+        elf running_system = bark START_GENTLYOS_SERVICES
+
+        fence LAND_FLOWING {
+            milk: "gently-feed nourishment"
+            honey: "gently-brain sweetness of wisdom"
+        }
+
+        biz HANDOFF_COMPLETE = running_system.active
+    }
+
+    cali PLANT_THE_STONES {
+        # 12 stones from Jordan - record of the crossing
+        anchor MEMORIAL_STONES {
+            location: "/var/log/gentlyos/exodus.log"
+            stones: [
+                "GENESIS_TIMESTAMP",
+                "EXODUS_DURATION",
+                "PLAGUES_PASSED",
+                "TRIBES_CROSSED",
+                "MANNA_CONSUMED",
+                "MIRACLES_RECORDED",
+                "CYCLES_COMPLETED",
+                "ERRORS_HEALED",
+                "DEPENDENCIES_RESOLVED",
+                "SERVICES_STARTED",
+                "BTC_ANCHOR_HASH",
+                "PROMISED_LAND_ENTRY"
+            ]
+        }
+    }
+
+    biz EXODUS_COMPLETE = true
+}
+
+# ============================================================
+# FALLBACK: MOSES VIEWS FROM NEBO (Max Cycles Reached)
+# ============================================================
+
+pug MOSES_VIEW_FROM_NEBO {
+    # If 40 cycles exhausted, Moses sees but cannot enter
+    # This is a partial success - system is prepared but needs manual intervention
+
+    cali VIEW_PROMISED_LAND {
+        # Show what was accomplished
+        anchor NEBO_REPORT {
+            cycles_completed: 40
+            progress_made: bark CALCULATE_PROGRESS
+            remaining_tasks: bark LIST_INCOMPLETE
+            suggested_joshua: "Manual completion steps"
+        }
+    }
+
+    cali COMMISSION_JOSHUA {
+        # Provide instructions for manual completion
+        biz MANUAL_STEPS = bark GENERATE_COMPLETION_GUIDE
+        anchor JOSHUA_SCROLL(MANUAL_STEPS)
+    }
+
+    turk MOSES_DIES_ON_NEBO {
+        # Bootloader exits, human takes over
+        biz EXIT_CODE = 42  # "Almost there"
+    }
+}
+
+# ============================================================
+# THE PILLAR OF FIRE AND CLOUD (Progress Indicator)
+# ============================================================
+
+cali UPDATE_PILLAR(cycle, progress) {
+    # Visual progress indicator
+    # Cloud by day (normal progress), Fire by night (errors/warnings)
+
+    fence PILLAR_STATE {
+        pin CLOUD = "Normal progress, following the path"
+        pin FIRE = "Illuminating errors in darkness"
+        pin HOVERING = "Waiting for input/provision"
+        pin MOVING = "Advancing to next phase"
+    }
+
+    elf display = bark RENDER_PILLAR {
+        cycle: cycle
+        total: 40
+        state: progress.state
+        message: progress.message
+    }
+
+    biz PILLAR_OUTPUT = display
+}
+
+# ============================================================
+# ARK CONTENTS (Sacred Build Instructions)
+# ============================================================
+
+bone ARK_TABLETS {
+    # The two tablets - immutable build law
+
+    tablet_one: {
+        # Relationship with the system (vertical)
+        commandment_1: "No other init systems before me (systemd optional)"
+        commandment_2: "No graven images (no GUI during boot)"
+        commandment_3: "Do not take the root password in vain"
+        commandment_4: "Remember the backup day, keep it holy"
+    }
+
+    tablet_two: {
+        # Relationship with other processes (horizontal)
+        commandment_5: "Honor thy parent process"
+        commandment_6: "Thou shalt not kill -9 without cause"
+        commandment_7: "Thou shalt not corrupt thy neighbor's memory"
+        commandment_8: "Thou shalt not steal CPU cycles"
+        commandment_9: "Thou shalt not bear false logs"
+        commandment_10: "Thou shalt not covet thy neighbor's dependencies"
+    }
+}
+
+bone MANNA_JAR {
+    # Preserved fallback instructions - alternatives when primary fails
+
+    preserved_manna: [
+        {
+            condition: "cargo build fails"
+            fallback: "try cargo build --release --jobs 1"
+            alternate: "use pre-built binary from IPFS"
+        },
+        {
+            condition: "dependency resolution fails"
+            fallback: "clear cargo cache, retry with --locked"
+            alternate: "use pinned Cargo.lock from BTC anchor"
+        },
+        {
+            condition: "network unavailable"
+            fallback: "use local crates mirror"
+            alternate: "extract from ISO embedded cache"
+        },
+        {
+            condition: "disk space exhausted"
+            fallback: "enable swap, clear temp files"
+            alternate: "stream-build to external storage"
+        },
+        {
+            condition: "permission denied"
+            fallback: "check SELinux/AppArmor, adjust policy"
+            alternate: "build in user namespace"
+        }
+    ]
+}
+
+bone AARON_ROD {
+    # The rod that budded - proof of authority, recovery bootstrap
+
+    rod_powers: {
+        became_serpent: "Devour competing processes"
+        budded_almonds: "Generate new configs from nothing"
+        struck_rock: "Force dependency resolution"
+        parted_waters: "Create emergency partition"
+    }
+
+    recovery_script: "/boot/gentlyos/aaron-rod.sh"
+}

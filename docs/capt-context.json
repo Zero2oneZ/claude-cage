@@ -15,8 +15,8 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "gently-document",
     "no_leaks",
+    "gently-document",
     "budget_correct",
     "gently-ged"
   ],
@@ -33,12 +33,12 @@
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:e754732c106c94e23d2b13cf7721d2eb7f787f5ca6a1d71dd4d562405794791f",
+    "source_hash": "sha256:9fb44e8605edb8317422649f54b8a5f737fe7f718090fb53674bfc6b57d8ccd2",
     "is_stale": false,
-    "last_verified": "2026-02-10T08:18:58.319072+00:00"
+    "last_verified": "2026-02-10T18:02:59.790758+00:00"
   },
-  "content_hash": "sha256:5e2d168b9fad9710d0bffc2e2907a4cbe83c44ac3ed0fa6a7f0ae1a36cc8d7a8",
+  "content_hash": "sha256:6792d11bc9fd054bc150643842ad0c8fc9d40bdc9be67d30e70ce23b38774d51",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-10T08:18:58.319072+00:00"
+  "_ts": "2026-02-10T18:02:59.790758+00:00"
 }

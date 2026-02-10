@@ -1,0 +1,51 @@
+// GentlyOS Rebuild Map
+// CODIE instructions for recovering from broken state
+// The Phoenix Protocol: From ashes, rise again
+
+pug REBUILD_GENTLYOS
+fence
+  bone NOT: lose the registry
+  bone NOT: overwrite user data
+  bone NOT: skip integrity checks
+
+// Phase 1: Assess Damage
+bark registry <- @filetrees/registry.jsonl
+bark branches <- @git/list_branches
+bark status <- @git/status
+
+// Phase 2: Identify Missing/Corrupted
+spin file IN registry
+  bark exists <- @fs/check(file.path)
+  bark hash <- @fs/hash(file.path)
+  ? exists.false -> @recovery/mark_missing(file)
+  ? hash.mismatch -> @recovery/mark_corrupted(file)
+anchor #damage_assessed
+
+// Phase 3: Recover from Git
+bark missing <- @recovery/get_missing
+bark corrupted <- @recovery/get_corrupted
+
+spin file IN missing
+  bark restore <- @git/checkout(file.path)
+  ? restore.failed -> @recovery/fetch_remote(file.path)
+
+spin file IN corrupted
+  bark restore <- @git/checkout(file.path)
+  ? restore.failed -> @recovery/fetch_remote(file.path)
+anchor #files_recovered
+
+// Phase 4: Rebuild Affected Crates
+bark affected <- @recovery/affected_crates
+spin crate IN affected
+  bark clean <- @cargo/clean(crate)
+  bark build <- @cargo/build(crate)
+  ? build.failed -> return build.error
+anchor #crates_rebuilt
+
+// Phase 5: Verify Integrity
+bark tests <- @cargo/test_workspace
+bark integrity <- @gently/verify_all
+  ? integrity.failed -> return "Rebuild incomplete"
+anchor #integrity_verified
+
+biz -> "System rebuilt from registry"

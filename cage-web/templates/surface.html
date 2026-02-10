@@ -4,7 +4,12 @@
 
     <div class="shelf-grid">
         {% for item in shelf_items %}
+        {% if item.href.is_empty() %}
         <div class="shelf-item {% if item.locked %}shelf-locked{% else %}shelf-active{% endif %} {% if item.core %}shelf-core{% endif %}">
+        {% else %}
+        <div class="shelf-item {% if item.locked %}shelf-locked{% else %}shelf-active{% endif %} {% if item.core %}shelf-core{% endif %} shelf-link"
+             hx-get="{{ item.href }}" hx-target="#main" hx-push-url="true">
+        {% endif %}
             <div class="shelf-icon">{{ item.icon }}</div>
             <div class="shelf-name">{{ item.name }}</div>
             <div class="shelf-status">
@@ -24,8 +29,9 @@
         <h2>IO Surface Rendering</h2>
         <p class="subtitle">The IO Surface is the public-facing output of Mask + ShelfState.</p>
         <ul class="surface-rules">
-            <li>Core items (alexandria, claude-chat, guarddog-dns, env-vault, shelf) are always visible</li>
-            <li>Locked items are hidden from the surface</li>
+            <li>Core services (alexandria, claude-chat, guarddog-dns, env-vault, shelf) are always visible</li>
+            <li>IO Tools (cookie-jar, glyph-registry, consent-gate, etc.) link to dedicated pages</li>
+            <li>Locked items are hidden from the surface until tier unlocked</li>
             <li>Mask palette applies as CSS custom properties</li>
             <li>"Powered by GentlyOS" badge is always visible</li>
         </ul>

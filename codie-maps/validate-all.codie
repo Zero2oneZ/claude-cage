@@ -1,0 +1,39 @@
+// GentlyOS Full Validation Map
+// CODIE instructions for validating all environments
+
+pug VALIDATE_ALL
+fence
+  bone NOT: skip any platform
+  bone NOT: assume success
+  bone NOT: hide warnings
+
+// Detect current platform
+bark platform <- @system/detect_os
+
+// Run appropriate validator
+? platform.steamdeck -> bark result <- @validators/steamdeck.sh
+? platform.linux -> bark result <- @validators/linux.sh
+? platform.macos -> bark result <- @validators/macos.sh
+? platform.windows -> bark result <- @validators/windows.ps1
+? platform.unknown -> return "Unknown platform"
+
+// Check results
+? result.errors > 0 -> return result
+? result.warnings > 0 -> warn result.warnings
+
+// Additional checks
+bark rust <- @toolchain/check_rust
+  ? rust.version < "1.75" -> warn "Rust version below recommended"
+
+bark git <- @toolchain/check_git
+  ? git.missing -> return "Git required"
+
+bark space <- @system/check_disk
+  ? space.available_gb < 5 -> warn "Low disk space"
+
+biz -> {
+  platform: platform.type,
+  validated: true,
+  errors: result.errors,
+  warnings: result.warnings
+}

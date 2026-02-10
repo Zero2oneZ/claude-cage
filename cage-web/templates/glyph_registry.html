@@ -1,0 +1,441 @@
+<div class="glyph-registry-page">
+<style>
+.glyph-registry-page {
+  --gr-bg: #060608;
+  --gr-surface: #0b0b10;
+  --gr-surface2: #101018;
+  --gr-surface3: #161620;
+  --gr-border: #1c1c2c;
+  --gr-border-hi: #2a2a40;
+  --gr-text: #a8a8b8;
+  --gr-bright: #e0e0ec;
+  --gr-dim: #4a4a5a;
+  --gr-accent: #0af;
+  --gr-glyph: #c8f;
+  --gr-ipfs: #0d8;
+  --gr-hex: #fa0;
+  --gr-kill: #f44;
+  --gr-safe: #4f8;
+  --gr-mono: 'Courier New', 'Consolas', monospace;
+}
+
+.glyph-registry-page .tool-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; margin-bottom: 12px;
+  border-bottom: 1px solid var(--gr-border);
+}
+.glyph-registry-page .tool-title {
+  font-size: 14px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--gr-glyph);
+}
+
+.glyph-registry-page .gr-topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;
+}
+.glyph-registry-page .gr-topbar-right { display: flex; gap: 6px; }
+
+.glyph-registry-page .gr-stats-bar {
+  display: flex; gap: 14px; padding: 8px 0; font-size: 10px;
+  border-bottom: 1px solid var(--gr-border); color: var(--gr-dim);
+  flex-wrap: wrap; align-items: center; margin-bottom: 12px;
+}
+.glyph-registry-page .gr-stats-bar .v { color: var(--gr-bright); font-weight: 700; }
+.glyph-registry-page .gr-stats-bar .ipfs-v { color: var(--gr-ipfs); }
+.glyph-registry-page .gr-stats-bar .kill-v { color: var(--gr-kill); font-weight: 700; }
+
+.glyph-registry-page .gr-main {
+  display: grid; grid-template-columns: 300px 1fr; gap: 16px;
+}
+@media (max-width: 800px) {
+  .glyph-registry-page .gr-main { grid-template-columns: 1fr; }
+}
+
+.glyph-registry-page .gr-panel-left {
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+.glyph-registry-page .gr-section-label {
+  font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gr-dim); padding-bottom: 4px; border-bottom: 1px solid var(--gr-border);
+}
+
+.glyph-registry-page textarea {
+  width: 100%; min-height: 80px; background: var(--gr-surface2);
+  border: 1px solid var(--gr-border); color: var(--gr-text);
+  font-family: var(--gr-mono); font-size: 12px; padding: 8px;
+  resize: vertical; border-radius: 3px;
+}
+.glyph-registry-page textarea:focus { outline: none; border-color: var(--gr-glyph); }
+
+.glyph-registry-page .gr-converted-output {
+  background: var(--gr-surface2); border: 1px solid var(--gr-border);
+  border-radius: 3px; padding: 8px; font-size: 11px;
+  min-height: 50px; word-break: break-all; line-height: 1.8;
+}
+
+.glyph-registry-page .conv-glyph {
+  display: inline-flex; align-items: center; gap: 3px;
+  background: var(--gr-surface3); border: 1px solid var(--gr-border-hi);
+  border-radius: 3px; padding: 2px 5px; margin: 1px;
+  vertical-align: middle; cursor: pointer; transition: all 0.15s;
+}
+.glyph-registry-page .conv-glyph:hover { border-color: var(--gr-glyph); }
+.glyph-registry-page .conv-glyph svg { width: 16px; height: 16px; }
+.glyph-registry-page .ghex { font-size: 9px; color: var(--gr-hex); }
+.glyph-registry-page .conv-text { color: var(--gr-text); }
+
+.glyph-registry-page .gr-protocol-box {
+  background: var(--gr-surface2); border: 1px solid var(--gr-border);
+  border-radius: 3px; padding: 8px; font-size: 10px;
+  color: var(--gr-dim); line-height: 1.6;
+}
+.glyph-registry-page .gr-protocol-box code { color: var(--gr-ipfs); }
+
+.glyph-registry-page .gr-search-bar {
+  display: flex; gap: 6px; margin-bottom: 10px;
+}
+.glyph-registry-page .gr-search-bar input {
+  flex: 1; background: var(--gr-surface2); border: 1px solid var(--gr-border);
+  color: var(--gr-text); font-family: var(--gr-mono); font-size: 11px;
+  padding: 5px 8px; border-radius: 3px;
+}
+.glyph-registry-page .gr-search-bar input:focus { outline: none; border-color: var(--gr-accent); }
+
+.glyph-registry-page .gr-registry-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 6px;
+}
+
+.glyph-registry-page .glyph-card {
+  background: var(--gr-surface); border: 1px solid var(--gr-border);
+  border-radius: 4px; padding: 10px; cursor: pointer;
+  transition: all 0.15s; display: flex; flex-direction: column; gap: 6px;
+}
+.glyph-registry-page .glyph-card:hover { border-color: var(--gr-glyph); transform: translateY(-1px); }
+
+.glyph-registry-page .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.glyph-registry-page .card-icon {
+  width: 36px; height: 36px; background: var(--gr-surface2);
+  border: 1px solid var(--gr-border); border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+}
+.glyph-registry-page .card-icon svg { width: 24px; height: 24px; }
+.glyph-registry-page .card-hex { font-size: 11px; color: var(--gr-hex); font-weight: 700; }
+.glyph-registry-page .card-name { font-size: 11px; color: var(--gr-bright); font-weight: 700; }
+.glyph-registry-page .card-category { font-size: 9px; color: var(--gr-dim); text-transform: uppercase; letter-spacing: 1px; }
+.glyph-registry-page .card-meta { font-size: 9px; color: var(--gr-dim); }
+.glyph-registry-page .card-meta .ipfs { color: var(--gr-ipfs); word-break: break-all; }
+.glyph-registry-page .card-kills {
+  font-size: 9px; color: var(--gr-kill); border-top: 1px solid var(--gr-border);
+  padding-top: 4px; word-break: break-all;
+}
+.glyph-registry-page .card-kills span { color: var(--gr-dim); }
+
+.glyph-registry-page .gr-detail-overlay {
+  display: none; position: fixed; inset: 0; background: #000c;
+  z-index: 100; align-items: center; justify-content: center;
+}
+.glyph-registry-page .gr-detail-overlay.open { display: flex; }
+.glyph-registry-page .gr-detail-card {
+  background: var(--gr-surface); border: 1px solid var(--gr-border-hi);
+  border-radius: 6px; padding: 20px; max-width: 460px; width: 90%;
+  max-height: 80vh; overflow-y: auto;
+}
+.glyph-registry-page .gr-detail-card h2 { font-size: 14px; color: var(--gr-bright); margin-bottom: 4px; }
+.glyph-registry-page .dhex { font-size: 18px; color: var(--gr-hex); font-weight: 700; margin-bottom: 10px; }
+.glyph-registry-page .detail-icon { width: 80px; height: 80px; margin: 0 auto 12px; display: block; }
+.glyph-registry-page .detail-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 11px; border-bottom: 1px solid #ffffff06; }
+.glyph-registry-page .detail-row .dk { color: var(--gr-dim); }
+.glyph-registry-page .detail-row .dv { color: var(--gr-bright); text-align: right; word-break: break-all; max-width: 60%; }
+.glyph-registry-page .detail-row .dv.ipfs { color: var(--gr-ipfs); font-size: 10px; }
+.glyph-registry-page .detail-row .dv.kills { color: var(--gr-kill); }
+
+.glyph-registry-page button {
+  background: var(--gr-surface2); border: 1px solid var(--gr-border); color: var(--gr-text);
+  font-family: var(--gr-mono); font-size: 10px; padding: 4px 10px;
+  cursor: pointer; border-radius: 3px; transition: all 0.15s;
+}
+.glyph-registry-page button:hover { border-color: var(--gr-accent); color: var(--gr-bright); }
+</style>
+
+<div class="tool-header">
+  <span class="tool-title">Glyph Registry</span>
+  <span class="badge {{ layer_badge }}">{{ layer_label }}</span>
+</div>
+
+<div class="gr-stats-bar" id="grStatsBar"></div>
+
+<div class="gr-main">
+  <div class="gr-panel-left">
+    <div class="gr-section-label">Unicode -> Glyph Converter</div>
+    <textarea id="grInput" spellcheck="false" placeholder="Paste text with emoji...">Hey team the build is shipping tonight! Watch for warnings.</textarea>
+
+    <div class="gr-section-label">Converted Output</div>
+    <div class="gr-converted-output" id="grConverted"></div>
+
+    <div class="gr-section-label">Wire Protocol</div>
+    <div class="gr-protocol-box" id="grProtocol"></div>
+
+    <div class="gr-section-label">System Architecture</div>
+    <div class="gr-protocol-box">
+      <div>LAYER 1: Unicode emoji intercepted at input</div>
+      <div>LAYER 2: Mapped to GentlyOS hex address</div>
+      <div>LAYER 3: Noun Project SVG resolved</div>
+      <div>LAYER 4: IPFS CID logged for provenance</div>
+      <div>LAYER 5: Cross-system CID -> glyph resolve</div>
+      <div style="margin-top:4px; color:var(--gr-kill);">Unicode emoji NEVER rendered. Ever.</div>
+      <div style="color:var(--gr-kill);">ZWJ/VS/skin mods = dropped. Not mapped.</div>
+      <div style="color:var(--gr-ipfs); margin-top:4px;">Each glyph = 1 hex address. 1 SVG. 1 CID.</div>
+    </div>
+  </div>
+
+  <div class="gr-panel-right">
+    <div class="gr-search-bar">
+      <input type="text" id="grSearch" placeholder="Search glyphs by name, hex, or category..." />
+      <button id="grBtnFilter">All</button>
+    </div>
+    <div class="gr-registry-grid" id="grRegistryGrid"></div>
+  </div>
+</div>
+
+<div class="gr-detail-overlay" id="grDetailOverlay">
+  <div class="gr-detail-card" id="grDetailCard"></div>
+</div>
+
+<script>
+(function() {
+  function fakeCID(hex) {
+    var h = 0xBADC0DE;
+    for (var i = 0; i < hex.length; i++) h = ((h << 5) - h + hex.charCodeAt(i)) | 0;
+    var a = Math.abs(h).toString(36).padStart(8, 'q');
+    return 'bafkrei' + a + hex.toLowerCase().replace(/^0x/, '') + 'glyph';
+  }
+
+  function generateSVG(hex) {
+    var seed = parseInt(hex, 16);
+    var hue = (seed * 137) % 360;
+    var sat = 50 + (seed % 30);
+    var color = 'hsl(' + hue + ', ' + sat + '%, 65%)';
+    var bg = 'hsl(' + hue + ', ' + sat + '%, 12%)';
+    var shape = seed % 8;
+    var path = '';
+    switch(shape) {
+      case 0: path = '<circle cx="16" cy="16" r="10" fill="none" stroke="'+color+'" stroke-width="1.5"/><circle cx="16" cy="16" r="4" fill="'+color+'"/>'; break;
+      case 1: path = '<path d="M16 4 L28 16 L16 28 L4 16 Z" fill="none" stroke="'+color+'" stroke-width="1.5"/><path d="M16 10 L22 16 L16 22 L10 16 Z" fill="'+color+'" opacity="0.6"/>'; break;
+      case 2: path = '<path d="M16 5 L28 27 L4 27 Z" fill="none" stroke="'+color+'" stroke-width="1.5"/><circle cx="16" cy="20" r="3" fill="'+color+'"/>'; break;
+      case 3: path = '<circle cx="16" cy="16" r="10" fill="none" stroke="'+color+'" stroke-width="1"/><line x1="16" y1="4" x2="16" y2="28" stroke="'+color+'" stroke-width="1"/><line x1="4" y1="16" x2="28" y2="16" stroke="'+color+'" stroke-width="1"/><circle cx="16" cy="16" r="3" fill="'+color+'"/>'; break;
+      case 4: path = '<path d="M16 4 L27 10 L27 22 L16 28 L5 22 L5 10 Z" fill="none" stroke="'+color+'" stroke-width="1.5"/><circle cx="16" cy="16" r="4" fill="'+color+'" opacity="0.5"/>'; break;
+      case 5: path = '<rect x="6" y="6" width="20" height="20" rx="2" fill="none" stroke="'+color+'" stroke-width="1.5"/><rect x="12" y="12" width="8" height="8" rx="1" fill="'+color+'" opacity="0.6"/>'; break;
+      case 6: path = '<path d="M16 4 L19 13 L28 13 L21 19 L23 28 L16 23 L9 28 L11 19 L4 13 L13 13 Z" fill="none" stroke="'+color+'" stroke-width="1.2"/><circle cx="16" cy="16" r="2.5" fill="'+color+'"/>'; break;
+      case 7: path = '<ellipse cx="16" cy="16" rx="12" ry="8" fill="none" stroke="'+color+'" stroke-width="1.5"/><circle cx="16" cy="16" r="4" fill="'+color+'" opacity="0.6"/><circle cx="16" cy="16" r="1.5" fill="'+color+'"/>'; break;
+    }
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="4" fill="'+bg+'"/>' + path + '</svg>';
+  }
+
+  var REGISTRY = [
+    {hex:'0x0001',name:'wave',category:'gesture',kills:[0x1F44B]},
+    {hex:'0x0002',name:'thumbs-up',category:'gesture',kills:[0x1F44D]},
+    {hex:'0x0003',name:'thumbs-down',category:'gesture',kills:[0x1F44E]},
+    {hex:'0x0004',name:'clap',category:'gesture',kills:[0x1F44F]},
+    {hex:'0x0005',name:'point-up',category:'gesture',kills:[0x261D,0x1F446]},
+    {hex:'0x0006',name:'point-down',category:'gesture',kills:[0x1F447]},
+    {hex:'0x0007',name:'fist',category:'gesture',kills:[0x270A,0x1F44A]},
+    {hex:'0x0008',name:'open-hand',category:'gesture',kills:[0x270B,0x1F590]},
+    {hex:'0x0009',name:'peace',category:'gesture',kills:[0x270C]},
+    {hex:'0x000A',name:'ok-hand',category:'gesture',kills:[0x1F44C]},
+    {hex:'0x0100',name:'check',category:'status',kills:[0x2705,0x2714]},
+    {hex:'0x0101',name:'cross',category:'status',kills:[0x274C,0x2716]},
+    {hex:'0x0102',name:'warning',category:'status',kills:[0x26A0]},
+    {hex:'0x0103',name:'stop',category:'status',kills:[0x1F6D1]},
+    {hex:'0x0104',name:'info',category:'status',kills:[0x2139]},
+    {hex:'0x0105',name:'question',category:'status',kills:[0x2753,0x2754]},
+    {hex:'0x0106',name:'exclaim',category:'status',kills:[0x2757,0x2755]},
+    {hex:'0x0107',name:'lock',category:'status',kills:[0x1F512]},
+    {hex:'0x0108',name:'unlock',category:'status',kills:[0x1F513]},
+    {hex:'0x0109',name:'pin',category:'status',kills:[0x1F4CC,0x1F4CD]},
+    {hex:'0x0200',name:'launch',category:'action',kills:[0x1F680]},
+    {hex:'0x0201',name:'fire',category:'action',kills:[0x1F525]},
+    {hex:'0x0202',name:'bolt',category:'action',kills:[0x26A1]},
+    {hex:'0x0203',name:'sparkle',category:'action',kills:[0x2728,0x1F4AB]},
+    {hex:'0x0204',name:'explode',category:'action',kills:[0x1F4A5]},
+    {hex:'0x0205',name:'target',category:'action',kills:[0x1F3AF]},
+    {hex:'0x0206',name:'magnify',category:'action',kills:[0x1F50D,0x1F50E]},
+    {hex:'0x0207',name:'link',category:'action',kills:[0x1F517]},
+    {hex:'0x0208',name:'gear',category:'action',kills:[0x2699]},
+    {hex:'0x0209',name:'wrench',category:'action',kills:[0x1F527]},
+    {hex:'0x0300',name:'heart',category:'emotion',kills:[0x2764,0x1F9E1,0x1F49B,0x1F49A,0x1F499,0x1F49C,0x1F5A4,0x1F90D,0x1F90E,0x1F498,0x1F496,0x1F497,0x1F493,0x1F49E,0x1F495,0x1F494,0x2763,0x2665]},
+    {hex:'0x0301',name:'smile',category:'emotion',kills:[0x1F600,0x1F603,0x1F604,0x1F601,0x1F642,0x263A]},
+    {hex:'0x0302',name:'laugh',category:'emotion',kills:[0x1F602,0x1F923,0x1F606]},
+    {hex:'0x0303',name:'sad',category:'emotion',kills:[0x1F622,0x1F625,0x1F62D,0x2639]},
+    {hex:'0x0304',name:'anger',category:'emotion',kills:[0x1F620,0x1F621,0x1F624]},
+    {hex:'0x0305',name:'fear',category:'emotion',kills:[0x1F628,0x1F630,0x1F631]},
+    {hex:'0x0306',name:'surprise',category:'emotion',kills:[0x1F62E,0x1F632,0x1F62F]},
+    {hex:'0x0307',name:'think',category:'emotion',kills:[0x1F914]},
+    {hex:'0x0308',name:'wink',category:'emotion',kills:[0x1F609]},
+    {hex:'0x0309',name:'celebrate',category:'emotion',kills:[0x1F389,0x1F38A]},
+    {hex:'0x0400',name:'computer',category:'object',kills:[0x1F4BB]},
+    {hex:'0x0401',name:'phone',category:'object',kills:[0x1F4F1,0x1F4DE]},
+    {hex:'0x0402',name:'house',category:'object',kills:[0x1F3E0,0x1F3E1]},
+    {hex:'0x0403',name:'mail',category:'object',kills:[0x1F4E7,0x1F4E8,0x1F4E9,0x2709]},
+    {hex:'0x0404',name:'calendar',category:'object',kills:[0x1F4C5,0x1F4C6,0x1F5D3]},
+    {hex:'0x0405',name:'clock',category:'object',kills:[0x1F550,0x1F551,0x1F552,0x1F553,0x1F554,0x1F555,0x1F556,0x1F557,0x1F558,0x1F559,0x1F55A,0x1F55B,0x23F0,0x231A]},
+    {hex:'0x0406',name:'document',category:'object',kills:[0x1F4C4,0x1F4DD,0x1F4D1]},
+    {hex:'0x0407',name:'folder',category:'object',kills:[0x1F4C1,0x1F4C2]},
+    {hex:'0x0408',name:'key',category:'object',kills:[0x1F511,0x1F5DD]},
+    {hex:'0x0409',name:'shield',category:'object',kills:[0x1F6E1]},
+    {hex:'0x0500',name:'sun',category:'nature',kills:[0x2600,0x1F31E]},
+    {hex:'0x0501',name:'moon',category:'nature',kills:[0x1F319,0x1F31A,0x1F31B,0x1F31C,0x1F31D]},
+    {hex:'0x0502',name:'star',category:'nature',kills:[0x2B50,0x1F31F,0x1F320]},
+    {hex:'0x0503',name:'cloud',category:'nature',kills:[0x2601,0x1F327,0x1F328,0x1F329,0x26C5]},
+    {hex:'0x0504',name:'tree',category:'nature',kills:[0x1F332,0x1F333,0x1F334]},
+    {hex:'0x0505',name:'wave-n',category:'nature',kills:[0x1F30A]},
+    {hex:'0x0506',name:'mountain',category:'nature',kills:[0x1F3D4,0x26F0]},
+    {hex:'0x0507',name:'earth',category:'nature',kills:[0x1F30D,0x1F30E,0x1F30F]},
+    {hex:'0x0F00',name:'flag',category:'system',kills:[]},
+    {hex:'0xFF00',name:'glyph-unknown',category:'system',kills:[]},
+    {hex:'0xFF01',name:'glyph-custom',category:'system',kills:[]},
+    {hex:'0xFFFF',name:'glyph-null',category:'system',kills:[]},
+  ];
+
+  var CP_TO_GLYPH = new Map();
+  for (var e of REGISTRY) {
+    e.svg = generateSVG(e.hex);
+    e.cid = fakeCID(e.hex);
+    for (var cp of e.kills) CP_TO_GLYPH.set(cp, e);
+  }
+
+  var SKIP_CPS = new Set([0x200D, 0xFE0F, 0xFE0E, 0x20E3]);
+  function isSkinMod(cp) { return cp >= 0x1F3FB && cp <= 0x1F3FF; }
+  function isRI(cp) { return cp >= 0x1F1E6 && cp <= 0x1F1FF; }
+  function isTag(cp) { return (cp >= 0xE0020 && cp <= 0xE007E) || cp === 0xE007F; }
+
+  function interceptText(text) {
+    var result = [];
+    var cps = [];
+    for (var i = 0; i < text.length; i++) {
+      var cp = text.codePointAt(i);
+      cps.push(cp);
+      if (cp > 0xFFFF) i++;
+    }
+    var textBuf = '';
+    var i = 0;
+    function flush() { if (textBuf) { result.push({type:'text',value:textBuf}); textBuf=''; } }
+    while (i < cps.length) {
+      var cp = cps[i];
+      if (SKIP_CPS.has(cp) || isSkinMod(cp) || isTag(cp)) { i++; continue; }
+      if (isRI(cp)) {
+        flush();
+        if (i+1 < cps.length && isRI(cps[i+1])) i++;
+        result.push({type:'glyph',entry:REGISTRY.find(function(e){return e.hex==='0x0F00';})});
+        i++; continue;
+      }
+      if (CP_TO_GLYPH.has(cp)) {
+        flush();
+        result.push({type:'glyph',entry:CP_TO_GLYPH.get(cp)});
+        i++; continue;
+      }
+      if (cp > 0x1F000 && cp < 0x1FBFF) {
+        flush();
+        result.push({type:'glyph',entry:REGISTRY.find(function(e){return e.hex==='0xFF00';})});
+        i++; continue;
+      }
+      textBuf += String.fromCodePoint(cp);
+      i++;
+    }
+    flush();
+    return result;
+  }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function renderConverted(segs) {
+    var el = document.getElementById('grConverted');
+    var html = '';
+    for (var s of segs) {
+      if (s.type === 'text') { html += '<span class="conv-text">' + esc(s.value) + '</span>'; }
+      else { html += '<span class="conv-glyph" data-hex="'+s.entry.hex+'" title="'+s.entry.name+' ['+s.entry.hex+']">' + s.entry.svg + '<span class="ghex">'+s.entry.hex+'</span></span>'; }
+    }
+    el.innerHTML = html;
+  }
+
+  function renderProtocol(segs) {
+    var el = document.getElementById('grProtocol');
+    var glyphs = segs.filter(function(s){return s.type==='glyph';});
+    if (!glyphs.length) { el.innerHTML = '<span style="color:var(--gr-dim)">No glyphs in input</span>'; return; }
+    var lines = ['GENTLY-MSG-V1', 'glyphs: ' + glyphs.length,
+      'wire: [' + glyphs.map(function(g){return g.entry.hex;}).join(', ') + ']', '',
+      'IPFS manifest:'];
+    for (var g of glyphs) lines.push('  ' + g.entry.hex + ' -> ' + g.entry.cid);
+    el.innerHTML = lines.join('<br>');
+  }
+
+  function renderRegistry(filter) {
+    var grid = document.getElementById('grRegistryGrid');
+    var f = (filter || '').toLowerCase();
+    var filtered = REGISTRY.filter(function(e) {
+      return !f || e.name.indexOf(f) !== -1 || e.hex.indexOf(f) !== -1 || e.category.indexOf(f) !== -1;
+    });
+    grid.innerHTML = filtered.map(function(e) {
+      return '<div class="glyph-card" onclick="window._grShowDetail(\''+e.hex+'\')">' +
+        '<div class="card-header"><div class="card-icon">'+e.svg+'</div><div class="card-hex">'+e.hex+'</div></div>' +
+        '<div class="card-name">'+e.name+'</div>' +
+        '<div class="card-category">'+e.category+'</div>' +
+        '<div class="card-meta"><span class="ipfs">'+e.cid.substring(0,20)+'...</span></div>' +
+        (e.kills.length ? '<div class="card-kills"><span>KILLS:</span> '+e.kills.map(function(cp){return 'U+'+cp.toString(16).toUpperCase().padStart(4,'0');}).join(' ')+'</div>' : '') +
+        '</div>';
+    }).join('');
+  }
+
+  function renderStats() {
+    var totalGlyphs = REGISTRY.length;
+    var totalKills = REGISTRY.reduce(function(a,e){return a+e.kills.length;},0);
+    var cats = new Set(REGISTRY.map(function(e){return e.category;}));
+    document.getElementById('grStatsBar').innerHTML =
+      '<span>Glyphs: <span class="v">'+totalGlyphs+'</span></span>' +
+      '<span>Categories: <span class="v">'+cats.size+'</span></span>' +
+      '<span>Unicode killed: <span class="kill-v">'+totalKills+'</span></span>' +
+      '<span>IPFS: <span class="ipfs-v">'+totalGlyphs+' CIDs</span></span>' +
+      '<span>ZWJ: <span class="kill-v">ANNIHILATED</span></span>' +
+      '<span>Stego: <span class="v" style="color:var(--gr-safe)">0 bits</span></span>';
+  }
+
+  window._grShowDetail = function(hex) {
+    var entry = REGISTRY.find(function(e){return e.hex===hex;});
+    if (!entry) return;
+    var card = document.getElementById('grDetailCard');
+    card.innerHTML =
+      '<div style="text-align:center"><div class="detail-icon">'+entry.svg.replace('viewBox="0 0 32 32"','viewBox="0 0 32 32" width="80" height="80"')+'</div>' +
+      '<h2>'+entry.name+'</h2><div class="dhex">'+entry.hex+'</div></div>' +
+      '<div class="detail-row"><span class="dk">Category</span><span class="dv">'+entry.category+'</span></div>' +
+      '<div class="detail-row"><span class="dk">IPFS CID</span><span class="dv ipfs">'+entry.cid+'</span></div>' +
+      '<div class="detail-row"><span class="dk">Wire Encoding</span><span class="dv">'+parseInt(entry.hex,16).toString(2).padStart(16,'0')+'</span></div>' +
+      '<div class="detail-row"><span class="dk">Byte Size</span><span class="dv">2 bytes (fixed)</span></div>' +
+      '<div class="detail-row"><span class="dk">Stego Capacity</span><span class="dv" style="color:var(--gr-safe)">0 bits</span></div>' +
+      (entry.kills.length ? '<div class="detail-row"><span class="dk">Kills Unicode</span><span class="dv kills">'+entry.kills.map(function(cp){return 'U+'+cp.toString(16).toUpperCase().padStart(4,'0');}).join(', ')+'</span></div>' : '') +
+      '<div style="margin-top:12px;text-align:center"><button onclick="document.getElementById(\'grDetailOverlay\').classList.remove(\'open\')">Close</button></div>';
+    document.getElementById('grDetailOverlay').classList.add('open');
+  };
+
+  document.getElementById('grInput').addEventListener('input', function() {
+    var segs = interceptText(this.value);
+    renderConverted(segs); renderProtocol(segs);
+  });
+  document.getElementById('grSearch').addEventListener('input', function() { renderRegistry(this.value); });
+  document.getElementById('grDetailOverlay').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+
+  var filterIdx = 0;
+  var cats = ['All','gesture','status','action','emotion','object','nature','system'];
+  document.getElementById('grBtnFilter').addEventListener('click', function() {
+    filterIdx = (filterIdx + 1) % cats.length;
+    this.textContent = cats[filterIdx];
+    renderRegistry(cats[filterIdx] === 'All' ? '' : cats[filterIdx]);
+  });
+
+  renderStats();
+  renderRegistry();
+  var initSegs = interceptText(document.getElementById('grInput').value);
+  renderConverted(initSegs); renderProtocol(initSegs);
+})();
+</script>
+</div>

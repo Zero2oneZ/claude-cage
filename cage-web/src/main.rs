@@ -33,7 +33,7 @@ async fn main() {
     let state = Arc::new(AppState {
         store_js: cage_root.join("mongodb/store.js"),
         tree_path: cage_root.join("gentlyos/tree.json"),
-        codie_dir: cage_root.join("projects/Gently-nix/tools/codie-maps"),
+        codie_dir: cage_root.join("codie-maps"),
         cage_root,
         codie_programs: RwLock::new(Vec::new()),
     });
@@ -71,6 +71,13 @@ async fn main() {
         .merge(routes::codie::router())
         .merge(routes::tier::router())
         .merge(routes::surface::router())
+        .merge(routes::cookie_jar::router())
+        .merge(routes::glyph_registry::router())
+        .merge(routes::consent_gate::router())
+        .merge(routes::emoji_rewriter::router())
+        .merge(routes::genesis_shield::router())
+        .merge(routes::semantic_chars::router())
+        .merge(routes::tos_interceptor::router())
         .merge(routes::app::router())
         .nest_service("/static", ServeDir::new(static_dir))
         .layer(axum::middleware::from_fn(middleware::tier_auth::tier_auth))

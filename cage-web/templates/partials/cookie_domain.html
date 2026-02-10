@@ -1,0 +1,77 @@
+<div class="cookie-domain-header">
+    <span class="cookie-domain-path">
+        <span class="vault-threat-dot {{ selected_threat_class }}"></span>
+        {{ selected_domain }}
+        <span class="cookie-domain-threat {{ selected_threat_class }}">{{ selected_threat_label }}</span>
+    </span>
+    {% if can_export %}
+    <div class="cookie-domain-actions">
+        <button class="btn btn-secondary btn-sm">Export JSON</button>
+        <button class="btn btn-danger btn-sm">Purge Domain</button>
+    </div>
+    {% endif %}
+</div>
+
+<div class="cookie-table-header">
+    <span class="cookie-col-name">Name</span>
+    <span class="cookie-col-flags">Flags</span>
+    <span class="cookie-col-risk">Risk</span>
+    <span class="cookie-col-expires">Expires</span>
+</div>
+
+{% for c in cookies %}
+<div class="cookie-row" onclick="this.classList.toggle('cookie-expanded')">
+    <div class="cookie-row-summary">
+        <span class="cookie-col-name">
+            <span class="cookie-name">{{ c.name }}</span>
+            {% if c.tracking %}
+            <span class="flag-chip flag-trk">TRK</span>
+            {% endif %}
+        </span>
+        <span class="cookie-col-flags">
+            {% if c.flag_sec %}<span class="flag-chip flag-sec">SEC</span>{% endif %}
+            {% if c.flag_http %}<span class="flag-chip flag-http">HTTP</span>{% endif %}
+            {% if c.flag_ss %}<span class="flag-chip flag-ss">SS</span>{% endif %}
+        </span>
+        <span class="cookie-col-risk">
+            <span class="risk-badge {{ c.risk_class }}">{{ c.risk_label }}</span>
+        </span>
+        <span class="cookie-col-expires">{{ c.expires }}</span>
+    </div>
+
+    <div class="cookie-drawer">
+        {% if can_explain %}
+        <div class="cookie-drawer-row">
+            <span class="cookie-drawer-label">Value</span>
+            <code class="cookie-drawer-value">{{ c.value_masked }}</code>
+        </div>
+        <div class="cookie-drawer-row">
+            <span class="cookie-drawer-label">Category</span>
+            <span class="cookie-drawer-value cookie-category">{{ c.category }}</span>
+        </div>
+        <div class="cookie-drawer-row">
+            <span class="cookie-drawer-label">TLDR</span>
+            <span class="cookie-drawer-value">{{ c.tldr }}</span>
+        </div>
+        <div class="cookie-drawer-row cookie-explain">
+            <span class="cookie-drawer-label">Explain</span>
+            <span class="cookie-drawer-value">{{ c.explain }}</span>
+        </div>
+        {% else %}
+        <div class="cookie-drawer-row">
+            <span class="cookie-drawer-locked">Upgrade tier to view cookie details</span>
+        </div>
+        {% endif %}
+        {% if can_approve %}
+        <div class="cookie-drawer-actions">
+            <button class="btn btn-vault-keep btn-sm">Keep</button>
+            <button class="btn btn-vault-reject btn-sm">Reject</button>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+
+{% if cookies.is_empty() %}
+<div class="cookie-empty">No cookies found for this domain.</div>
+{% endif %}

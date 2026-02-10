@@ -58,8 +58,7 @@ audit/
 claude-cage/
 projects/Gently-nix/
 
-# Root-level dupes (canonical copies live in projects/)
-/GentlyWorkstation.jsx
+# Root-level dupes cleaned up (GentlyWorkstation.jsx, tree.json, universal-node.schema.json removed)
 
 # Binary docs (stored in MongoDB, not git)
 *.docx

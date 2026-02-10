@@ -783,7 +783,7 @@ def _execute_codie(task):
     codie_program = task.get("codie_program")
     if codie_program:
         # Load from file
-        codie_path = os.path.join(CAGE_ROOT, "projects", "Gently-nix", "tools", "codie-maps", f"{codie_program}.codie")
+        codie_path = os.path.join(CAGE_ROOT, "codie-maps", f"{codie_program}.codie")
         if not os.path.exists(codie_path):
             codie_path = os.path.join(CAGE_ROOT, codie_program)
         if os.path.exists(codie_path):

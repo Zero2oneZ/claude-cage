@@ -1,0 +1,80 @@
+<div class="genesis-shield-page">
+<div class="tool-header">
+  <span class="tool-title">Genesis Shield</span>
+  <span class="badge {{ layer_badge }}">{{ layer_label }}</span>
+</div>
+
+<div class="shield-stats-bar">
+  <span>Layers: <strong>{{ total_layers }}</strong></span>
+  <span>Pass: <strong class="shield-pass-count">{{ pass_count }}</strong></span>
+  <span>Warn: <strong class="shield-warn-count">{{ warn_count }}</strong></span>
+  <span>Fail: <strong class="shield-fail-count">{{ fail_count }}</strong></span>
+  <span>Score: <strong class="shield-score">{{ pass_count }}/{{ total_layers }}</strong></span>
+</div>
+
+<div class="shield-section-label">DEFENSE-IN-DEPTH LAYERS</div>
+<div class="shield-layers-list">
+  {% for layer in layers %}
+  <div class="shield-layer-card" onclick="this.classList.toggle('shield-card-expanded')">
+    <div class="shield-layer-summary">
+      <span class="shield-layer-num">L{{ layer.layer_num }}</span>
+      <span class="shield-layer-name">{{ layer.name }}</span>
+      <span class="shield-check {{ layer.status_class }}">[{{ layer.status_icon }}] {{ layer.status_label }}</span>
+    </div>
+    <div class="shield-layer-drawer">
+      <div class="shield-drawer-row">
+        <span class="shield-drawer-label">Description</span>
+        <span class="shield-drawer-value">{{ layer.description }}</span>
+      </div>
+      <div class="shield-drawer-row">
+        <span class="shield-drawer-label">Detail</span>
+        <span class="shield-drawer-value">{{ layer.detail }}</span>
+      </div>
+      {% if layer.can_view_cmd %}
+      <div class="shield-drawer-row">
+        <span class="shield-drawer-label">Verify</span>
+        <span class="shield-drawer-value shield-cmd">{{ layer.verification_cmd }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="shield-section-label" style="margin-top:24px;">BOOT SEQUENCE</div>
+<div class="boot-checks-list">
+  <div class="boot-total">Total boot time: <strong>{{ boot_total_ms }}ms</strong></div>
+  {% for check in boot_checks %}
+  <div class="boot-check-row">
+    <span class="boot-order">{{ check.order }}</span>
+    <span class="shield-check {{ check.status_class }}">[{{ check.status_icon }}]</span>
+    <span class="boot-name">{{ check.name }}</span>
+    <span class="boot-desc">{{ check.description }}</span>
+    <span class="boot-elapsed">{{ check.elapsed_ms }}ms</span>
+  </div>
+  {% endfor %}
+</div>
+
+{% if !tips.is_empty() %}
+<div class="shield-section-label" style="margin-top:24px;">HARDENING RECOMMENDATIONS</div>
+<div class="hardening-tips">
+  {% for tip in tips %}
+  <div class="tip-card">
+    <div class="tip-header">
+      <span class="tip-priority tip-{{ tip.priority|lower }}">{{ tip.priority }}</span>
+      <span class="tip-area">{{ tip.area }}</span>
+    </div>
+    <div class="tip-recommendation">{{ tip.recommendation }}</div>
+    <div class="tip-current">Current: {{ tip.current }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if can_rerun %}
+<div class="shield-actions" style="margin-top:20px;">
+  <button class="btn btn-sm btn-primary">Re-run All Checks</button>
+  <button class="btn btn-sm btn-outline">Export Report</button>
+</div>
+{% endif %}
+</div>

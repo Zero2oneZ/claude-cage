@@ -338,13 +338,9 @@ make codie-list       # List seeded CODIE programs
 
 Parses 12-keyword CODIE `.codie` files into an AST. Handles pipe-tree notation (`|  +--`), brace blocks, and all keywords: pug, bark, spin, cali, elf, turk, fence, pin, bone, blob, biz, anchor.
 
-**Parsed programs:** 9 `.codie` orchestration maps from `projects/Gently-nix/tools/codie-maps/`
+**Parsed programs:** 9 `.codie` orchestration maps from `codie-maps/`
 
 **Integration:** CODIE mode added to `ptc/executor.py` -- when PTC decomposes to leaf tasks, each can be expressed as a CODIE instruction chain.
-
-### GentlyWorkstation Frontend (`GentlyWorkstation.jsx`)
-
-React prototype (superseded by cage-web HTMX dashboard). Kept for reference.
 
 ## No Tests or Linting
 

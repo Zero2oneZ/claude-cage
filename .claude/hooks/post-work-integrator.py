@@ -37,8 +37,8 @@ REGEN_MAP = {
     "cage-web/src/routes/codie.rs": ["capt:codie"],
     "cage-web/": ["dept:interface"],
     "web/app.py": ["capt:api"],
-    "tree.json": ["dept:orchestration"],
     "gentlyos/": ["dept:orchestration"],
+    "codie-maps/": ["capt:codie"],
 }
 
 

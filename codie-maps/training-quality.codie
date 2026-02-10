@@ -1,0 +1,366 @@
+// CODIE: Training Quality Protocol
+// Default exclude. Earn inclusion. Freedom preserved.
+// CODIE: bone (immutable rules)
+
+// =============================================================================
+// PHASE 1: BONES - Immutable Constraints
+// =============================================================================
+
+bone TRAINING_DEFAULT {
+    // Content starts EXCLUDED from training
+    training_eligible: false
+
+    // This is NON-NEGOTIABLE
+    pin default_state = "excluded"
+}
+
+bone QUALITY_THRESHOLD {
+    // 0.7 = minimum quality score for inclusion
+    pin threshold = 0.7
+
+    // Scoring weights (must sum to 1.0)
+    pin user_accept_weight = 0.3
+    pin outcome_success_weight = 0.4
+    pin chain_referenced_weight = 0.2
+    pin turning_point_weight = 0.1
+}
+
+bone CSAM_POLICY {
+    // Child safety is NON-NEGOTIABLE
+    // No debate. No appeal. No exceptions.
+
+    fence detected_csam {
+        action: "nuke"
+        log: "forensics"
+        report: "ncmec"
+        alert: "law_enforcement"
+        ban: "creator"
+    }
+}
+
+bone FREEDOM_PRESERVED {
+    // Content layer: Everything flows
+    // Training layer: Quality only
+
+    fence flagged_content {
+        visible: true        // Users can still see it
+        training: false      // AI never learns from it
+    }
+}
+
+// =============================================================================
+// PHASE 2: BLOBS - Flexible Data Structures
+// =============================================================================
+
+blob Interaction {
+    user: Pubkey
+    action: Action
+    timestamp: u64
+    context: Context
+    training_eligible: bool    // DEFAULT: false
+    flags: Vec<Flag>
+    quality_signals: Vec<QualitySignal>
+}
+
+blob QualitySignal {
+    elf EngagementThreshold    // X users interacted meaningfully
+    elf CreatorReputation      // Trusted creator history
+    elf PositiveFlags          // Upvotes / "this is good"
+    elf CompletionRate         // Users finished the flow
+    elf Remix                  // Others built on it
+    elf TimeSpent              // Genuine engagement (not bounce)
+    elf OutcomeSuccess         // Code compiled, tests passed
+    elf ChainReferenced        // Later content cited this
+    elf TurningPoint           // This was the key insight
+}
+
+blob FlagReason {
+    elf Toxic        // Harmful, hateful content
+    elf Spam         // Bot-generated, repetitive
+    elf LowEffort    // Shallow, no substance
+    elf Misleading   // False or deceptive
+    elf NotHelpful   // Doesn't contribute value
+
+    // NOTE: "Disagree" is NOT a flag reason
+    // Disagreement is valid data
+}
+
+blob InferenceStep {
+    content: String
+    step_type: StepType
+    quality_score: f32
+    training_eligible: bool
+}
+
+blob StepType {
+    elf Fact      // Verified information
+    elf Suggest   // Recommendation
+    elf Guess     // Uncertain hypothesis
+    elf Correct   // Bug fix / correction
+    elf Pattern   // Reusable approach
+    elf Specific  // Direct solution
+    elf Conclude  // Research synthesis
+    elf Eliminate // What it ISN'T
+}
+
+// =============================================================================
+// PHASE 3: CALI - Functions
+// =============================================================================
+
+cali score_step(step: InferenceStep, signals: Signals) -> f32 {
+    // Quality formula
+    bark user_accept from signals.user_signals
+    bark outcome_success from signals.outcome_signals
+    bark chain_referenced from signals.chain_signals
+    bark turning_point from signals.chain_signals
+
+    elf quality = (
+        user_accept * 0.3 +
+        outcome_success * 0.4 +
+        chain_referenced * 0.2 +
+        turning_point * 0.1
+    )
+
+    biz quality
+}
+
+cali evaluate_eligibility(interaction: Interaction) -> bool {
+    // Check quality signals against threshold
+    bark signals from interaction.quality_signals
+
+    elf total_score = 0.0
+    spin signal in signals {
+        elf score = score_signal(signal)
+        total_score = total_score + score
+    }
+
+    fence quality_check {
+        if total_score >= 0.7 {
+            biz true    // Earns training eligibility
+        } else {
+            biz false   // Stays excluded
+        }
+    }
+}
+
+cali handle_flag(content: Content, flag: Flag) {
+    // Flagging excludes from training, NOT from view
+
+    fence flag_action {
+        content.training_eligible = false
+        content.visible = true    // FREEDOM PRESERVED
+    }
+
+    anchor flag_recorded
+}
+
+cali handle_content(content: Content) {
+    // Main content handling flow
+
+    bark category from classify(content)
+
+    fence content_routing {
+        match category {
+            Normal => {
+                // Standard flow - wait for quality signals
+                content.training_eligible = false
+            }
+            Flagged => {
+                // Excluded from training, stays visible
+                content.training_eligible = false
+                content.visible = true
+            }
+            CSAM => {
+                // NUCLEAR OPTION - no exceptions
+                pug csam_response {
+                    content.nuke()
+                    content.log_forensics()
+                    content.report_to_ncmec()
+                    content.alert_law_enforcement()
+                    content.ban_creator()
+                }
+            }
+        }
+    }
+}
+
+cali decompose_response(response: String) -> Vec<InferenceStep> {
+    // Break response into scoreable steps
+
+    elf steps = Vec::new()
+
+    spin segment in response.split_semantic() {
+        elf step_type = classify_step(segment)
+        elf step = InferenceStep {
+            content: segment,
+            step_type: step_type,
+            quality_score: 0.0,
+            training_eligible: false
+        }
+        steps.push(step)
+    }
+
+    biz steps
+}
+
+cali aggregate_best_steps(responses: Vec<Response>) -> OptimizedResponse {
+    // Cross-user optimization: extract gold from multiple responses
+
+    elf candidate_pool = Vec::new()
+
+    spin response in responses {
+        elf steps = decompose_response(response)
+        spin step in steps {
+            elf score = score_step(step)
+            if score >= 0.7 {
+                candidate_pool.push(step)
+            }
+        }
+    }
+
+    // Synthesize best steps into optimized response
+    elf optimized = synthesize(candidate_pool)
+
+    biz optimized
+}
+
+// =============================================================================
+// PHASE 4: SPIN - Processing Loops
+// =============================================================================
+
+spin quality_mining_loop {
+    // Continuous quality evaluation
+
+    bark new_interactions from feed
+
+    spin interaction in new_interactions {
+        // Score each interaction
+        elf eligible = evaluate_eligibility(interaction)
+
+        if eligible {
+            interaction.training_eligible = true
+            anchor quality_content_found
+        }
+    }
+}
+
+spin aggregation_loop {
+    // Cross-prompt optimization
+
+    bark similar_queries from cluster_engine
+
+    spin query_cluster in similar_queries {
+        elf responses = query_cluster.responses
+        elf optimized = aggregate_best_steps(responses)
+
+        anchor optimized_response_created
+    }
+}
+
+// =============================================================================
+// PHASE 5: BIZ - Goals and Outputs
+// =============================================================================
+
+biz TrainingQualityGoals {
+    // What we're optimizing for
+
+    goal_1: "Spam has zero value"
+    goal_2: "Quality compounds"
+    goal_3: "No censorship needed"
+    goal_4: "Self-curating dataset"
+    goal_5: "Freedom preserved"
+    goal_6: "AI learns from the best"
+}
+
+biz DatasetCuration {
+    // The dataset curates itself
+
+    garbage: "Posted -> Stays visible -> Never trains -> Dies naturally"
+    quality: "Posted -> Engagement -> Earns eligibility -> Trains model"
+}
+
+biz EconomicIncentives {
+    // Spam becomes mathematically worthless
+
+    spam_value: 0
+    quality_value: "compounds over time"
+
+    fence spam_economics {
+        posts_garbage: true
+        quality_signals: 0
+        training_eligible: false
+        synth_rewards: 0
+        network_value: 0
+        result: "wasted effort"
+    }
+
+    fence quality_economics {
+        posts_thoughtful: true
+        quality_signals: "accumulates"
+        training_eligible: true
+        synth_rewards: "earned"
+        network_value: "compounds"
+        result: "valuable contribution"
+    }
+}
+
+// =============================================================================
+// PHASE 6: ANCHOR - Checkpoints
+// =============================================================================
+
+anchor training_quality_initialized {
+    // System ready
+    default_exclude: true
+    quality_threshold: 0.7
+    freedom_preserved: true
+    csam_policy_active: true
+}
+
+anchor content_evaluated {
+    // Content has been scored
+    step: "quality_signals_accumulated"
+    next: "check_threshold"
+}
+
+anchor eligibility_determined {
+    // Training eligibility decided
+    step: "threshold_comparison"
+    next: "update_status"
+}
+
+anchor training_data_clean {
+    // Quality data only
+    garbage_excluded: true
+    quality_included: true
+    model_learning: "from the best"
+}
+
+// =============================================================================
+// EXECUTION ENTRY POINT
+// =============================================================================
+
+pug training_quality_system {
+    // Initialize the training quality protocol
+
+    // 1. Set immutable constraints
+    bone TRAINING_DEFAULT
+    bone QUALITY_THRESHOLD
+    bone CSAM_POLICY
+    bone FREEDOM_PRESERVED
+
+    // 2. Start processing loops
+    spin quality_mining_loop
+    spin aggregation_loop
+
+    // 3. Goals active
+    biz TrainingQualityGoals
+    biz DatasetCuration
+    biz EconomicIncentives
+
+    // 4. System ready
+    anchor training_quality_initialized
+
+    // Result: Data hygiene, not censorship
+    // Quality in, quality out
+    // The dataset curates itself
+}

@@ -16,8 +16,8 @@
   "entry_points": [],
   "key_concepts": [
     "deterministic",
-    "gently-architect",
-    "build_times"
+    "build_times",
+    "gently-architect"
   ],
   "cross_refs": {
     "structural": {
@@ -34,10 +34,10 @@
   "staleness": {
     "source_hash": "sha256:6ea35fc365291255053287d65deb3ba354e55ea0a685bbdbeb0312040353f080",
     "is_stale": false,
-    "last_verified": "2026-02-10T08:18:58.322065+00:00"
+    "last_verified": "2026-02-10T18:05:53.270878+00:00"
   },
-  "content_hash": "sha256:749560a40fb6f34ceaa4a732b6144173b17ccaed7a75ee3600bd181085f683c1",
+  "content_hash": "sha256:c3908ab8a3f49f9c7198f74f9b84498dc74cc208f1a66fdcd079825bf0d0faff",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-10T08:18:58.322065+00:00"
+  "_ts": "2026-02-10T18:05:53.270878+00:00"
 }

@@ -1,0 +1,341 @@
+# MASTER ORCHESTRATION CHAIN
+# The supreme controller that governs all GentlyOS operations
+# CODIE: pug (entry point for all flows)
+
+pug MASTER_ORCHESTRATOR
+|
++-- fence ABSOLUTE_LAWS
+|   +-- bone NOT: bypass guardian database
+|   +-- bone NOT: skip validation for multi-governed
+|   +-- bone NOT: execute without PTC in sandbox
+|   +-- bone NOT: modify bone-tagged entities without ARCHITECT
+|   +-- bone NOT: disable security daemons
+|
++-- elf config <- bark @guardian/config
+|   +-- elf db_path <- "~/.gently/guardian.db"
+|   +-- elf validation_enabled <- true
+|   +-- elf church_enabled <- true
+|
++-- cali ROUTE_REQUEST
+|   |
+|   +-- bark request <- @input
+|   +-- elf request_type <- classify(request)
+|   |
+|   +-- ? request_type == "change" -> cali HANDLE_CHANGE(request)
+|   +-- ? request_type == "confession" -> cali HANDLE_CONFESSION(request)
+|   +-- ? request_type == "query" -> cali HANDLE_QUERY(request)
+|   +-- ? request_type == "execute" -> cali HANDLE_EXECUTE(request)
+|   +-- ? else -> error "Unknown request type"
+|
++-- biz -> orchestrated_result
+    +-- anchor #master_log
+
+# ============================================
+# CHANGE HANDLING (Governance Flow)
+# ============================================
+
+cali HANDLE_CHANGE
+|
++-- fence
+|   +-- bone NOT: change without governance lookup
+|   +-- bone NOT: skip validators for tier 4+
+|
++-- bark entity <- @guardian/entities/{change.entity_id}
++-- bark governance <- @guardian/governance/{change.entity_id}
++-- bark validators <- @guardian/validators/{change.entity_id}
+|
++-- elf is_multi_governed <- governance.count > 1
++-- elf validator_count <- validators.count
+|
++-- ? is_multi_governed OR entity.tier >= 4
+|   +-- cali REQUIRE_TWO_VALIDATORS(change, validators)
+|   +-- ? NOT approved -> biz -> denied
+|
++-- ? entity.codie == "bone"
+|   +-- cali REQUIRE_ARCHITECT(change)
+|   +-- ? NOT approved -> biz -> denied
+|
++-- ? entity.codie == "fence" OR entity.sephira == "gevurah"
+|   +-- cali REQUIRE_SECURITY_REVIEW(change)
+|   +-- ? NOT approved -> biz -> denied
+|
++-- cali APPLY_CHANGE(change)
++-- anchor #change_log
++-- biz -> change_applied
+
+# ============================================
+# TWO-VALIDATOR FLOW (Middle Management)
+# ============================================
+
+cali REQUIRE_TWO_VALIDATORS
+|
++-- bark validators <- @input.validators
++-- elf v1 <- validators[0]
++-- elf v2 <- validators[1]
+|
++-- pin validation_request
+|   +-- elf request_id <- uuid()
+|   +-- elf entity_id <- change.entity_id
+|   +-- elf change_description <- change.description
+|   +-- elf requested_at <- now()
+|
++-- bark instruction_template <- @guardian/instruction_templates?from={v1.dept}&to={v2.dept}
+|
++-- spin AWAIT_VALIDATORS
+|   |
+|   +-- cali REQUEST_VALIDATION(v1, validation_request, instruction_template)
+|   +-- bark response_1 <- @validator/{v1.role}/decision
+|   |
+|   +-- ? response_1.decision == "deny" -> biz -> denied
+|   +-- ? response_1.decision == "escalate" -> cali ESCALATE(validation_request)
+|   |
+|   +-- cali REQUEST_VALIDATION(v2, validation_request, instruction_template)
+|   +-- bark response_2 <- @validator/{v2.role}/decision
+|   |
+|   +-- ? response_2.decision == "deny" -> biz -> denied
+|   +-- ? response_2.decision == "escalate" -> cali ESCALATE(validation_request)
+|   |
+|   +-- ? response_1.decision == "approve" AND response_2.decision == "approve"
+|       +-- biz -> approved
+|
++-- anchor #validation_log
+
+# ============================================
+# CONFESSION HANDLING (Church Flow)
+# ============================================
+
+cali HANDLE_CONFESSION
+|
++-- fence
+|   +-- bone NOT: confession without Angel detection
+|   +-- bone NOT: penance without Priest prescription
+|   +-- bone NOT: execution outside Demon sandbox
+|
++-- # Phase 1: Angel detects and creates confession
++-- bark detection <- @angel/detect
++-- elf confession <- cali CREATE_CONFESSION(detection)
+|
++-- # Phase 2: Priest receives and prescribes
++-- bark routing <- @guardian/confession_routing?sin_type={confession.sin_type}&severity={confession.severity}
++-- elf handling_priest <- routing.handling_priest
+|
++-- bark scripture <- @bible/{confession.bible_book}:{confession.chapter}:{confession.verse}
++-- elf penance <- cali PRESCRIBE_PENANCE(confession, scripture, routing)
+|
++-- # Phase 3: Demon executes in isolation
++-- elf isolation_level <- penance.isolation_level
++-- cali DEMON_EXECUTE(penance, isolation_level)
+|
++-- # Phase 4: Angel verifies
++-- bark verification <- @angel/verify(penance.tests)
+|
++-- ? verification.success
+|   +-- cali ABSOLVE(confession)
+|   +-- biz -> absolved
+|
++-- ? NOT verification.success AND confession.attempts < routing.auto_escalate_after
+|   +-- elf confession.attempts <- confession.attempts + 1
+|   +-- cali HANDLE_CONFESSION(confession)  // retry
+|
++-- ? confession.attempts >= routing.auto_escalate_after
+|   +-- cali ESCALATE_TO_COUNCIL(confession, routing.escalation_dept)
+|   +-- biz -> escalated
+|
++-- anchor #confession_log
+
+# ============================================
+# PRIEST FUNCTIONS
+# ============================================
+
+cali PRESCRIBE_PENANCE
+|
++-- bark confession <- @input.confession
++-- bark scripture <- @input.scripture
++-- bark routing <- @input.routing
+|
++-- elf penance
+|   +-- elf scripture_ref <- "{confession.bible_book}:{confession.chapter}:{confession.verse}"
+|   +-- elf verse_text <- scripture.text
+|   +-- elf codie_instruction <- cali GENERATE_PENANCE_CODIE(confession, scripture)
+|   +-- elf natural_language <- cali EXPLAIN_PENANCE(penance.codie_instruction)
+|   +-- elf isolation_level <- cali DETERMINE_ISOLATION(confession.severity)
+|   +-- elf timeout_seconds <- 300
+|   +-- elf tests <- cali GET_REQUIRED_TESTS(confession.entity_id)
+|
++-- biz -> penance
+
+cali DETERMINE_ISOLATION
+|
++-- bark severity <- @input
+|
++-- ? severity <= 3 -> biz -> "CHAPEL"
++-- ? severity <= 6 -> biz -> "SANDBOX"
++-- ? severity <= 9 -> biz -> "QUARANTINE"
++-- ? severity == 10 -> cali SAMSON_PROTOCOL()
+
+# ============================================
+# DEMON FUNCTIONS
+# ============================================
+
+cali DEMON_EXECUTE
+|
++-- bark penance <- @input.penance
++-- bark isolation <- @input.isolation_level
+|
++-- fence
+|   +-- bone NOT: network access in QUARANTINE
+|   +-- bone NOT: filesystem in QUARANTINE
+|   +-- bone NOT: sibling read in SANDBOX
+|
++-- cali SETUP_ISOLATION(isolation)
+|
++-- spin penance.codie_instruction AS instruction
+|   +-- cali EXECUTE_CODIE_LINE(instruction)
+|   +-- ? error -> anchor #error_log AND BREAK
+|
++-- cali RUN_TESTS(penance.tests)
++-- biz -> execution_result
+
+# ============================================
+# ANGEL FUNCTIONS
+# ============================================
+
+cali ANGEL_WATCH
+|
++-- spin FOREVER
+|   |
+|   +-- bark branches <- @git/branches
+|   +-- spin branch IN branches
+|   |   |
+|   |   +-- bark status <- @git/status(branch)
+|   |   +-- ? status.tests_failed -> cali CREATE_CONFESSION(branch, "test", status)
+|   |   +-- ? status.build_failed -> cali CREATE_CONFESSION(branch, "compile", status)
+|   |   +-- ? status.runtime_error -> cali CREATE_CONFESSION(branch, "runtime", status)
+|   |
+|   +-- bark security <- @daemons/status
+|   +-- spin daemon IN security.daemons
+|   |   +-- ? daemon.triggered -> cali CREATE_CONFESSION(daemon, "security", daemon.event)
+|   |
+|   +-- wait 60 seconds
+
+cali CREATE_CONFESSION
+|
++-- bark source <- @input.source
++-- bark sin_type <- @input.sin_type
++-- bark details <- @input.details
+|
++-- bark entity <- @guardian/entities?path={source.path}
++-- bark bible_mapping <- @guardian/bible_books?crate_name={entity.crate}
+|
++-- elf confession
+|   +-- elf id <- uuid()
+|   +-- elf penitent_path <- source.path
+|   +-- elf sin_type <- sin_type
+|   +-- elf severity <- cali CALCULATE_SEVERITY(details)
+|   +-- elf message <- details.error_message
+|   +-- elf location_function <- details.function
+|   +-- elf location_line <- details.line
+|   +-- elf bible_book <- bible_mapping.name
+|   +-- elf chapter <- cali FIND_CHAPTER(entity.module)
+|   +-- elf verse <- cali FIND_VERSE(entity.symbol)
+|   +-- elf triggered_by <- "angel_watch"
+|   +-- elf attempts <- 0
+|
++-- bark @guardian/confessions <- confession
++-- biz -> confession
+
+# ============================================
+# ESCALATION
+# ============================================
+
+cali ESCALATE
+|
++-- bark request <- @input.request
++-- bark to_dept <- @input.escalation_dept
+|
++-- elf escalation
+|   +-- elf original_request <- request
+|   +-- elf escalated_to <- to_dept
+|   +-- elf escalated_at <- now()
+|   +-- elf reason <- "Validation denied or exceeded retry limit"
+|
++-- ? to_dept == "ROOT"
+|   +-- cali NOTIFY_ARCHITECT(escalation)
+|
++-- bark @guardian/audit_log <- escalation
++-- biz -> escalated
+
+cali ESCALATE_TO_COUNCIL
+|
++-- bark confession <- @input.confession
++-- bark dept <- @input.dept
+|
++-- elf council_request
+|   +-- elf confession <- confession
+|   +-- elf suggested_action <- cali GENERATE_SUGGESTION(confession)
+|   +-- elf requires_human <- true
+|
++-- cali NOTIFY_HUMANS(council_request)
++-- biz -> council_notified
+
+# ============================================
+# SAMSON PROTOCOL (Nuclear Option)
+# ============================================
+
+cali SAMSON_PROTOCOL
+|
++-- fence
+|   +-- bone REQUIRES: ARCHITECT approval
+|   +-- bone REQUIRES: 3 department heads approval
+|   +-- bone WARNING: This destroys everything
+|
++-- bark approval_1 <- @architect/approve_samson
++-- bark approval_2 <- @security_lead/approve_samson
++-- bark approval_3 <- @foundation_lead/approve_samson
++-- bark approval_4 <- @intelligence_lead/approve_samson
+|
++-- ? ALL approvals == true
+|   +-- cali BURN_EVERYTHING()
+|   +-- anchor #samson_executed
+|   +-- biz -> scorched_earth
+|
++-- biz -> samson_aborted
+
+# ============================================
+# QUERY HANDLING
+# ============================================
+
+cali HANDLE_QUERY
+|
++-- bark query <- @input
+|
++-- ? query.type == "entity" -> bark result <- @guardian/entities/{query.id}
++-- ? query.type == "governance" -> bark result <- @guardian/governance_chain?entity_id={query.id}
++-- ? query.type == "tree_of_life" -> bark result <- @guardian/tree_of_life
++-- ? query.type == "confessions" -> bark result <- @guardian/confessions?status={query.status}
++-- ? query.type == "validators" -> bark result <- @guardian/pending_validations
+|
++-- biz -> result
+
+# ============================================
+# EXECUTE HANDLING
+# ============================================
+
+cali HANDLE_EXECUTE
+|
++-- bark execution <- @input
+|
++-- # All executions must go through governance first
++-- cali HANDLE_CHANGE(execution)
++-- ? NOT approved -> biz -> denied
+|
++-- # Then through appropriate handler
++-- ? execution.type == "codie_chain"
+|   +-- bark chain <- @guardian/codie_chains/{execution.chain_id}
+|   +-- cali EXECUTE_CODIE_CHAIN(chain)
+|
++-- ? execution.type == "penance"
+|   +-- cali DEMON_EXECUTE(execution.penance, execution.isolation)
+|
++-- anchor #execution_log
++-- biz -> executed

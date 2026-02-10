@@ -21,6 +21,7 @@ struct ShelfEntry {
     status: &'static str,
     locked: bool,
     core: bool,
+    href: &'static str,
 }
 
 #[derive(Template)]
@@ -63,39 +64,47 @@ async fn surface_page(
 
 fn build_shelf(layer: Layer) -> Vec<ShelfEntry> {
     let mut items = vec![
-        // Core items (always active, locked_on)
-        ShelfEntry { name: "alexandria", icon: "LIB", status: "active", locked: false, core: true },
-        ShelfEntry { name: "claude-chat", icon: "AI", status: "active", locked: false, core: true },
-        ShelfEntry { name: "guarddog-dns", icon: "DNS", status: "active", locked: false, core: true },
-        ShelfEntry { name: "env-vault", icon: "KEY", status: "active", locked: false, core: true },
-        ShelfEntry { name: "shelf", icon: "SHF", status: "active", locked: false, core: true },
+        // Core services (always active)
+        ShelfEntry { name: "alexandria", icon: "LIB", status: "active", locked: false, core: true, href: "" },
+        ShelfEntry { name: "claude-chat", icon: "AI", status: "active", locked: false, core: true, href: "" },
+        ShelfEntry { name: "guarddog-dns", icon: "DNS", status: "active", locked: false, core: true, href: "" },
+        ShelfEntry { name: "env-vault", icon: "KEY", status: "active", locked: false, core: true, href: "" },
+        ShelfEntry { name: "shelf", icon: "SHF", status: "active", locked: false, core: true, href: "" },
+        // IO Tools (always active, have dedicated pages)
+        ShelfEntry { name: "cookie-jar", icon: "JAR", status: "active", locked: false, core: true, href: "/cookie-jar" },
+        ShelfEntry { name: "glyph-registry", icon: "GLY", status: "active", locked: false, core: true, href: "/glyph-registry" },
+        ShelfEntry { name: "consent-gate", icon: "CGT", status: "active", locked: false, core: true, href: "/consent-gate" },
+        ShelfEntry { name: "genesis-shield", icon: "GEN", status: "active", locked: false, core: true, href: "/genesis-shield" },
+        ShelfEntry { name: "emoji-rewriter", icon: "EMJ", status: "active", locked: false, core: true, href: "/emoji-rewriter" },
+        ShelfEntry { name: "semantic-chars", icon: "SEM", status: "active", locked: false, core: true, href: "/semantic-chars" },
+        ShelfEntry { name: "tos-interceptor", icon: "TOS", status: "active", locked: false, core: true, href: "/tos-interceptor" },
     ];
 
     // Basic+ items
     if layer.has_access(Layer::RootUser) {
-        items.push(ShelfEntry { name: "workbench", icon: "WRK", status: "active", locked: false, core: false });
-        items.push(ShelfEntry { name: "python-bridge", icon: "PY", status: "active", locked: false, core: false });
+        items.push(ShelfEntry { name: "workbench", icon: "WRK", status: "active", locked: false, core: false, href: "" });
+        items.push(ShelfEntry { name: "python-bridge", icon: "PY", status: "active", locked: false, core: false, href: "" });
     } else {
-        items.push(ShelfEntry { name: "workbench", icon: "WRK", status: "locked", locked: true, core: false });
-        items.push(ShelfEntry { name: "python-bridge", icon: "PY", status: "locked", locked: true, core: false });
+        items.push(ShelfEntry { name: "workbench", icon: "WRK", status: "locked", locked: true, core: false, href: "" });
+        items.push(ShelfEntry { name: "python-bridge", icon: "PY", status: "locked", locked: true, core: false, href: "" });
     }
 
     // Pro+ items
     if layer.has_access(Layer::OsAdmin) {
-        items.push(ShelfEntry { name: "docker", icon: "DKR", status: "active", locked: false, core: false });
-        items.push(ShelfEntry { name: "agent-swarm", icon: "AGT", status: "active", locked: false, core: false });
+        items.push(ShelfEntry { name: "docker", icon: "DKR", status: "active", locked: false, core: false, href: "" });
+        items.push(ShelfEntry { name: "agent-swarm", icon: "AGT", status: "active", locked: false, core: false, href: "" });
     } else {
-        items.push(ShelfEntry { name: "docker", icon: "DKR", status: "locked", locked: true, core: false });
-        items.push(ShelfEntry { name: "agent-swarm", icon: "AGT", status: "locked", locked: true, core: false });
+        items.push(ShelfEntry { name: "docker", icon: "DKR", status: "locked", locked: true, core: false, href: "" });
+        items.push(ShelfEntry { name: "agent-swarm", icon: "AGT", status: "locked", locked: true, core: false, href: "" });
     }
 
     // Dev+ items
     if layer.has_access(Layer::DevLevel) {
-        items.push(ShelfEntry { name: "limbo", icon: "LMB", status: "active", locked: false, core: false });
-        items.push(ShelfEntry { name: "offensive-tools", icon: "OFS", status: "active", locked: false, core: false });
+        items.push(ShelfEntry { name: "limbo", icon: "LMB", status: "active", locked: false, core: false, href: "" });
+        items.push(ShelfEntry { name: "offensive-tools", icon: "OFS", status: "active", locked: false, core: false, href: "" });
     } else {
-        items.push(ShelfEntry { name: "limbo", icon: "LMB", status: "locked", locked: true, core: false });
-        items.push(ShelfEntry { name: "offensive-tools", icon: "OFS", status: "locked", locked: true, core: false });
+        items.push(ShelfEntry { name: "limbo", icon: "LMB", status: "locked", locked: true, core: false, href: "" });
+        items.push(ShelfEntry { name: "offensive-tools", icon: "OFS", status: "locked", locked: true, core: false, href: "" });
     }
 
     items

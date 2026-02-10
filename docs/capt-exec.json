@@ -13,10 +13,10 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "gently-inference",
+    "hot_path_1ms",
     "no_blocking",
     "gently-agents",
-    "hot_path_1ms",
+    "gently-inference",
     "gently-micro",
     "gently-brain"
   ],
@@ -46,12 +46,12 @@
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:ae364920b2d71f86479a29d5cd61fbdcb41935fbd3f1568cf987ac2768d939d8",
+    "source_hash": "sha256:42a74a5235c892aea244310267571d2bdba2934f7c214ac3b80406ca37cf02fb",
     "is_stale": false,
-    "last_verified": "2026-02-10T08:18:58.320202+00:00"
+    "last_verified": "2026-02-10T18:01:08.293701+00:00"
   },
-  "content_hash": "sha256:cbbdaafca7af49d01e748fc96b4983ab5a0a0e02390a9a4a19da4c9a86308251",
+  "content_hash": "sha256:4af27982c0cc76516b5bc95df156d3bb0809688274b3315e2fdd3ba9c2f83e73",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-10T08:18:58.320202+00:00"
+  "_ts": "2026-02-10T18:01:08.293701+00:00"
 }

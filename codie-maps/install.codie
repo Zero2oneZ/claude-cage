@@ -1,0 +1,56 @@
+// GentlyOS Installation Map
+// CODIE instructions for complete system installation
+// This file can be parsed by any LLM to rebuild the system
+
+pug INSTALL_GENTLYOS
+fence
+  bone NOT: skip environment validation
+  bone NOT: ignore failing tests
+  bone NOT: assume hardware capabilities
+  bone NOT: bypass security checks
+  bone NOT: install without user consent
+
+// Phase 1: Environment Detection
+bark platform <- @system/detect_os
+bark specs <- @hardware/detect_all
+  ? platform.unknown -> return "Unsupported platform"
+  ? specs.memory_gb < 4 -> warn "Low memory"
+
+// Phase 2: Validation
+bark validator <- @validators/{platform.type}.sh
+bark result <- @validator/run
+  ? result.errors > 0 -> return result.errors
+anchor #environment_validated
+
+// Phase 3: Build Tools
+bark rust <- @toolchain/rust
+  ? rust.missing -> @installer/rustup
+bark compiler <- @toolchain/c_compiler
+  ? compiler.missing -> @installer/build_tools(platform)
+anchor #tools_ready
+
+// Phase 4: Build Foundation
+spin crate IN ["gently-core", "gently-codie", "gently-artisan", "gently-visual"]
+  bark build <- @cargo/build(crate)
+  ? build.failed -> return build.error
+anchor #foundation_built
+
+// Phase 5: Build Tiers
+spin tier IN [1, 2, 3, 4, 5]
+  bark crates <- @registry/tier(tier)
+  spin crate IN crates
+    bark build <- @cargo/build(crate)
+    ? build.failed -> return build.error
+anchor #all_crates_built
+
+// Phase 6: Run Tests
+bark tests <- @cargo/test_workspace
+  ? tests.failed > 0 -> warn "Some tests failed"
+anchor #tests_complete
+
+// Phase 7: Initialize
+bark config <- @gently/init_config(specs)
+bark vault <- @gently/init_vault
+anchor #initialized
+
+biz -> "GentlyOS installed successfully"
