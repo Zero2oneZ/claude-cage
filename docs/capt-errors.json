@@ -1,0 +1,37 @@
+{
+  "node_id": "capt:errors",
+  "title": "Error Captain",
+  "scale": "captain",
+  "description": "Error Captain (captain)",
+  "what_it_does": [
+    "Rule: no_swallowed_errors \u2014 error not propagated \u2192 block",
+    "Rule: panic_justified \u2014 panic without justification \u2192 block"
+  ],
+  "owned_files": [],
+  "entry_points": [],
+  "key_concepts": [
+    "panic_justified",
+    "no_swallowed_errors"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:foundation",
+      "children": [],
+      "siblings": [
+        "capt:types",
+        "capt:crypto"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.310777+00:00"
+  },
+  "content_hash": "sha256:c98bfabbeff5032e4f9219796418194ab80d12a5c9c7dca6a7161e93e7eb2bce",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.310777+00:00"
+}

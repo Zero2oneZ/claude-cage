@@ -1,0 +1,38 @@
+{
+  "node_id": "capt:proof",
+  "title": "Proof Captain",
+  "scale": "captain",
+  "description": "Proof Captain (captain)",
+  "what_it_does": [
+    "Rule: deterministic_gen \u2014 non-deterministic proof generation \u2192 block",
+    "Rule: no_self_verify \u2014 self-verification attempted \u2192 block"
+  ],
+  "owned_files": [],
+  "entry_points": [],
+  "key_concepts": [
+    "gently-btc",
+    "no_self_verify",
+    "deterministic_gen"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:tokenomics",
+      "children": [],
+      "siblings": [
+        "capt:rewards",
+        "capt:economics"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.321267+00:00"
+  },
+  "content_hash": "sha256:82d38f3eebb37ec058c10cda767173e2de5503c2fdd951db268156400813d592",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.321267+00:00"
+}

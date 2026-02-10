@@ -1,0 +1,67 @@
+{
+  "node_id": "dept:protocol",
+  "title": "Protocol Department",
+  "scale": "department",
+  "description": "Protocol Department (department)",
+  "what_it_does": [
+    "Rule: wire_compat \u2014 removed field \u2192 block",
+    "Rule: optional_fields \u2014 new field must be optional \u2192 transform",
+    "Rule: dag_integrity \u2014 content addresses immutable \u2192 pass",
+    "Rule: simulation_required \u2014 topology change \u2192 escalate"
+  ],
+  "owned_files": [
+    "lib/tree.sh",
+    "gentlyos/universal-node.schema.json"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "optional_fields",
+    "gently-feed",
+    "gently-network",
+    "simulation_required",
+    "gently-bridge",
+    "gently-dance",
+    "wire_compat",
+    "gently-livepeer",
+    "dag_integrity",
+    "gently-alexandria",
+    "gently-ipfs"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "exec:cto",
+      "children": [
+        "capt:wire",
+        "capt:p2p",
+        "capt:alexandria"
+      ],
+      "siblings": [
+        "dept:foundation",
+        "dept:orchestration",
+        "dept:runtime",
+        "dept:tokenomics",
+        "dept:security",
+        "dept:interface",
+        "dept:devops"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "capt:ptc",
+        "files": [
+          "lib/tree.sh"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:53666842812e48ee3b751e9d6048ea86ba7a3e558bf6ba932bc60a7eec47f5fc",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.305070+00:00"
+  },
+  "content_hash": "sha256:91a7b1e59b09a279c28bf0b330ef0901450bf0c61309e46920fd0e8e757c1a23",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.305070+00:00"
+}

@@ -1,0 +1,40 @@
+{
+  "node_id": "exec:vision",
+  "title": "Vision Alignment Agent",
+  "scale": "executive",
+  "description": "Vision Alignment Agent (executive)",
+  "what_it_does": [
+    "Rule: sovereignty_first \u2014 user owns data, always \u2192 pass",
+    "Rule: claude_as_interface \u2014 AI is primary interaction layer \u2192 pass",
+    "Rule: decentralized_default \u2014 no single points of failure \u2192 pass",
+    "Rule: proof_of_reasoning \u2014 intelligence creates value \u2192 pass"
+  ],
+  "owned_files": [],
+  "entry_points": [],
+  "key_concepts": [
+    "sovereignty_first",
+    "claude_as_interface",
+    "proof_of_reasoning",
+    "decentralized_default"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "root:human",
+      "children": [],
+      "siblings": [
+        "exec:cto"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.304901+00:00"
+  },
+  "content_hash": "sha256:a8aa96b1edfdafdfc7966e360363883772faf3ece3157e19bd6e9eab792d45c0",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.304901+00:00"
+}

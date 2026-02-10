@@ -1,0 +1,48 @@
+{
+  "node_id": "capt:hardening",
+  "title": "Hardening Captain",
+  "scale": "captain",
+  "description": "Hardening Captain (captain)",
+  "what_it_does": [
+    "Rule: least_privilege \u2014 excess capabilities \u2192 block",
+    "Rule: ipc_audited \u2014 IPC without audit \u2192 block"
+  ],
+  "owned_files": [
+    "lib/sandbox.sh"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "gently-sim",
+    "least_privilege",
+    "ipc_audited",
+    "gently-guardian"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:security",
+      "children": [],
+      "siblings": [
+        "capt:audit",
+        "capt:incident"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:security",
+        "files": [
+          "lib/sandbox.sh"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:f102a7543d6c3de8ce19a32132076ac1f1644e0ccf85e2969929a7f522d2b5b3",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.321418+00:00"
+  },
+  "content_hash": "sha256:44eff49d9bd4c00aad752f87f3463030be5ec4446f74e6527c290f25dabc5186",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.321418+00:00"
+}

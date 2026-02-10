@@ -1,0 +1,44 @@
+{
+  "node_id": "capt:codie",
+  "title": "CODIE Captain",
+  "scale": "captain",
+  "description": "CODIE Captain (captain)",
+  "what_it_does": [
+    "Rule: compression_94 \u2014 ratio < 94% \u2192 block",
+    "Rule: fidelity_95 \u2014 semantic fidelity < 0.95 \u2192 block",
+    "Rule: round_trip_99 \u2014 round-trip < 0.99 \u2192 block"
+  ],
+  "owned_files": [
+    "cage-web/src/codie_parser.rs",
+    "cage-web/src/routes/codie.rs"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "round_trip_99",
+    "compression_94",
+    "cage-web",
+    "gently-codie",
+    "fidelity_95"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:orchestration",
+      "children": [],
+      "siblings": [
+        "capt:ptc",
+        "capt:context"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:8c8387bfcbc24ddd59b2edda0883963aa47ad51e078d7d4a51b821c8c60e963c",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.311123+00:00"
+  },
+  "content_hash": "sha256:c9c5116739cb74e1969c79176206ad3d0c1bc953fe407570ed16bc5ffffe6c42",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.311123+00:00"
+}

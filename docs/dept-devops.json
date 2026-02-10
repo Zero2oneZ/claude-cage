@@ -1,0 +1,52 @@
+{
+  "node_id": "dept:devops",
+  "title": "DevOps Department",
+  "scale": "department",
+  "description": "DevOps Department (department)",
+  "what_it_does": [
+    "Rule: secrets_never_in_code \u2014 secret detected in source \u2192 block",
+    "Rule: all_dept_signoffs \u2014 release without all approvals \u2192 block",
+    "Rule: environment_parity \u2014 env drift detected \u2192 escalate"
+  ],
+  "owned_files": [
+    "docker-compose.yml",
+    "ptc/training.py"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "all_dept_signoffs",
+    "secrets_never_in_code",
+    "gently-architect",
+    "environment_parity"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "exec:cto",
+      "children": [
+        "capt:build",
+        "capt:release",
+        "capt:infra"
+      ],
+      "siblings": [
+        "dept:foundation",
+        "dept:protocol",
+        "dept:orchestration",
+        "dept:runtime",
+        "dept:tokenomics",
+        "dept:security",
+        "dept:interface"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:43739d5ae34a42deb946ed287a4c1058033fb24860c010a3a951d83725f75386",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.310475+00:00"
+  },
+  "content_hash": "sha256:e595262a0f6f060f9fcbd226a6ec0cc5dc0f5cb544017bac269463718e3faffc",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.310475+00:00"
+}

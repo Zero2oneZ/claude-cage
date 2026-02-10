@@ -1,0 +1,58 @@
+{
+  "node_id": "dept:foundation",
+  "title": "Foundation Department",
+  "scale": "department",
+  "description": "Foundation Department (department)",
+  "what_it_does": [
+    "Rule: api_stability \u2014 public API change \u2192 escalate",
+    "Rule: crypto_audit \u2014 crypto algorithm change \u2192 escalate",
+    "Rule: zero_cost \u2014 abstraction adds runtime cost \u2192 block"
+  ],
+  "owned_files": [
+    "lib/config.sh",
+    "config/default.yaml"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "gently-visual",
+    "gently-audio",
+    "crypto_audit",
+    "gently-core",
+    "zero_cost",
+    "gently-artisan",
+    "gently-codie",
+    "gently-goo",
+    "api_stability",
+    "gently-synth"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "exec:cto",
+      "children": [
+        "capt:types",
+        "capt:crypto",
+        "capt:errors"
+      ],
+      "siblings": [
+        "dept:protocol",
+        "dept:orchestration",
+        "dept:runtime",
+        "dept:tokenomics",
+        "dept:security",
+        "dept:interface",
+        "dept:devops"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:e6110c2b14f59547a931e02a374627775af9c58eb747f002e669b1c2c4e8d463",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.304931+00:00"
+  },
+  "content_hash": "sha256:04d4b0b16d4621bf40461af6e2be84ee4ce185b34f83dd6ba65051a880fe202c",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.304931+00:00"
+}

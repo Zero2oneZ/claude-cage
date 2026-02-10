@@ -1,0 +1,57 @@
+{
+  "node_id": "capt:infra",
+  "title": "Infra Captain",
+  "scale": "captain",
+  "description": "Infra Captain (captain)",
+  "what_it_does": [
+    "Rule: env_parity \u2014 environment drift \u2192 escalate",
+    "Rule: secrets_secured \u2014 secret exposed \u2192 block"
+  ],
+  "owned_files": [
+    "lib/docker.sh",
+    "launch",
+    "docker/cli/Dockerfile",
+    "docker/desktop/Dockerfile"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "secrets_secured",
+    "env_parity"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:devops",
+      "children": [],
+      "siblings": [
+        "capt:build",
+        "capt:release"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "root:human",
+        "files": [
+          "launch"
+        ]
+      },
+      {
+        "node": "dept:runtime",
+        "files": [
+          "docker/cli/Dockerfile",
+          "docker/desktop/Dockerfile",
+          "lib/docker.sh"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:0b5e0916fa1ff1a7fc757044560d004ecbb928c66cea22f33e2c9b4d794c9314",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.322625+00:00"
+  },
+  "content_hash": "sha256:9680169277fd5d0d9fb4e0f0cb1ba14cd8dae87f3d69c50b9fd9b2f292fe29ee",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.322625+00:00"
+}

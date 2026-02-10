@@ -1,0 +1,39 @@
+{
+  "node_id": "capt:types",
+  "title": "Types Captain",
+  "scale": "captain",
+  "description": "Types Captain (captain)",
+  "what_it_does": [
+    "Rule: type_safety \u2014 type invariant violated \u2192 block",
+    "Rule: backward_compat \u2014 struct field removed \u2192 escalate"
+  ],
+  "owned_files": [],
+  "entry_points": [],
+  "key_concepts": [
+    "gently-artisan",
+    "backward_compat",
+    "type_safety",
+    "gently-core"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:foundation",
+      "children": [],
+      "siblings": [
+        "capt:crypto",
+        "capt:errors"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.310714+00:00"
+  },
+  "content_hash": "sha256:6f997fb755fa2ee9a1bfb25504d9a367c31681705a82f0f45847f80a3e6c404d",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.310714+00:00"
+}

@@ -1,0 +1,38 @@
+{
+  "node_id": "capt:economics",
+  "title": "Economics Captain",
+  "scale": "captain",
+  "description": "Economics Captain (captain)",
+  "what_it_does": [
+    "Rule: game_theory_sound \u2014 incentive misalignment \u2192 escalate",
+    "Rule: slash_bounded \u2014 slashing exceeds stake \u2192 block"
+  ],
+  "owned_files": [],
+  "entry_points": [],
+  "key_concepts": [
+    "gently-commerce",
+    "slash_bounded",
+    "game_theory_sound"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:tokenomics",
+      "children": [],
+      "siblings": [
+        "capt:rewards",
+        "capt:proof"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.321306+00:00"
+  },
+  "content_hash": "sha256:8f5ab516cdd91d399ecb916d5e42572e62f953a8f7084000b6783aa21ff5c721",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.321306+00:00"
+}

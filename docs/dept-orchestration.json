@@ -1,0 +1,78 @@
+{
+  "node_id": "dept:orchestration",
+  "title": "Orchestration Department",
+  "scale": "department",
+  "description": "Orchestration Department (department)",
+  "what_it_does": [
+    "Rule: compression_ratio \u2014 CODIE ratio < 94% \u2192 block",
+    "Rule: semantic_fidelity \u2014 fidelity < 0.95 \u2192 block",
+    "Rule: context_budget \u2014 switch cost > 100 tokens \u2192 escalate",
+    "Rule: chain_immutable \u2014 reasoning chains are append-only \u2192 pass"
+  ],
+  "owned_files": [
+    "gentlyos/tree.json",
+    "gentlyos/crate-graph.json",
+    "ptc/crate_graph.py",
+    "cage-web/src/routes/gentlyos.rs",
+    "docs/CRATE-GRAPH.md"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "semantic_fidelity",
+    "gently-document",
+    "context_budget",
+    "gently-ged",
+    "chain_immutable",
+    "compression_ratio",
+    "gently-codie"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "exec:cto",
+      "children": [
+        "capt:codie",
+        "capt:ptc",
+        "capt:context"
+      ],
+      "siblings": [
+        "dept:foundation",
+        "dept:protocol",
+        "dept:runtime",
+        "dept:tokenomics",
+        "dept:security",
+        "dept:interface",
+        "dept:devops"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "root:human",
+        "files": [
+          "gentlyos/tree.json"
+        ]
+      },
+      {
+        "node": "capt:ptc",
+        "files": [
+          "ptc/crate_graph.py"
+        ]
+      },
+      {
+        "node": "capt:exec",
+        "files": [
+          "ptc/crate_graph.py"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:25ae53d361059147de2a067068ac7af041f317756f9d9879cc83f1e9fcc8ad2f",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.305680+00:00"
+  },
+  "content_hash": "sha256:70ca23d32815106153b8b0f287a231424a8d8c6f5da255f549ef585b20409a07",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.305680+00:00"
+}

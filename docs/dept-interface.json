@@ -1,0 +1,72 @@
+{
+  "node_id": "dept:interface",
+  "title": "Interface Department",
+  "scale": "department",
+  "description": "Interface Department (department)",
+  "what_it_does": [
+    "Rule: api_contracts \u2014 breaking API change \u2192 escalate",
+    "Rule: prompt_versioned \u2014 claude prompt change \u2192 log",
+    "Rule: error_clarity \u2014 error message unclear \u2192 block"
+  ],
+  "owned_files": [
+    "web/app.py",
+    "web/templates/index.html",
+    "cage-web/src/main.rs",
+    "cage-web/src/routes/pages.rs"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "error_clarity",
+    "gently-cli",
+    "gently-gateway",
+    "prompt_versioned",
+    "gently-web",
+    "gently-gooey",
+    "gently-mcp",
+    "api_contracts",
+    "gentlyos-tui"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "exec:cto",
+      "children": [
+        "capt:api",
+        "capt:claude",
+        "capt:ux"
+      ],
+      "siblings": [
+        "dept:foundation",
+        "dept:protocol",
+        "dept:orchestration",
+        "dept:runtime",
+        "dept:tokenomics",
+        "dept:security",
+        "dept:devops"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "capt:api",
+        "files": [
+          "cage-web/src/main.rs"
+        ]
+      },
+      {
+        "node": "capt:ux",
+        "files": [
+          "web/templates/index.html"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:c771f9517d9b6fc4def95f5ec3057a90a33501cd40de001e64dbccb9a6d1d871",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.309455+00:00"
+  },
+  "content_hash": "sha256:cacae4df988d6241ddbced6471ea9587556507521657dcc6862f6371425c7d20",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.309455+00:00"
+}

@@ -1,0 +1,39 @@
+{
+  "node_id": "capt:crypto",
+  "title": "Crypto Captain",
+  "scale": "captain",
+  "description": "Crypto Captain (captain)",
+  "what_it_does": [
+    "Rule: constant_time \u2014 timing side-channel possible \u2192 block",
+    "Rule: key_protection \u2014 key material exposed \u2192 block"
+  ],
+  "owned_files": [],
+  "entry_points": [],
+  "key_concepts": [
+    "constant_time",
+    "gently-cipher",
+    "key_protection",
+    "gently-btc"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:foundation",
+      "children": [],
+      "siblings": [
+        "capt:types",
+        "capt:errors"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.310748+00:00"
+  },
+  "content_hash": "sha256:24ec8bcb4fc38d38877924bdb00f9716ce1f6d0020ae3fe0ac04b3b78a1c86bf",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.310748+00:00"
+}

@@ -1,0 +1,44 @@
+{
+  "node_id": "capt:context",
+  "title": "Context Captain",
+  "scale": "captain",
+  "description": "Context Captain (captain)",
+  "what_it_does": [
+    "Rule: budget_correct \u2014 budget calculation error \u2192 block",
+    "Rule: no_leaks \u2014 context leak detected \u2192 block"
+  ],
+  "owned_files": [
+    "ptc/docs.py",
+    "lib/docs.sh",
+    "mongodb/store.js",
+    "mongodb/vector-setup.js"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "gently-document",
+    "no_leaks",
+    "budget_correct",
+    "gently-ged"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:orchestration",
+      "children": [],
+      "siblings": [
+        "capt:codie",
+        "capt:ptc"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:e754732c106c94e23d2b13cf7721d2eb7f787f5ca6a1d71dd4d562405794791f",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.319072+00:00"
+  },
+  "content_hash": "sha256:5e2d168b9fad9710d0bffc2e2907a4cbe83c44ac3ed0fa6a7f0ae1a36cc8d7a8",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.319072+00:00"
+}

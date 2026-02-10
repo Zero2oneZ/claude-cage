@@ -1,0 +1,611 @@
+#!/usr/bin/env bash
+# ============================================================================
+# launch — claude-cage launcher
+#
+# One script to rule them all. Handles Docker daemon, image builds,
+# network setup, and launches Claude CLI inside sandboxed containers
+# with full defense-in-depth security.
+#
+# Usage:
+#   ./launch                  # Interactive menu
+#   ./launch cli              # Launch Claude CLI (sandboxed, filtered network)
+#   ./launch cli --bare       # Launch Claude CLI on host (no container)
+#   ./launch desktop          # Launch Desktop mode (noVNC at :6080)
+#   ./launch isolated         # Launch CLI with no network
+#   ./launch project <name>   # Launch CLI with a project mounted
+#   ./launch shell <session>  # Attach to running session
+#   ./launch status           # Show system status
+#   ./launch build            # Build/rebuild images
+#   ./launch stop [--all]     # Stop sessions
+#   ./launch teardown         # Full cleanup
+# ============================================================================
+set -euo pipefail
+
+CAGE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CAGE_VERSION="0.2.0"
+CAGE_DATA_DIR="${CAGE_DATA_DIR:-$HOME/.local/share/claude-cage}"
+IMAGE_CLI="claude-cage-cli:latest"
+IMAGE_DESKTOP="claude-cage-desktop:latest"
+SECCOMP="$CAGE_ROOT/security/seccomp-default.json"
+NETWORK_NAME="cage-filtered"
+
+# Colors (auto-disable if not a terminal)
+if [[ -t 1 ]]; then
+    R='\033[0;31m' G='\033[0;32m' Y='\033[0;33m' B='\033[0;34m'
+    C='\033[0;36m' W='\033[1;37m' D='\033[0;90m' N='\033[0m'
+else
+    R='' G='' Y='' B='' C='' W='' D='' N=''
+fi
+
+# ── Helpers ────────────────────────────────────────────────────
+
+log()  { echo -e "${D}[cage]${N} $*"; }
+ok()   { echo -e "${G}  [ok]${N} $*"; }
+warn() { echo -e "${Y}[warn]${N} $*"; }
+err()  { echo -e "${R} [err]${N} $*" >&2; }
+die()  { err "$@"; exit 1; }
+
+session_name() {
+    local adj=(swift bold calm dark keen fast deep cool true wild sage pure)
+    local noun=(fox owl elk ash oak ray arc vim gem ion rune pine)
+    local a=${adj[$((RANDOM % ${#adj[@]}))]}
+    local n=${noun[$((RANDOM % ${#noun[@]}))]}
+    local h=$(printf '%04x' $((RANDOM % 65536)))
+    echo "${a}-${n}-${h}"
+}
+
+# ── Preflight Checks ──────────────────────────────────────────
+
+ensure_docker() {
+    if ! command -v docker &>/dev/null; then
+        die "Docker not found. Install docker first."
+    fi
+    if ! docker info &>/dev/null 2>&1; then
+        warn "Docker daemon not running. Starting..."
+        if command -v systemctl &>/dev/null; then
+            sudo systemctl start docker
+            sleep 2
+            if ! docker info &>/dev/null 2>&1; then
+                die "Failed to start Docker daemon."
+            fi
+            ok "Docker daemon started"
+        else
+            die "Docker daemon not running. Start it manually."
+        fi
+    fi
+}
+
+ensure_network() {
+    if ! docker network inspect "$NETWORK_NAME" &>/dev/null 2>&1; then
+        log "Creating filtered bridge network..."
+        docker network create \
+            --driver bridge \
+            --opt com.docker.network.bridge.enable_icc=false \
+            --opt com.docker.network.bridge.enable_ip_masquerade=true \
+            --subnet 172.28.0.0/16 \
+            "$NETWORK_NAME" >/dev/null
+        ok "Network $NETWORK_NAME created"
+    fi
+}
+
+ensure_image() {
+    local image="$1" dockerfile="$2" context="$3"
+    if ! docker image inspect "$image" &>/dev/null 2>&1; then
+        log "Image $image not found. Building..."
+        docker build -t "$image" -f "$dockerfile" "$context"
+        ok "Built $image"
+    fi
+}
+
+ensure_dirs() {
+    mkdir -p "$CAGE_DATA_DIR/sessions"
+}
+
+# Check which images exist
+has_cli_image()     { docker image inspect "$IMAGE_CLI" &>/dev/null 2>&1; }
+has_desktop_image() { docker image inspect "$IMAGE_DESKTOP" &>/dev/null 2>&1; }
+
+# ── Security Flags ─────────────────────────────────────────────
+
+build_security_flags() {
+    local mode="${1:-cli}" network="${2:-filtered}" cpus="${3:-2}" mem="${4:-4g}"
+    local flags=()
+
+    # Resource limits
+    flags+=(--cpus "$cpus" --memory "$mem" --pids-limit 512)
+    flags+=(--ulimit nofile=1024:2048 --ulimit nproc=256:512)
+
+    # Read-only root + tmpfs
+    flags+=(--read-only)
+    flags+=(--tmpfs /tmp:rw,noexec,nosuid,size=512m)
+    flags+=(--tmpfs /run:rw,noexec,nosuid,size=64m)
+
+    # Drop all caps, add minimum
+    flags+=(--cap-drop ALL)
+    flags+=(--cap-add CHOWN --cap-add DAC_OVERRIDE --cap-add SETGID --cap-add SETUID)
+
+    # Seccomp
+    if [[ -f "$SECCOMP" ]]; then
+        flags+=(--security-opt "seccomp=$SECCOMP")
+    fi
+
+    # AppArmor (if profile is loaded)
+    if command -v apparmor_status &>/dev/null 2>&1; then
+        if apparmor_status 2>/dev/null | grep -q claude-cage; then
+            flags+=(--security-opt apparmor=claude-cage)
+        fi
+    fi
+
+    # No privilege escalation
+    flags+=(--security-opt no-new-privileges)
+
+    # Network
+    case "$network" in
+        none)     flags+=(--network none) ;;
+        host)     flags+=(--network host) ;;
+        filtered) flags+=(--network "$NETWORK_NAME" --dns 1.1.1.1) ;;
+    esac
+
+    echo "${flags[@]}"
+}
+
+# ── Docker Run ─────────────────────────────────────────────────
+
+run_cli() {
+    local name="${1:-$(session_name)}"
+    local network="${2:-filtered}"
+    local mounts=("${@:3}")
+
+    ensure_docker
+    ensure_network
+    ensure_image "$IMAGE_CLI" "$CAGE_ROOT/docker/cli/Dockerfile" "$CAGE_ROOT/docker/cli/"
+    ensure_dirs
+
+    local container="cage-${name}"
+
+    # Stop existing container with same name if it exists
+    if docker ps -a --format '{{.Names}}' | grep -q "^${container}$"; then
+        docker rm -f "$container" &>/dev/null || true
+    fi
+
+    local flags
+    flags=$(build_security_flags cli "$network")
+
+    local vol_args=()
+    vol_args+=(-v "cage-data-${name}:/home/cageuser/.claude")
+
+    # Mount workspace (default: CAGE_ROOT)
+    vol_args+=(-v "${CAGE_ROOT}:/workspace/claude-cage:rw")
+
+    # Additional mount points
+    for m in "${mounts[@]}"; do
+        [[ -z "$m" ]] && continue
+        local abs_path
+        abs_path="$(cd "$m" 2>/dev/null && pwd)" || { warn "Mount not found: $m"; continue; }
+        local base
+        base="$(basename "$abs_path")"
+        vol_args+=(-v "${abs_path}:/workspace/${base}:rw")
+    done
+
+    # Read-only schema + templates
+    if [[ -f "$CAGE_ROOT/universal-node.schema.json" ]]; then
+        vol_args+=(-v "$CAGE_ROOT/universal-node.schema.json:/opt/cage/universal-node.schema.json:ro")
+    fi
+    if [[ -d "$CAGE_ROOT/templates" ]]; then
+        vol_args+=(-v "$CAGE_ROOT/templates:/opt/cage/templates:ro")
+    fi
+
+    # Environment
+    local env_args=()
+    if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
+        env_args+=(-e "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}")
+    fi
+
+    log "Launching Claude CLI session: ${W}${name}${N}"
+    log "  Network: ${network}  |  Container: ${container}"
+
+    # shellcheck disable=SC2086
+    docker run -it --rm \
+        --name "$container" \
+        --hostname "$container" \
+        --label managed-by=claude-cage \
+        --label cage.mode=cli \
+        --label cage.session="$name" \
+        --label "cage.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+        $flags \
+        "${vol_args[@]}" \
+        "${env_args[@]}" \
+        -w /workspace \
+        "$IMAGE_CLI"
+}
+
+run_desktop() {
+    local name="${1:-$(session_name)}"
+    local port="${2:-6080}"
+
+    ensure_docker
+    ensure_network
+    ensure_image "$IMAGE_DESKTOP" "$CAGE_ROOT/docker/desktop/Dockerfile" "$CAGE_ROOT/docker/desktop/"
+    ensure_dirs
+
+    local container="cage-${name}"
+
+    if docker ps -a --format '{{.Names}}' | grep -q "^${container}$"; then
+        docker rm -f "$container" &>/dev/null || true
+    fi
+
+    local flags
+    flags=$(build_security_flags desktop filtered)
+
+    local env_args=()
+    if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
+        env_args+=(-e "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}")
+    fi
+    env_args+=(-e "DISPLAY=:1" -e "VNC_RESOLUTION=1920x1080")
+
+    log "Launching Desktop session: ${W}${name}${N}"
+    log "  Access at: ${C}http://localhost:${port}${N}"
+
+    # shellcheck disable=SC2086
+    docker run -d \
+        --name "$container" \
+        --hostname "$container" \
+        --label managed-by=claude-cage \
+        --label cage.mode=desktop \
+        --label cage.session="$name" \
+        --label "cage.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+        $flags \
+        -p "${port}:6080" \
+        -p "5900:5900" \
+        -v "cage-data-${name}:/home/cageuser/.claude" \
+        -v "${CAGE_ROOT}:/workspace/claude-cage:rw" \
+        "${env_args[@]}" \
+        -w /workspace \
+        "$IMAGE_DESKTOP"
+
+    ok "Desktop running at http://localhost:${port}"
+}
+
+run_isolated() {
+    local name="${1:-$(session_name)}"
+
+    ensure_docker
+    ensure_image "$IMAGE_CLI" "$CAGE_ROOT/docker/cli/Dockerfile" "$CAGE_ROOT/docker/cli/"
+    ensure_dirs
+
+    local container="cage-${name}"
+
+    if docker ps -a --format '{{.Names}}' | grep -q "^${container}$"; then
+        docker rm -f "$container" &>/dev/null || true
+    fi
+
+    local flags
+    flags=$(build_security_flags cli none 1 2g)
+
+    local env_args=()
+    if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
+        env_args+=(-e "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}")
+    fi
+
+    log "Launching isolated CLI (no network): ${W}${name}${N}"
+
+    # shellcheck disable=SC2086
+    docker run -it --rm \
+        --name "$container" \
+        --hostname "$container" \
+        --label managed-by=claude-cage \
+        --label cage.mode=cli-isolated \
+        --label cage.session="$name" \
+        $flags \
+        -v "cage-data-${name}:/home/cageuser/.claude" \
+        -v "${CAGE_ROOT}:/workspace/claude-cage:rw" \
+        "${env_args[@]}" \
+        -w /workspace \
+        "$IMAGE_CLI"
+}
+
+run_project() {
+    local project_name="$1"
+    local project_dir=""
+
+    # Find the project
+    for candidate in \
+        "$CAGE_ROOT/projects/$project_name" \
+        "$CAGE_ROOT/projects/$project_name"* \
+        "$HOME/projects/$project_name"; do
+        if [[ -d "$candidate" ]]; then
+            project_dir="$candidate"
+            break
+        fi
+    done
+
+    if [[ -z "$project_dir" ]]; then
+        err "Project not found: $project_name"
+        echo ""
+        echo "Available projects:"
+        ls -1d "$CAGE_ROOT/projects"/*/ 2>/dev/null | while read -r d; do
+            echo "  $(basename "$d")"
+        done
+        exit 1
+    fi
+
+    local session
+    session="$(session_name)"
+    log "Mounting project: ${W}$(basename "$project_dir")${N}"
+    run_cli "$session" filtered "$project_dir"
+}
+
+run_bare_cli() {
+    # Run Claude CLI directly on host — no container
+    log "Launching Claude CLI on host (bare mode, no sandbox)"
+    if ! command -v claude &>/dev/null; then
+        die "Claude CLI not found in PATH. Install with: npm install -g @anthropic-ai/claude-code"
+    fi
+    cd "$CAGE_ROOT"
+    exec claude "$@"
+}
+
+# ── Session Management ─────────────────────────────────────────
+
+cmd_shell() {
+    local target="${1:-}"
+    if [[ -z "$target" ]]; then
+        # Find most recent running cage container
+        target=$(docker ps --filter "label=managed-by=claude-cage" --format '{{.Names}}' | head -1)
+        if [[ -z "$target" ]]; then
+            die "No running sessions. Start one with: ./launch cli"
+        fi
+    fi
+    # Prefix cage- if not present
+    [[ "$target" != cage-* ]] && target="cage-${target}"
+    log "Attaching to ${W}${target}${N}"
+    docker exec -it "$target" bash
+}
+
+cmd_claude_in() {
+    # Launch claude CLI inside an already-running container
+    local target="${1:-}"
+    if [[ -z "$target" ]]; then
+        target=$(docker ps --filter "label=managed-by=claude-cage" --format '{{.Names}}' | head -1)
+        if [[ -z "$target" ]]; then
+            die "No running sessions. Start one with: ./launch cli"
+        fi
+    fi
+    [[ "$target" != cage-* ]] && target="cage-${target}"
+    log "Launching Claude inside ${W}${target}${N}"
+    docker exec -it "$target" claude
+}
+
+cmd_stop() {
+    ensure_docker
+    if [[ "${1:-}" == "--all" ]]; then
+        local containers
+        containers=$(docker ps --filter "label=managed-by=claude-cage" -q)
+        if [[ -z "$containers" ]]; then
+            log "No running sessions."
+            return
+        fi
+        echo "$containers" | xargs docker stop
+        ok "All sessions stopped"
+    else
+        local target="${1:-}"
+        if [[ -z "$target" ]]; then
+            die "Usage: ./launch stop <session-name|--all>"
+        fi
+        [[ "$target" != cage-* ]] && target="cage-${target}"
+        docker stop "$target" && ok "Stopped $target"
+    fi
+}
+
+cmd_status() {
+    echo -e "${W}CLAUDE-CAGE STATUS${N}"
+    echo "======================================"
+
+    # Docker daemon
+    if docker info &>/dev/null 2>&1; then
+        ok "Docker daemon running"
+    else
+        err "Docker daemon NOT running"
+        echo "======================================"
+        return
+    fi
+
+    # Images
+    local cli_img="missing" desk_img="missing"
+    has_cli_image && cli_img="${G}built${N}"
+    has_desktop_image && desk_img="${G}built${N}"
+    echo -e "  Images:    CLI [${cli_img}]  Desktop [${desk_img}]"
+
+    # Network
+    if docker network inspect "$NETWORK_NAME" &>/dev/null 2>&1; then
+        echo -e "  Network:   ${G}cage-filtered exists${N}"
+    else
+        echo -e "  Network:   ${Y}cage-filtered not created${N}"
+    fi
+
+    # Sessions
+    echo "--------------------------------------"
+    local running
+    running=$(docker ps --filter "label=managed-by=claude-cage" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null)
+    if [[ -n "$running" && "$running" != "NAMES"*"STATUS"* ]]; then
+        echo "$running"
+    else
+        echo "  No running sessions"
+    fi
+
+    # Projects
+    echo "--------------------------------------"
+    echo "  Projects:"
+    ls -1d "$CAGE_ROOT/projects"/*/ 2>/dev/null | while read -r d; do
+        echo "    $(basename "$d")"
+    done
+
+    echo "======================================"
+}
+
+cmd_build() {
+    local target="${1:-all}"
+    ensure_docker
+
+    case "$target" in
+        cli)
+            log "Building CLI image..."
+            docker build -t "$IMAGE_CLI" -f "$CAGE_ROOT/docker/cli/Dockerfile" "$CAGE_ROOT/docker/cli/"
+            ok "CLI image built"
+            ;;
+        desktop)
+            log "Building Desktop image..."
+            docker build -t "$IMAGE_DESKTOP" -f "$CAGE_ROOT/docker/desktop/Dockerfile" "$CAGE_ROOT/docker/desktop/"
+            ok "Desktop image built"
+            ;;
+        all|"")
+            log "Building all images..."
+            docker build -t "$IMAGE_CLI" -f "$CAGE_ROOT/docker/cli/Dockerfile" "$CAGE_ROOT/docker/cli/"
+            ok "CLI image built"
+            docker build -t "$IMAGE_DESKTOP" -f "$CAGE_ROOT/docker/desktop/Dockerfile" "$CAGE_ROOT/docker/desktop/"
+            ok "Desktop image built"
+            ;;
+        *)
+            die "Unknown build target: $target (use cli, desktop, or all)"
+            ;;
+    esac
+}
+
+cmd_teardown() {
+    ensure_docker
+    warn "This will stop all sessions, remove containers, volumes, images, and network."
+    echo -n "Continue? [y/N] "
+    read -r answer
+    [[ "$answer" =~ ^[Yy] ]] || { log "Aborted."; return; }
+
+    # Stop all
+    docker ps --filter "label=managed-by=claude-cage" -q | xargs -r docker stop 2>/dev/null || true
+    # Remove containers
+    docker ps -a --filter "label=managed-by=claude-cage" -q | xargs -r docker rm -f 2>/dev/null || true
+    # Remove volumes
+    docker volume ls -q --filter "name=cage-" | xargs -r docker volume rm 2>/dev/null || true
+    # Remove images
+    docker rmi "$IMAGE_CLI" "$IMAGE_DESKTOP" 2>/dev/null || true
+    # Remove network
+    docker network rm "$NETWORK_NAME" 2>/dev/null || true
+    ok "Full teardown complete"
+}
+
+# ── Interactive Menu ───────────────────────────────────────────
+
+interactive_menu() {
+    echo ""
+    echo -e "${W}claude-cage launcher${N} v${CAGE_VERSION}"
+    echo "======================================"
+    echo ""
+    echo -e "  ${W}1${N})  Launch Claude CLI      ${D}(sandboxed, filtered network)${N}"
+    echo -e "  ${W}2${N})  Launch Claude bare      ${D}(host, no container)${N}"
+    echo -e "  ${W}3${N})  Launch Desktop          ${D}(noVNC at localhost:6080)${N}"
+    echo -e "  ${W}4${N})  Launch isolated          ${D}(CLI, no network)${N}"
+    echo -e "  ${W}5${N})  Launch with project      ${D}(mount a project dir)${N}"
+    echo -e "  ${W}6${N})  Shell into session       ${D}(attach bash to running container)${N}"
+    echo -e "  ${W}7${N})  Claude inside session    ${D}(run claude in running container)${N}"
+    echo ""
+    echo -e "  ${W}b${N})  Build images"
+    echo -e "  ${W}s${N})  Status"
+    echo -e "  ${W}q${N})  Quit"
+    echo ""
+    echo -n "  Choice: "
+    read -r choice
+
+    case "$choice" in
+        1) run_cli ;;
+        2) run_bare_cli ;;
+        3) run_desktop ;;
+        4) run_isolated ;;
+        5)
+            echo ""
+            echo "Available projects:"
+            local i=0
+            local projects=()
+            while IFS= read -r d; do
+                projects+=("$(basename "$d")")
+                i=$((i + 1))
+                echo "  $i) $(basename "$d")"
+            done < <(ls -1d "$CAGE_ROOT/projects"/*/ 2>/dev/null)
+            echo ""
+            echo -n "  Project number or name: "
+            read -r proj
+            if [[ "$proj" =~ ^[0-9]+$ ]] && (( proj >= 1 && proj <= ${#projects[@]} )); then
+                run_project "${projects[$((proj - 1))]}"
+            else
+                run_project "$proj"
+            fi
+            ;;
+        6) cmd_shell ;;
+        7) cmd_claude_in ;;
+        b|B) cmd_build ;;
+        s|S) cmd_status ;;
+        q|Q) exit 0 ;;
+        *) die "Invalid choice: $choice" ;;
+    esac
+}
+
+# ── Main Dispatch ──────────────────────────────────────────────
+
+main() {
+    local cmd="${1:-}"
+    shift 2>/dev/null || true
+
+    case "$cmd" in
+        "")          interactive_menu ;;
+        cli)
+            if [[ "${1:-}" == "--bare" ]]; then
+                shift
+                run_bare_cli "$@"
+            else
+                run_cli "" "${1:-filtered}" "${@:2}"
+            fi
+            ;;
+        bare)        run_bare_cli "$@" ;;
+        desktop)     run_desktop "$@" ;;
+        isolated)    run_isolated "$@" ;;
+        project)
+            [[ -z "${1:-}" ]] && die "Usage: ./launch project <name>"
+            run_project "$1"
+            ;;
+        shell)       cmd_shell "$@" ;;
+        claude-in)   cmd_claude_in "$@" ;;
+        build)       cmd_build "$@" ;;
+        stop)        cmd_stop "$@" ;;
+        status)      cmd_status ;;
+        teardown)    cmd_teardown ;;
+        help|-h|--help)
+            echo "Usage: ./launch [command] [options]"
+            echo ""
+            echo "Commands:"
+            echo "  (none)              Interactive menu"
+            echo "  cli [--bare]        Launch Claude CLI (sandboxed or bare)"
+            echo "  desktop [port]      Launch Desktop mode (default port: 6080)"
+            echo "  isolated            Launch CLI with no network"
+            echo "  project <name>      Launch CLI with a project mounted"
+            echo "  shell [session]     Attach bash to running session"
+            echo "  claude-in [session] Run claude inside running session"
+            echo "  build [cli|desktop|all]  Build container images"
+            echo "  stop <name|--all>   Stop session(s)"
+            echo "  status              Show system status"
+            echo "  teardown            Full cleanup (containers, volumes, images)"
+            echo "  help                Show this help"
+            echo ""
+            echo "Projects:"
+            ls -1d "$CAGE_ROOT/projects"/*/ 2>/dev/null | while read -r d; do
+                echo "  $(basename "$d")"
+            done
+            ;;
+        *)
+            # Try as a project name shortcut
+            if [[ -d "$CAGE_ROOT/projects/$cmd" ]]; then
+                run_project "$cmd"
+            else
+                die "Unknown command: $cmd (try: ./launch help)"
+            fi
+            ;;
+    esac
+}
+
+main "$@"

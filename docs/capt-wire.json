@@ -1,0 +1,40 @@
+{
+  "node_id": "capt:wire",
+  "title": "Wire Captain",
+  "scale": "captain",
+  "description": "Wire Captain (captain)",
+  "what_it_does": [
+    "Rule: schema_compat \u2014 wire schema breaking change \u2192 block",
+    "Rule: fuzz_coverage \u2014 fuzz coverage inadequate \u2192 escalate"
+  ],
+  "owned_files": [],
+  "entry_points": [],
+  "key_concepts": [
+    "schema_compat",
+    "gently-network",
+    "gently-bridge",
+    "fuzz_coverage",
+    "gently-feed"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:protocol",
+      "children": [],
+      "siblings": [
+        "capt:p2p",
+        "capt:alexandria"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.310799+00:00"
+  },
+  "content_hash": "sha256:c78e356981cea3b577654d7e2524c31c1cc31dfbacf28ffef79060976e32f900",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.310799+00:00"
+}

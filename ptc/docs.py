@@ -29,16 +29,18 @@ CAGE_ROOT = os.environ.get("CAGE_ROOT", os.path.dirname(os.path.dirname(os.path.
 
 OWNERSHIP_MAP = {
     # Executives
-    "root:human":        ["bin/claude-cage", "Makefile", "tree.json", "CLAUDE.md", "README.md"],
+    "root:human":        ["bin/claude-cage", "launch", "Makefile", "gentlyos/tree.json", "CLAUDE.md", "README.md",
+                          "docs/ARCHITECTURE.md", "docs/LAUNCHER.md"],
     "exec:cto":          [],
     "exec:vision":       [],
     # Departments
     "dept:foundation":   ["lib/config.sh", "config/default.yaml"],
-    "dept:protocol":     ["lib/tree.sh", "universal-node.schema.json"],
-    "dept:orchestration": ["gentlyos/tree.json", "cage-web/src/routes/gentlyos.rs"],
+    "dept:protocol":     ["lib/tree.sh", "gentlyos/universal-node.schema.json"],
+    "dept:orchestration": ["gentlyos/tree.json", "gentlyos/crate-graph.json", "ptc/crate_graph.py",
+                           "cage-web/src/routes/gentlyos.rs", "docs/CRATE-GRAPH.md"],
     "dept:runtime":      ["lib/docker.sh", "lib/session.sh", "docker/cli/Dockerfile", "docker/desktop/Dockerfile", "cage-web/src/subprocess.rs"],
     "dept:tokenomics":   [],
-    "dept:security":     ["lib/sandbox.sh", "security/apparmor-profile", "security/seccomp-default.json"],
+    "dept:security":     ["lib/sandbox.sh", "security/apparmor-profile", "security/seccomp-default.json", "docs/SECURITY.md"],
     "dept:interface":    ["web/app.py", "web/templates/index.html", "cage-web/src/main.rs", "cage-web/src/routes/pages.rs"],
     "dept:devops":       ["docker-compose.yml", "ptc/training.py"],
     # Captains
@@ -49,9 +51,9 @@ OWNERSHIP_MAP = {
     "capt:p2p":          ["ptc/ipfs.py"],
     "capt:alexandria":   ["ptc/embeddings.py"],
     "capt:codie":        ["cage-web/src/codie_parser.rs", "cage-web/src/routes/codie.rs"],
-    "capt:ptc":          ["ptc/engine.py", "lib/tree.sh"],
+    "capt:ptc":          ["ptc/engine.py", "ptc/crate_graph.py", "lib/tree.sh", "docs/PTC.md"],
     "capt:context":      ["ptc/docs.py", "lib/docs.sh", "mongodb/store.js", "mongodb/vector-setup.js"],
-    "capt:exec":         ["ptc/executor.py"],
+    "capt:exec":         ["ptc/executor.py", "ptc/crate_graph.py"],
     "capt:state":        ["lib/session.sh", "cage-web/src/routes/sessions.rs"],
     "capt:memory":       ["lib/memory.sh"],
     "capt:rewards":      [],
@@ -65,7 +67,7 @@ OWNERSHIP_MAP = {
     "capt:ux":           ["web/templates/index.html"],
     "capt:build":        ["ptc/architect.py", "schemas/blueprint.schema.json", "projects/test-apps/", "projects/test-apps-rust/"],
     "capt:release":      [],
-    "capt:infra":        ["lib/docker.sh", "docker/cli/Dockerfile", "docker/desktop/Dockerfile"],
+    "capt:infra":        ["lib/docker.sh", "launch", "docker/cli/Dockerfile", "docker/desktop/Dockerfile"],
 }
 
 
@@ -82,7 +84,7 @@ def load_tree(path=None):
         dict: {node_id: node_dict, ...}
     """
     if path is None:
-        path = os.path.join(CAGE_ROOT, "tree.json")
+        path = os.path.join(CAGE_ROOT, "gentlyos", "tree.json")
     with open(path) as f:
         tree = json.load(f)
     return {n["id"]: n for n in tree.get("nodes", [])}

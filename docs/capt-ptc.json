@@ -1,0 +1,61 @@
+{
+  "node_id": "capt:ptc",
+  "title": "PTC Captain",
+  "scale": "captain",
+  "description": "PTC Captain (captain)",
+  "what_it_does": [
+    "Rule: ownership_atomic \u2014 task has multiple owners \u2192 block",
+    "Rule: chain_immutable \u2014 chain modified after creation \u2192 block"
+  ],
+  "owned_files": [
+    "ptc/engine.py",
+    "ptc/crate_graph.py",
+    "lib/tree.sh",
+    "docs/PTC.md"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "ownership_atomic",
+    "chain_immutable"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:orchestration",
+      "children": [],
+      "siblings": [
+        "capt:codie",
+        "capt:context"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:protocol",
+        "files": [
+          "lib/tree.sh"
+        ]
+      },
+      {
+        "node": "dept:orchestration",
+        "files": [
+          "ptc/crate_graph.py"
+        ]
+      },
+      {
+        "node": "capt:exec",
+        "files": [
+          "ptc/crate_graph.py"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:cf87e377a7849c163e83e0e37231e172b31e71b373efe4a86b46f3a98ecea98a",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.311362+00:00"
+  },
+  "content_hash": "sha256:7c5551eb33e929fb7788a9a0fad96d74dc8e00e06b103a73403b7a1acfbb73f4",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.311362+00:00"
+}

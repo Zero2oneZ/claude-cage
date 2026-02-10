@@ -1,0 +1,37 @@
+{
+  "node_id": "capt:release",
+  "title": "Release Captain",
+  "scale": "captain",
+  "description": "Release Captain (captain)",
+  "what_it_does": [
+    "Rule: semver_correct \u2014 version bump incorrect \u2192 block",
+    "Rule: changelog_complete \u2014 missing changelog entry \u2192 escalate"
+  ],
+  "owned_files": [],
+  "entry_points": [],
+  "key_concepts": [
+    "semver_correct",
+    "changelog_complete"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:devops",
+      "children": [],
+      "siblings": [
+        "capt:build",
+        "capt:infra"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.322588+00:00"
+  },
+  "content_hash": "sha256:d00a23f5582067f1f181abd12430d0889c33536e0b6be638373e4a9395b1a9e2",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.322588+00:00"
+}

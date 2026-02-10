@@ -1,0 +1,41 @@
+{
+  "node_id": "capt:audit",
+  "title": "Audit Captain",
+  "scale": "captain",
+  "description": "Audit Captain (captain)",
+  "what_it_does": [
+    "Rule: no_known_vulns \u2014 known vulnerability present \u2192 block",
+    "Rule: all_prs_reviewed \u2014 PR without security review \u2192 block"
+  ],
+  "owned_files": [
+    "lib/observability.sh"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "gently-security",
+    "gently-sploit",
+    "no_known_vulns",
+    "all_prs_reviewed"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:security",
+      "children": [],
+      "siblings": [
+        "capt:hardening",
+        "capt:incident"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:00752e811bedba210335590dd308f786179622a065c9669c7f9d283dd1a006db",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.321332+00:00"
+  },
+  "content_hash": "sha256:133326bca58e981e8be76126157a5c868fc8eb7d90ab4a6023ffe71314b96827",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.321332+00:00"
+}

@@ -1,72 +1,49 @@
 {
   "node_id": "dept:security",
-  "title": "Security",
+  "title": "Security Department",
   "scale": "department",
-  "description": "Security (department)",
+  "description": "Security Department (department)",
   "what_it_does": [
-    "Rule: defense_in_depth \u2014 layer missing \u2192 block",
-    "Rule: no_escalation \u2014 no-new-privileges violated \u2192 block"
+    "Rule: mandatory_crypto_review \u2014 touches crypto code \u2192 block",
+    "Rule: mandatory_unsafe_review \u2014 contains unsafe block \u2192 block",
+    "Rule: mandatory_network_review \u2014 touches network/IPC code \u2192 block",
+    "Rule: can_block_any_merge \u2014 security concern identified \u2192 block"
   ],
   "owned_files": [
     "lib/sandbox.sh",
     "security/apparmor-profile",
-    "security/seccomp-default.json"
+    "security/seccomp-default.json",
+    "docs/SECURITY.md"
   ],
   "entry_points": [],
   "key_concepts": [
-    "defense_in_depth",
-    "network-filter",
-    "seccomp",
-    "sandbox",
-    "apparmor",
-    "no_escalation"
+    "ALL",
+    "mandatory_network_review",
+    "mandatory_crypto_review",
+    "can_block_any_merge",
+    "mandatory_unsafe_review"
   ],
   "cross_refs": {
     "structural": {
-      "parent": "root:cage",
+      "parent": "exec:cto",
       "children": [
-        "capt:sandbox",
-        "capt:seccomp",
-        "capt:apparmor",
-        "capt:network"
+        "capt:audit",
+        "capt:hardening",
+        "capt:incident"
       ],
       "siblings": [
+        "dept:foundation",
+        "dept:protocol",
+        "dept:orchestration",
         "dept:runtime",
-        "dept:sessions",
-        "dept:config",
-        "dept:observe",
-        "dept:web",
-        "dept:tree",
-        "dept:ptc",
-        "dept:training",
-        "dept:architect",
-        "dept:integrations",
-        "project:gentlyos",
-        "project:test-apps",
-        "project:test-apps-rust"
+        "dept:tokenomics",
+        "dept:interface",
+        "dept:devops"
       ]
     },
     "code_shared": [
       {
-        "node": "capt:sandbox",
-        "files": [
-          "lib/sandbox.sh"
-        ]
-      },
-      {
-        "node": "capt:seccomp",
-        "files": [
-          "security/seccomp-default.json"
-        ]
-      },
-      {
-        "node": "capt:apparmor",
-        "files": [
-          "security/apparmor-profile"
-        ]
-      },
-      {
-        "node": "capt:network",
+        "node": "capt:hardening",
         "files": [
           "lib/sandbox.sh"
         ]
@@ -75,12 +52,12 @@
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:bed44368dd785e3781661953e1583c29894e7ca7354db8a30c6f362471c628ca",
+    "source_hash": "sha256:e446c792639e1808c2eff56caecf7ac3f1f3a80b185d37993c570cb489fccc3c",
     "is_stale": false,
-    "last_verified": "2026-02-08T17:02:29.700694+00:00"
+    "last_verified": "2026-02-10T08:18:58.308704+00:00"
   },
-  "content_hash": "sha256:96bd4ca150a63d7d3f9346271394d254f224c36f2e659ec9a7d92b6824aeaae0",
+  "content_hash": "sha256:99f6f296bb7cb3863d635c2e12c548a8485d12202e54fd364a96e49c37597919",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-08T17:02:29.700694+00:00"
+  "_ts": "2026-02-10T08:18:58.308704+00:00"
 }

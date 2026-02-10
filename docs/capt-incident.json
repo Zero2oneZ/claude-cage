@@ -1,0 +1,37 @@
+{
+  "node_id": "capt:incident",
+  "title": "Incident Captain",
+  "scale": "captain",
+  "description": "Incident Captain (captain)",
+  "what_it_does": [
+    "Rule: playbooks_current \u2014 outdated playbook \u2192 escalate",
+    "Rule: forensics_ready \u2014 forensics tools missing \u2192 block"
+  ],
+  "owned_files": [],
+  "entry_points": [],
+  "key_concepts": [
+    "forensics_ready",
+    "playbooks_current"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:security",
+      "children": [],
+      "siblings": [
+        "capt:audit",
+        "capt:hardening"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.321507+00:00"
+  },
+  "content_hash": "sha256:97728f0bdd03acb77813888aba764450a497dc337d79ad9af44df8c48dc014e8",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.321507+00:00"
+}

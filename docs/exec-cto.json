@@ -1,0 +1,49 @@
+{
+  "node_id": "exec:cto",
+  "title": "CTO Agent",
+  "scale": "executive",
+  "description": "CTO Agent (executive)",
+  "what_it_does": [
+    "Rule: blast_radius_check \u2014 affected_crates > 3 depts \u2192 escalate",
+    "Rule: breaking_change_gate \u2014 api_breaking && no_migration \u2192 block",
+    "Rule: mvp_scope \u2014 not required for v1.0 \u2192 block",
+    "Rule: sovereignty_check \u2014 centralizes control \u2192 escalate"
+  ],
+  "owned_files": [],
+  "entry_points": [],
+  "key_concepts": [
+    "blast_radius_check",
+    "breaking_change_gate",
+    "sovereignty_check",
+    "mvp_scope"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "root:human",
+      "children": [
+        "dept:foundation",
+        "dept:protocol",
+        "dept:orchestration",
+        "dept:runtime",
+        "dept:tokenomics",
+        "dept:security",
+        "dept:interface",
+        "dept:devops"
+      ],
+      "siblings": [
+        "exec:vision"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.304845+00:00"
+  },
+  "content_hash": "sha256:88635557ba8a78f950467026e1286e5e9084df557b81174b73d7d5e8a221299c",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.304845+00:00"
+}

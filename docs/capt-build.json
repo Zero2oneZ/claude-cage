@@ -1,0 +1,43 @@
+{
+  "node_id": "capt:build",
+  "title": "Build Captain",
+  "scale": "captain",
+  "description": "Build Captain (captain)",
+  "what_it_does": [
+    "Rule: build_times \u2014 build time regression \u2192 escalate",
+    "Rule: deterministic \u2014 non-deterministic build \u2192 block"
+  ],
+  "owned_files": [
+    "ptc/architect.py",
+    "schemas/blueprint.schema.json",
+    "projects/test-apps/",
+    "projects/test-apps-rust/"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "deterministic",
+    "gently-architect",
+    "build_times"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:devops",
+      "children": [],
+      "siblings": [
+        "capt:release",
+        "capt:infra"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:6ea35fc365291255053287d65deb3ba354e55ea0a685bbdbeb0312040353f080",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.322065+00:00"
+  },
+  "content_hash": "sha256:749560a40fb6f34ceaa4a732b6144173b17ccaed7a75ee3600bd181085f683c1",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.322065+00:00"
+}

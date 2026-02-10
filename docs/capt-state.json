@@ -1,0 +1,47 @@
+{
+  "node_id": "capt:state",
+  "title": "State Captain",
+  "scale": "captain",
+  "description": "State Captain (captain)",
+  "what_it_does": [
+    "Rule: mutations_auditable \u2014 state mutation without audit trail \u2192 block",
+    "Rule: acid_where_required \u2014 non-atomic state update \u2192 escalate"
+  ],
+  "owned_files": [
+    "lib/session.sh",
+    "cage-web/src/routes/sessions.rs"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "acid_where_required",
+    "mutations_auditable"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:runtime",
+      "children": [],
+      "siblings": [
+        "capt:exec",
+        "capt:memory"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:runtime",
+        "files": [
+          "lib/session.sh"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:017fb1ef84af7a5be28964b00bed17e8b330360c9a733ff1ce54d5f57f35b383",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.320509+00:00"
+  },
+  "content_hash": "sha256:401520219f734d21300dd3c40eedec46a3c35708eb3d41b7f42d2a6b3dc42503",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.320509+00:00"
+}

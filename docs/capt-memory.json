@@ -1,35 +1,40 @@
 {
   "node_id": "capt:memory",
-  "title": "Session Memory",
+  "title": "Memory Captain",
   "scale": "captain",
-  "description": "Session Memory (captain)",
+  "description": "Memory Captain (captain)",
   "what_it_does": [
-    "Rule: ttl_30d \u2014 memory older than 30 days \u2192 transform"
+    "Rule: no_leaks \u2014 memory leak detected \u2192 block",
+    "Rule: bounded_alloc \u2014 unbounded allocation \u2192 block"
   ],
-  "owned_files": [],
+  "owned_files": [
+    "lib/memory.sh"
+  ],
   "entry_points": [],
   "key_concepts": [
-    "ttl_30d",
-    "memory"
+    "no_leaks",
+    "bounded_alloc",
+    "gently-behavior"
   ],
   "cross_refs": {
     "structural": {
-      "parent": "dept:sessions",
+      "parent": "dept:runtime",
       "children": [],
       "siblings": [
-        "capt:lifecycle"
+        "capt:exec",
+        "capt:state"
       ]
     },
     "code_shared": [],
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:empty",
+    "source_hash": "sha256:d99efc89962c68a3e098e6e4d414dcfbe625134c3b84849e11bd2a600c9617d8",
     "is_stale": false,
-    "last_verified": "2026-02-08T17:02:29.701452+00:00"
+    "last_verified": "2026-02-10T08:18:58.321103+00:00"
   },
-  "content_hash": "sha256:3b6b3ea9d0c97a2ebf8a8459064726efb26830b00949430aff441ed2cd1882a5",
+  "content_hash": "sha256:20e945503bb834a0b2498d452e24bb5d1c8dd82936580590c3e5ceb8dc1dee0a",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-08T17:02:29.701452+00:00"
+  "_ts": "2026-02-10T08:18:58.321103+00:00"
 }

@@ -1,0 +1,41 @@
+{
+  "node_id": "capt:alexandria",
+  "title": "Alexandria Captain",
+  "scale": "captain",
+  "description": "Alexandria Captain (captain)",
+  "what_it_does": [
+    "Rule: dag_acyclic \u2014 cycle detected in DAG \u2192 block",
+    "Rule: content_immutable \u2014 content address modified \u2192 block"
+  ],
+  "owned_files": [
+    "ptc/embeddings.py"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "gently-search",
+    "gently-alexandria",
+    "content_immutable",
+    "dag_acyclic"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:protocol",
+      "children": [],
+      "siblings": [
+        "capt:wire",
+        "capt:p2p"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:4a8fbeeb105bdc4f1ba06fc3ce07dd11c9615b45fe97128b8a12e2d0cca237ab",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.311007+00:00"
+  },
+  "content_hash": "sha256:f5fbea275614289c718a147d2f9c3fb90e713c97a16daa54dfd6cd7ea782a62b",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.311007+00:00"
+}

@@ -1,0 +1,57 @@
+{
+  "node_id": "capt:exec",
+  "title": "Exec Captain",
+  "scale": "captain",
+  "description": "Exec Captain (captain)",
+  "what_it_does": [
+    "Rule: hot_path_1ms \u2014 p99 latency > 1ms \u2192 block",
+    "Rule: no_blocking \u2014 blocking in async context \u2192 block"
+  ],
+  "owned_files": [
+    "ptc/executor.py",
+    "ptc/crate_graph.py"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "gently-inference",
+    "no_blocking",
+    "gently-agents",
+    "hot_path_1ms",
+    "gently-micro",
+    "gently-brain"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:runtime",
+      "children": [],
+      "siblings": [
+        "capt:state",
+        "capt:memory"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:orchestration",
+        "files": [
+          "ptc/crate_graph.py"
+        ]
+      },
+      {
+        "node": "capt:ptc",
+        "files": [
+          "ptc/crate_graph.py"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:ae364920b2d71f86479a29d5cd61fbdcb41935fbd3f1568cf987ac2768d939d8",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.320202+00:00"
+  },
+  "content_hash": "sha256:cbbdaafca7af49d01e748fc96b4983ab5a0a0e02390a9a4a19da4c9a86308251",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.320202+00:00"
+}

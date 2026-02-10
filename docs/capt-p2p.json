@@ -1,0 +1,42 @@
+{
+  "node_id": "capt:p2p",
+  "title": "P2P Captain",
+  "scale": "captain",
+  "description": "P2P Captain (captain)",
+  "what_it_does": [
+    "Rule: timeouts_present \u2014 connection without timeout \u2192 block",
+    "Rule: peer_trust \u2014 peer not validated \u2192 block"
+  ],
+  "owned_files": [
+    "ptc/ipfs.py"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "peer_trust",
+    "timeouts_present",
+    "gently-dance",
+    "gently-livepeer",
+    "gently-ipfs"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:protocol",
+      "children": [],
+      "siblings": [
+        "capt:wire",
+        "capt:alexandria"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:4d63fa5beed6702c6c589f02967bf6cdd29f604c38429f4b7eade7539fffb5bc",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.310839+00:00"
+  },
+  "content_hash": "sha256:14461256c40e4ead2c31fa805da825b7d7d9261c2b3a96f8a9fe2b2e22f2a7cd",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.310839+00:00"
+}

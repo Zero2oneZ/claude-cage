@@ -1,0 +1,52 @@
+{
+  "node_id": "capt:api",
+  "title": "API Captain",
+  "scale": "captain",
+  "description": "API Captain (captain)",
+  "what_it_does": [
+    "Rule: contracts_stable \u2014 contract broken \u2192 block",
+    "Rule: openapi_current \u2014 spec out of date \u2192 escalate"
+  ],
+  "owned_files": [
+    "lib/cli.sh",
+    "cage-web/src/main.rs"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "openapi_current",
+    "gently-gateway",
+    "gently-web",
+    "gently-tiktok",
+    "contracts_stable",
+    "gently-commerce",
+    "gently-google"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:interface",
+      "children": [],
+      "siblings": [
+        "capt:claude",
+        "capt:ux"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:interface",
+        "files": [
+          "cage-web/src/main.rs"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:600190e3abc2df81640f40ae1c36b592c51537ce931532f7886ae6764d650886",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.321528+00:00"
+  },
+  "content_hash": "sha256:677fa31c7585e66ca2becea0e0c0801d4889c9f0a38b226b335d267356ffd8e1",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.321528+00:00"
+}

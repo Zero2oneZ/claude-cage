@@ -1,85 +1,76 @@
 {
   "node_id": "dept:runtime",
-  "title": "Container Runtime",
+  "title": "Runtime Department",
   "scale": "department",
-  "description": "Container Runtime (department)",
+  "description": "Runtime Department (department)",
   "what_it_does": [
-    "Rule: image_required \u2014 image not built \u2192 block",
-    "Rule: api_key_warn \u2014 no api key and not max user \u2192 log"
+    "Rule: hot_path_latency \u2014 p99 > 1ms \u2192 block",
+    "Rule: memory_budget \u2014 per context > 50MB \u2192 block",
+    "Rule: no_blocking_async \u2014 blocking call in async context \u2192 block",
+    "Rule: unsafe_justified \u2014 unsafe block without safety comment \u2192 block"
   ],
   "owned_files": [
     "lib/docker.sh",
     "lib/session.sh",
     "docker/cli/Dockerfile",
-    "docker/desktop/Dockerfile"
+    "docker/desktop/Dockerfile",
+    "cage-web/src/subprocess.rs"
   ],
   "entry_points": [],
   "key_concepts": [
-    "api_key_warn",
-    "compose",
-    "image_required",
-    "docker"
+    "gently-behavior",
+    "gently-inference",
+    "gently-agents",
+    "unsafe_justified",
+    "no_blocking_async",
+    "memory_budget",
+    "gently-micro",
+    "gently-brain",
+    "hot_path_latency"
   ],
   "cross_refs": {
     "structural": {
-      "parent": "root:cage",
+      "parent": "exec:cto",
       "children": [
-        "capt:docker",
-        "capt:compose",
-        "capt:images"
+        "capt:exec",
+        "capt:state",
+        "capt:memory"
       ],
       "siblings": [
+        "dept:foundation",
+        "dept:protocol",
+        "dept:orchestration",
+        "dept:tokenomics",
         "dept:security",
-        "dept:sessions",
-        "dept:config",
-        "dept:observe",
-        "dept:web",
-        "dept:tree",
-        "dept:ptc",
-        "dept:training",
-        "dept:architect",
-        "dept:integrations",
-        "project:gentlyos",
-        "project:test-apps",
-        "project:test-apps-rust"
+        "dept:interface",
+        "dept:devops"
       ]
     },
     "code_shared": [
       {
-        "node": "capt:docker",
+        "node": "capt:state",
         "files": [
-          "lib/docker.sh"
+          "lib/session.sh"
         ]
       },
       {
-        "node": "capt:images",
+        "node": "capt:infra",
         "files": [
           "docker/cli/Dockerfile",
-          "docker/desktop/Dockerfile"
-        ]
-      },
-      {
-        "node": "dept:sessions",
-        "files": [
-          "lib/session.sh"
-        ]
-      },
-      {
-        "node": "capt:lifecycle",
-        "files": [
-          "lib/session.sh"
+          "docker/desktop/Dockerfile",
+          "lib/docker.sh"
         ]
       }
     ],
     "semantic": []
   },
   "staleness": {
-    "source_hash": "sha256:876cfd65e40b1ae087083ba8a54116c0bb94930eeec5b63bf1d2c27bca547473",
+    "source_hash": "sha256:be4f362f6b2e2acc9a416785488e672ab855a2fb1eeaedf777c943d59d6317ae",
     "is_stale": false,
-    "last_verified": "2026-02-08T17:02:29.700081+00:00"
+    "last_verified": "2026-02-10T08:18:58.307797+00:00"
   },
-  "content_hash": "sha256:83c959304e1b480c3b8eca02f0672b38fca95b88fa58421906142726e3331048",
+  "content_hash": "sha256:668a702d7151016dc185459343b1b698bfa6f2de709ee20f84115a006dc17795",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-08T17:02:29.700081+00:00"
+  "_ts": "2026-02-10T08:18:58.307797+00:00"
 }

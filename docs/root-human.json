@@ -1,0 +1,59 @@
+{
+  "node_id": "root:human",
+  "title": "Human Architect (Tom)",
+  "scale": "executive",
+  "description": "Human Architect (Tom) (executive)",
+  "what_it_does": [
+    "Rule: final_authority \u2014 risk >= 9 \u2192 pass",
+    "Rule: mvp_guard \u2014 scope_creep detected \u2192 block"
+  ],
+  "owned_files": [
+    "bin/claude-cage",
+    "launch",
+    "Makefile",
+    "gentlyos/tree.json",
+    "CLAUDE.md",
+    "README.md",
+    "docs/ARCHITECTURE.md",
+    "docs/LAUNCHER.md"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "final_authority",
+    "mvp_guard"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": null,
+      "children": [
+        "exec:cto",
+        "exec:vision"
+      ],
+      "siblings": []
+    },
+    "code_shared": [
+      {
+        "node": "dept:orchestration",
+        "files": [
+          "gentlyos/tree.json"
+        ]
+      },
+      {
+        "node": "capt:infra",
+        "files": [
+          "launch"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:bd12709b3f36780ff3d5e30ba15dac40f17031321dc29b92b44ee3dd889d2f34",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.267082+00:00"
+  },
+  "content_hash": "sha256:9fdfac82c984479199026c68f2d867a0597d7c93aef2a7ea30c80c8c2b2a5b4d",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.267082+00:00"
+}

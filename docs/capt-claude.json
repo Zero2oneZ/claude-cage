@@ -1,0 +1,39 @@
+{
+  "node_id": "capt:claude",
+  "title": "Claude Captain",
+  "scale": "captain",
+  "description": "Claude Captain (captain)",
+  "what_it_does": [
+    "Rule: prompts_versioned \u2014 prompt change without version \u2192 block",
+    "Rule: tool_schemas_compat \u2014 tool schema breaking change \u2192 escalate"
+  ],
+  "owned_files": [],
+  "entry_points": [],
+  "key_concepts": [
+    "gently-cli",
+    "gently-mcp",
+    "tool_schemas_compat",
+    "prompts_versioned"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:interface",
+      "children": [],
+      "siblings": [
+        "capt:api",
+        "capt:ux"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.321743+00:00"
+  },
+  "content_hash": "sha256:49ba2597b92f94ca08209f7b124950d5cd935be00c3209b46bc1cab5f9a3ca86",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.321743+00:00"
+}

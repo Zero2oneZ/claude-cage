@@ -1,0 +1,53 @@
+{
+  "node_id": "dept:tokenomics",
+  "title": "Tokenomics Department",
+  "scale": "department",
+  "description": "Tokenomics Department (department)",
+  "what_it_does": [
+    "Rule: emission_schedule \u2014 total emission follows schedule \u2192 pass",
+    "Rule: no_infinite_mint \u2014 mint vector detected \u2192 block",
+    "Rule: slash_bounded \u2014 slashing > stake \u2192 block",
+    "Rule: no_self_verify \u2014 self-verification detected \u2192 block"
+  ],
+  "owned_files": [],
+  "entry_points": [],
+  "key_concepts": [
+    "gently-btc",
+    "no_self_verify",
+    "slash_bounded",
+    "emission_schedule",
+    "no_infinite_mint",
+    "gently-commerce",
+    "gently-synth"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "exec:cto",
+      "children": [
+        "capt:rewards",
+        "capt:proof",
+        "capt:economics"
+      ],
+      "siblings": [
+        "dept:foundation",
+        "dept:protocol",
+        "dept:orchestration",
+        "dept:runtime",
+        "dept:security",
+        "dept:interface",
+        "dept:devops"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:empty",
+    "is_stale": false,
+    "last_verified": "2026-02-10T08:18:58.308664+00:00"
+  },
+  "content_hash": "sha256:188632d2c933ebaf54493dcb971e514e2ef9b0f2172d718a271f38d4cc5b85f1",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-10T08:18:58.308664+00:00"
+}
