@@ -20,6 +20,8 @@ logs/
 *.key
 *.pem
 credentials.json
+.secrets/*.enc.yaml
+.secrets/*/
 
 # Node
 node_modules/

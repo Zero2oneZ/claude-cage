@@ -365,6 +365,28 @@ codie-parse: ## Parse a single .codie file (usage: make codie-parse FILE=path)
 codie-list: ## List all seeded CODIE programs
 	node mongodb/store.js get codie_programs '{}' 20
 
+# ── Mia (Secrets Manager) ────────────────────────────────────
+.PHONY: mia-init mia-encrypt mia-pin mia-spawn mia-list mia-status
+
+mia-init: ## Generate age keypair + .sops.yaml
+	python3 projects/mia/mia.py init
+
+mia-encrypt: ## Encrypt global .env to vault.global.enc.yaml
+	python3 projects/mia/mia.py encrypt
+
+mia-pin: ## Pin encrypted vault to Pinata IPFS
+	python3 projects/mia/mia.py pin $(if $(PROJECT),--project $(PROJECT))
+
+mia-spawn: ## Create per-project vault (PROJECT=, KEYS=, OS=)
+	@if [ -z "$(PROJECT)" ]; then echo "Usage: make mia-spawn PROJECT=twilio [KEYS=K1,K2] [OS=linux]"; exit 1; fi
+	python3 projects/mia/mia.py spawn "$(PROJECT)" $(if $(KEYS),--keys $(KEYS)) $(if $(OS),--os $(OS))
+
+mia-list: ## Show CID registry
+	python3 projects/mia/mia.py list $(if $(PROJECT),--project $(PROJECT))
+
+mia-status: ## Check age/sops/pinata/mongo health
+	python3 projects/mia/mia.py status
+
 # ── GentlyOS ─────────────────────────────────────────────────
 .PHONY: gentlyos-seed gentlyos-tree
 gentlyos-seed: ## Seed GentlyOS docs, tree, and nodes into MongoDB
@@ -417,4 +439,5 @@ help: ## Show this help
 	@echo "  /status              System status overview"
 	@echo "  /security-audit      Run security audit"
 	@echo "  /route <intent>      Route intent through tree (blast radius, risk, approval)"
+	@echo "  /mia <cmd>           Encrypted secrets manager (encrypt, pin, spawn, status)"
 	@echo "  /gentlyos <cmd>      Tree orchestration (route, node, blast-radius, tree, seed)"
