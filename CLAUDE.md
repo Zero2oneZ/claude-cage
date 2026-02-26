@@ -1,414 +1,337 @@
-# CLAUDE.md
+# CLAUDE.md — GentlyOS
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with this repository.
 
 ## What Is This
 
-claude-cage is a dockerized sandbox for running Claude CLI and Claude Desktop in isolated containers with defense-in-depth security. Two modes: CLI (interactive TTY) and Desktop (Xvfb + noVNC in browser at localhost:6080).
+**GentlyOS** — a sovereignty-first operating system built in Rust. This repository contains the complete system: 28 application crates (~80K LOC), a containerized sandbox infrastructure (claude-cage), a web dashboard, Move smart contracts on Sui, and a Python orchestration engine.
 
-## Build & Run Commands
+**claude-cage** is the infrastructure layer — the dockerized sandbox that runs Claude CLI/Desktop in isolated containers with 8-layer defense-in-depth security. It is the installation guide, the LLM interface, and the container design that GentlyOS is built upon.
 
+## Repository Structure
+
+```
+claude-cage/                     ← Root: infrastructure + orchestration
+├── gentlyos-core/               ← APPLICATION: 28 Rust crates, ~80K LOC
+│   ├── crates/                  ← All gently-* crates (the real code)
+│   ├── gently-cli/              ← Main CLI binary (21 commands)
+│   ├── gentlyos-tui/            ← Terminal UI (6 panels, 7 LLM providers)
+│   ├── DEV_DOCS/                ← Specs, gap analysis, build steps
+│   ├── SYNTHESTASIA/            ← Design documents, protocols
+│   └── Cargo.toml               ← GentlyOS workspace (28 crates)
+│
+├── cage-web/                    ← DASHBOARD: Axum + HTMX SSR (28K LOC)
+│   └── src/                     ← Routes, CODIE parser, subprocess wrappers
+│
+├── lib/                         ← BASH CLI: 15 library modules
+├── bin/claude-cage              ← CLI entry point (sources all lib/)
+├── docker/                      ← Dockerfiles (cli, desktop, gentlyos)
+├── security/                    ← Seccomp + AppArmor profiles
+├── mongodb/                     ← Fire-and-forget event store (Node.js)
+├── ptc/                         ← Python Tree Compiler (12 modules, 8 phases)
+├── gentlyos/                    ← Organizational tree (35 agents, schema)
+├── sui/cage_nft/                ← Move smart contracts (NFT, Collection, SYNTH)
+├── codie-maps/                  ← 9 CODIE orchestration programs
+├── config/                      ← Default YAML configuration
+├── .claude/                     ← Agents, commands, hooks, skills
+├── Cargo.toml                   ← Root workspace (cage-web only)
+└── docker-compose.yml           ← Container services + security anchor
+```
+
+## Two Workspaces
+
+| Workspace | Path | Members | Purpose |
+|-----------|------|---------|---------|
+| **Root** | `Cargo.toml` | `cage-web` | Infrastructure dashboard |
+| **GentlyOS** | `gentlyos-core/Cargo.toml` | 28 `gently-*` crates + CLI + TUI | Application layer |
+
+These are separate Cargo workspaces with independent dependency trees. GentlyOS is excluded from the root workspace.
+
+## GentlyOS Application Crates (28)
+
+All real code lives in `gentlyos-core/crates/`. Organized by domain:
+
+### Alexandria (Knowledge)
+| Crate | LOC | Status | Purpose |
+|-------|-----|--------|---------|
+| `gently-alexandria` | 4,949 | 85% | Knowledge graph, Tesseract 8D embedding, wormhole sync |
+| `gently-search` | 1,800 | 80% | Alexandria routing, BBBCP constraints, collapse engine |
+| `gently-inference` | 4,609 | 90% | Quality mining, step decomposition, Three Kings provenance |
+| `gently-feed` | 1,200 | 70% | Living feed, charge/decay, bridge documents |
+| `gently-codie` | 7,505 | 80% | 44-keyword instruction language, lexer, parser, compression |
+
+### BS-Artisan (Craftsmanship)
+| Crate | LOC | Status | Purpose |
+|-------|-----|--------|---------|
+| `gently-artisan` | 1,409 | 90% | Toroidal storage (r=tokens/2pi), Foam, BARF retrieval |
+| `gently-core` | 2,954 | 98% | Crypto primitives, genesis keys, XOR splits, Berlin Clock |
+| `gently-ipfs` | 1,700 | 85% | Content-addressed storage, Sui bridge |
+| `gently-chain` | 764 | 40% | Sui/Move SDK: client, objects, PTB, events, Three Kings |
+| `gently-ptc` | 1,084 | 70% | PTC Brain: tree decompose, execute, aggregate, 7 phases |
+| `gently-architect` | 1,500 | 55% | Code generation, SQLite knowledge base |
+| `gently-brain` | 2,100 | 75% | LLM orchestration, Claude API, Alexandria integration |
+| `gently-mcp` | 1,100 | 50% | MCP server scaffolding |
+| `gently-micro` | 1,100 | — | Microcontroller interface (ESP32/Arduino) |
+
+### FAFO (Defense)
+| Crate | LOC | Status | Purpose |
+|-------|-----|--------|---------|
+| `gently-security` | 8,576 | 95% | 16 daemons, FAFO pitbull (6 escalation levels), threat intel |
+| `gently-sandbox` | 794 | 60% | Seccomp, AppArmor, capabilities, FAFO violation escalation |
+| `gently-guardian` | 1,400 | 80% | Hardware detection, cross-platform (sysinfo) |
+| `gently-cipher` | 1,500 | 50% | Crypto ciphers, password analysis |
+| `gently-network` | 1,600 | 60% | Network capture, MITM, visualization |
+| `gently-sploit` | — | 20% | Exploitation framework (skeleton only) |
+
+### GOO (GUI — unsettled, post-consolidation)
+| Crate | LOC | Status | Purpose |
+|-------|-----|--------|---------|
+| `gently-goo` | 3,379 | 80% | GOO unified field: SDF, attention, learning (70+ tests) |
+| `gently-visual` | 1,200 | 100% | SVG pattern generation |
+| `gently-audio` | 1,800 | 100% | FFT encoding/decoding, DSP |
+| `gently-dance` | 2,100 | 85% | P2P dance protocol state machine |
+| `gently-web` | 1,200 | 85% | ONE SCENE HTMX GUI, Alexandria routes |
+
+### Other
+| Crate | LOC | Status | Purpose |
+|-------|-----|--------|---------|
+| `gently-btc` | 1,600 | 90% | Bitcoin RPC, block anchoring |
+| `gently-gateway` | 1,400 | 70% | API routing, pipeline architecture |
+| `gently-sim` | 1,800 | 80% | SIM card security: filesystem, applets, OTA |
+
+### Binaries
+| Binary | Path | Purpose |
+|--------|------|---------|
+| `gently-cli` | `gentlyos-core/gently-cli/` | Main CLI (4000+ LOC, 21 commands) |
+| `gentlyos-tui` | `gentlyos-core/gentlyos-tui/` | Terminal UI (6 panels, BONEBLOB pipeline) |
+
+## Build & Run
+
+### GentlyOS Application
 ```bash
-# Build container images
-make build            # Build both CLI and Desktop images
-make build-cli        # Build CLI image only
-make build-desktop    # Build Desktop image only
+cd gentlyos-core
+cargo build --release -p gently-cli    # Main CLI binary
+cargo build --release                   # All 28 crates
+cargo test --workspace                  # Run all tests
+cargo test -p gently-security --lib     # Security tests (56 pass)
+cargo test -p gently-goo --lib          # GOO field tests (70+ pass)
+```
 
-# Run containers
+### Cage Dashboard
+```bash
+make build-web        # Compile cage-web binary
+make web-rs           # Start dashboard at http://localhost:5000
+```
+
+### Container Images
+```bash
+make build            # Build CLI + Desktop images
+make build-cli        # CLI image only
+make build-desktop    # Desktop image only
+make build-gently     # GentlyOS + IPFS image
+
 make run-cli          # Interactive Claude CLI session
-make run-desktop      # Desktop mode (detached), access at http://localhost:6080
-make run-isolated     # CLI with no network access
+make run-desktop      # Desktop (noVNC at localhost:6080)
+make run-isolated     # CLI with no network
+make run-gently       # GentlyOS + IPFS (detached)
+```
 
-# Stop & clean
+### Operations
+```bash
 make stop             # Stop all containers
-make clean            # Stop + remove containers
-make clean-volumes    # Also remove persistent volumes
-make clean-images     # Remove built images
-make clean-all        # Full cleanup (containers + volumes + images)
-
-# Security
-make load-apparmor    # Load AppArmor profile (requires sudo)
-make verify-sandbox   # Inspect container security settings (read-only, caps, memory, seccomp)
-
-# MongoDB
-make mongo-install    # Install MongoDB store dependencies (npm)
-make mongo-ping       # Test MongoDB Atlas connectivity
-make mongo-status     # Show event/artifact counts
-
-# Status
 make status           # Show running cage containers
 make logs             # Follow container logs
-
-# Install CLI tool system-wide
-make install          # Symlink bin/claude-cage to /usr/local/bin (requires sudo)
+make verify-sandbox   # Inspect container security settings
+make load-apparmor    # Load AppArmor profile (requires sudo)
+make install          # Symlink bin/claude-cage to /usr/local/bin
 ```
 
-### CLI Tool (`bin/claude-cage` or `claude-cage` after install)
-
+### MongoDB
 ```bash
-claude-cage start [--mode cli|desktop] [--mount ./dir] [--network none|filtered|host]
-claude-cage stop [name|--all]
-claude-cage shell <name>          # Attach bash to running container
-claude-cage list                  # Show all sessions
-claude-cage destroy <name>        # Remove container + volume
-claude-cage config [--validate]   # Show or validate configuration
+make mongo-install    # npm install in mongodb/
+make mongo-ping       # Test Atlas connectivity
+make mongo-status     # Show event/artifact counts
+make mongo-seed       # Seed artifacts into MongoDB
+make gentlyos-seed    # Seed tree + docs into MongoDB
 ```
 
-## Import Bucket (`.import-bucket/`)
+### Sui/Move
+```bash
+cd sui/cage_nft
+sui move build        # Compile Move contracts
+sui move test         # Run Move tests
+```
 
-Staging area for external imports — 3rd party repos, data exports, downloads, research material. Contents are **transient and never committed** (gitignored). Only the README is tracked.
+## Infrastructure Layer (claude-cage)
 
-**Use for:** Claude data exports, cloned reference repos, zip archives, datasets, papers, anything project-purpose-centric that needs a landing zone before being processed into the proper project location.
+### Bash CLI (`lib/`)
 
-**Workflow:** drop it in, extract/process what you need, clean up when done. No secrets.
-
-## Architecture
-
-### Bash Library Architecture (`lib/`)
-
-The CLI is a modular bash application. `bin/claude-cage` sources all library modules, then dispatches commands via `cmd_<command>()` functions in `lib/cli.sh`.
+`bin/claude-cage` sources all 15 modules, dispatches via `cmd_*()` in `lib/cli.sh`.
 
 | Module | Responsibility |
-|---|---|
-| `lib/cli.sh` | Command parsing, argument handling, all `cmd_*()` functions |
-| `lib/docker.sh` | Docker build, run, stop, destroy, exec, inspect |
-| `lib/sandbox.sh` | Constructs security flags, creates filtered network, applies iptables rules, verifies sandbox |
-| `lib/session.sh` | Session metadata (create/list/status/remove), name generation (`adjective-noun-hex4`) |
-| `lib/config.sh` | YAML config loading (default + user override at `~/.config/claude-cage/config.yaml`), validation |
-| `lib/mongodb.sh` | MongoDB fire-and-forget storage: key/value writes, event logging, artifact storage |
+|--------|---------------|
+| `cli.sh` | Command dispatch, all `cmd_*()` functions |
+| `docker.sh` | Docker build, run, stop, destroy, exec |
+| `sandbox.sh` | Security flags, filtered network, iptables rules |
+| `session.sh` | Session metadata, name generation (`adjective-noun-hex4`) |
+| `config.sh` | YAML config loading (default + user override) |
+| `mongodb.sh` | Fire-and-forget MongoDB writes (backgrounded) |
+| `memory.sh` | Session context compaction (Anthropic cookbook pattern) |
+| `observability.sh` | Container metrics, health checks, dashboards |
+| `lifecycle.sh` | Session reaping, garbage collection |
+| `tree.sh` | GentlyOS tree operations |
+| `architect.sh` | Architecture embedding, git integration |
+| `docs.sh` | Documentation generation |
+| `integrations.sh` | External APIs (HuggingFace, Porkbun, NounProject) |
+| `tui.sh` | Terminal UI components |
+| `gui.sh` | Interactive dashboard |
 
-### Container Images (`docker/`)
-
-- **CLI** (`docker/cli/Dockerfile`): `node:20-slim` base, installs `@anthropic-ai/claude-code` via npm, runs as non-root `cageuser`, entrypoint is `tini` → `claude`
-- **Desktop** (`docker/desktop/Dockerfile`): `ubuntu:24.04` base, full X11 stack (Xvfb + openbox + x11vnc + noVNC/websockify), launches xterm with Claude CLI
-
-### Security Model (defense-in-depth layers)
+### Security Model (8 layers)
 
 1. **Read-only root filesystem** with tmpfs at `/tmp` (512m) and `/run` (64m)
 2. **Capabilities**: ALL dropped, only CHOWN/DAC_OVERRIDE/SETGID/SETUID re-added
-3. **Seccomp** (`security/seccomp-default.json`): ~147 syscall allowlist, AF_VSOCK blocked
-4. **AppArmor** (`security/apparmor-profile`): denies mount/ptrace/raw-network/kernel-module access
-5. **Resource limits**: 2 CPUs, 4GB memory, 512 PIDs, limited file descriptors
-6. **Network filtering**: `sandbox_apply_network_filter()` uses iptables post-launch to restrict outbound to `allowed_hosts` only (default: `api.anthropic.com`, `cdn.anthropic.com`)
-7. **no-new-privileges** flag prevents escalation
-8. **Bridge network** (`cage-filtered`) with inter-container communication disabled
+3. **Seccomp** (`security/seccomp-default.json`): ~147 syscall allowlist
+4. **AppArmor** (`security/apparmor-profile`): denies mount/ptrace/raw-network
+5. **Resource limits**: 2 CPUs, 4GB memory, 512 PIDs
+6. **Network filtering**: iptables post-launch, restrict to `allowed_hosts` only
+7. **no-new-privileges** flag
+8. **Bridge network** (`cage-filtered`) with ICC disabled
 
 ### Docker Compose Services
 
-`docker-compose.yml` defines three services sharing an `x-common` anchor for security baseline:
+`docker-compose.yml` defines services sharing an `x-common` security anchor:
 - `cli` — interactive TTY with filtered network
-- `desktop` — detached with noVNC ports (6080, 5900)
+- `desktop` — detached with noVNC (ports 6080, 5900)
 - `cli-isolated` — network_mode: none
+- `gently` — GentlyOS application (ports 3000, 8080)
+- `ipfs` — IPFS Kubo daemon (ports 4001, 5001, 8081)
 
-### Configuration
+### Dashboard (`cage-web/`)
 
-`config/default.yaml` holds all defaults. User overrides go in `~/.config/claude-cage/config.yaml`. Config is loaded into the `CAGE_CFG[]` associative array. The YAML parser is minimal (flat key:value only — no nested structures).
+Rust (axum 0.8) + HTMX 2.0 + askama templates. 28K LOC, 22 route modules.
 
-## Key Implementation Details
+Key routes: `/` (dashboard), `/sessions` (manage), `/tree` (GentlyOS hierarchy), `/codie` (programs), `/api/health` (JSON status).
 
-- Session names are auto-generated as `<adjective>-<noun>-<hex4>` (e.g., "swift-fox-a1b2")
-- Containers are labeled `managed-by=claude-cage` for discovery via `docker ps --filter`
-- Session metadata is stored in `~/.local/share/claude-cage/sessions/<name>/metadata`
-- Network filtering happens *after* container launch via `sandbox_apply_network_filter()` — it resolves `allowed_hosts` to IPs and injects iptables rules
-- Desktop entrypoint (`docker/desktop/entrypoint-desktop.sh`) starts services sequentially: Xvfb → openbox → x11vnc → websockify → xterm, with EXIT trap cleanup
-- `docker-compose.yml` and the CLI tool (`lib/docker.sh`) both construct equivalent security flags independently — changes to security policy must be updated in both places
+Subprocess wrappers shell out to docker CLI, `node store.js` (MongoDB), and `python3 -m ptc.engine`. The CODIE parser is native Rust.
 
 ### MongoDB Store (`mongodb/`)
 
-Fire-and-forget key/value store backed by MongoDB Atlas. All CLI events, session lifecycle, docker operations, and artifacts are logged asynchronously — writes never block the CLI.
-
-**Stack:** Node.js + `mongodb` driver (native, no ODM overhead)
-
-**Files:**
-- `mongodb/store.js` — CLI: `put`, `log`, `get`, `search`, `aggregate`, `bulk`, `distinct`, `stats`, `ping`, `count`
-- `mongodb/seed-artifacts.js` — Batch-loads all project artifacts into MongoDB
-- `mongodb/package.json` — just the `mongodb` driver
-- `mongodb/.env` — `MONGODB_URI`, `MONGODB_DB`, `MONGODB_CLUSTER0_ADMIN` (never committed)
-
-**Bash wrapper** (`lib/mongodb.sh`):
-- `mongo_init` — sources `.env`, checks node/deps, sets `MONGO_READY`
-- `mongo_put <collection> <json>` — fire-and-forget insert (backgrounded)
-- `mongo_log <type> <key> [value]` — structured event to `events` collection
-- `mongo_get <collection> [query] [limit]` — synchronous query
-- `mongo_log_session <event> <name> [meta]` — session lifecycle events
-- `mongo_log_command <cmd> [args...]` — CLI command logging
-- `mongo_store_artifact <name> <type> <content>` — store code/config/output
-- `mongo_log_project <project> <type> <key> [value]` — per-project tagging
-
-**Collections:**
-- `events` — all structured events (type, key, value, _ts, _host, _project)
-- `artifacts` — code, configs, outputs (name, type, content, project)
-- Custom collections via `mongo_put`
-
-**Integration points** (all fire-and-forget, zero blocking):
-- `lib/cli.sh` — logs every command dispatch (start, stop, destroy, build)
-- `lib/session.sh` — logs session create, status change, remove
-- `lib/docker.sh` — logs container run, stop, destroy, build
-
-```bash
-make mongo-install   # npm install in mongodb/
-make mongo-ping      # test Atlas connectivity
-make mongo-status    # show event/artifact counts
-make mongo-search Q="search text"  # search artifacts
-make mongo-stats     # full collection statistics
-make mongo-events N=20             # recent events
-```
-
-### Session Memory (`lib/memory.sh`)
-
-Background session context compaction following Anthropic cookbook patterns. Stores compacted session summaries in MongoDB for cross-session learning.
-
-- `memory_init` — ensure memory directory exists
-- `memory_save <session> <context_json>` — persist to disk + MongoDB
-- `memory_load <session>` — retrieve session memory
-- `memory_compact <session>` — summarize and compact session history
-- `memory_list` — show all saved memories
-- `memory_clean [days]` — remove old memories (default: 30 days)
-- `memory_search <pattern>` — find sessions by content
-
-### Observability (`lib/observability.sh`)
-
-Container metrics, health checks, and operational dashboards.
-
-- `obs_snapshot <session>` — capture current container metrics to MongoDB
-- `obs_health <session>` — quick health check (healthy/degraded/unhealthy)
-- `obs_dashboard` — show metrics for all running sessions
-- `obs_log_timing <operation> <start_epoch>` — log operation duration
-- `obs_events_summary` — aggregate event stats from MongoDB
-
-```bash
-make observe         # observability dashboard
-make health          # health check for all sessions
-claude-cage observe  # same via CLI
-claude-cage health <session>
-```
-
-### Atlas CLI Integration
-
-MongoDB Atlas infrastructure is managed via the `atlas` CLI (v1.35.0, installed at `~/bin/atlas`).
-
-**Slash command:** `/atlas <subcommand>` — defined in `.claude/commands/atlas.md`
-**Skill:** `.claude/skills/atlas-cli/SKILL.md` — auto-activates on Atlas/MongoDB topics
-
-Common operations:
-```bash
-/atlas login            # Authenticate with Atlas
-/atlas whitelist-add    # Add current IP to access list
-/atlas clusters         # List clusters
-/atlas ping             # Full connectivity test (auth + IP + driver)
-/atlas setup            # Guided first-time setup
-```
-
-### Subagents (`.claude/agents/`)
-
-Specialized agents for delegation via the Task tool (cookbook pattern: markdown with YAML frontmatter).
-
-| Agent | Description | Tools |
-|-------|-------------|-------|
-| `session-manager` | Manages container sessions — start, stop, inspect, troubleshoot | Bash, Read, Grep |
-| `security-auditor` | 8-layer security audit — seccomp, AppArmor, caps, rootfs, limits | Bash, Read, Grep, Glob |
-| `mongo-analyst` | Queries MongoDB store — events, artifacts, analytics | Bash, Read |
-
-Usage: Claude automatically delegates via the Task tool when the user's request matches the agent description.
-
-### Slash Commands (`.claude/commands/`)
-
-| Command | Description |
-|---------|-------------|
-| `/atlas <cmd>` | MongoDB Atlas management (login, whitelist, clusters, ping) |
-| `/session <cmd>` | Session lifecycle (start, stop, list, inspect, destroy) |
-| `/mongo <cmd>` | Query MongoDB store (events, artifacts, search, aggregate) |
-| `/build [target]` | Build container images (cli, desktop, all, rebuild) |
-| `/status` | System status overview (sessions, images, MongoDB, network) |
-| `/security-audit [name]` | Run 8-layer security audit on a container |
-
-### PostToolUse Hooks (`.claude/hooks/`)
-
-Hooks fire automatically after tool calls (cookbook pattern: read JSON from stdin, log to MongoDB).
-
-| Hook | Matcher | Description |
-|------|---------|-------------|
-| `command-logger.py` | Bash | Logs all bash commands to MongoDB `events` + local `audit/command_log.json` |
-| `session-tracker.py` | Bash, Write | Detects docker/session lifecycle commands, logs transitions |
-
-Configured in `.claude/settings.local.json` via the `PostToolUse` hook pattern.
-
-### Output Styles (`.claude/output-styles/`)
-
-| Style | Description |
-|-------|-------------|
-| `ops` | DevOps/operations — compact status cards, metrics tables, action-oriented |
-| `debug` | Troubleshooting — verbose output, stack traces, step-by-step diagnosis |
-
-### GentlyOS Recursive Tree (`gentlyos/`)
-
-**Core Insight: One pattern. Every scale. Same shape.**
-
-A node has: inputs, outputs, children, a parent, rules for what passes through it, and an escalation path when it can't decide. That's a crate. That's a department. That's a sephira. That's a knowledge node. That's a CODIE primitive. One struct, parameterized by scale.
-
-**Files:**
-- `gentlyos/universal-node.schema.json` — The ONE JSON schema every node follows
-- `gentlyos/tree.json` — The full tree: 35 agents (3 Executives + 8 Directors + 24 Captains), sephirot mapping, coordination protocol
-- `gentlyos/seed.js` — Seeds documents, tree, and nodes into MongoDB
-
-**Node Scales:** `executive`, `department`, `captain`, `crate`, `module`, `sephira`, `knowledge`, `reasoning`, `primitive`
-
-**Tree of Life → Department Mapping:**
-| Sephira | Department | Role |
-|---------|-----------|------|
-| Keter | Interface | Crown — user-facing entry point |
-| Chokmah/Binah | Protocol | Core abstractions, Alexandria |
-| Daath | Security | Hidden, touches everything |
-| Chesed/Gevurah | DevOps | Mercy/judgment in releases |
-| Tiferet | Orchestration | Center — CODIE, PTC, context |
-| Netzach/Hod | Runtime | Execution, pillar balance |
-| Yesod | Tokenomics | Foundation of value |
-| Malkuth | Foundation | Primitives, leaf deps |
-
-**Coordination Protocol (8 phases):** INTAKE → TRIAGE → PLAN → REVIEW → EXECUTE → VERIFY → INTEGRATE → SHIP
-
-**Approval Cascade:** Risk 1-3: Captain | 4-6: Director | 7-8: CTO | 9-10: Human
-
-**Orchestrator Agent:** `.claude/agents/gentlyos-orchestrator.md` — ONE agent that reads the tree and routes. Not 34 files. One pattern.
-
-**Slash Command:** `/gentlyos <subcommand>` — route, node, blast-radius, tree, seed, sephirot, approve
-
-**Web Dashboard:** GentlyOS Tree view at `http://localhost:5000` — interactive tree hierarchy, node details, sephirot mapping, coordination phases
-
-**API Endpoints:**
-- `GET /api/gentlyos/tree` — full tree
-- `GET /api/gentlyos/node/<id>` — single node details
-- `GET /api/gentlyos/blast-radius?crates=x,y` — calculate affected departments + risk level
-
-```bash
-node gentlyos/seed.js       # Seed docs + tree + nodes into MongoDB
-make gentlyos-seed           # Same via Makefile
-```
-
-### GentlyOS Design Documents (root)
-
-Four `.docx` documents define the GentlyOS architecture. Seeded into MongoDB as artifacts.
-
-| Document | Type | Content |
-|----------|------|---------|
-| `GentlyOS_Virtual_Organization_System.docx` | Design doc | 34-agent hierarchy, Google monorepo model, coordination protocol |
-| `GentlyOS_Workspace_System.docx` | Design doc | Universal workspace, Reverse Mermaid, Reflective App Builder |
-| `Gently_Studio_Protocols.docx` | Design doc | Quad-Context (WHAT×WHEN×WHO×HOW), Alexandria, CODIE, $SYNTH |
-| `Google_Infrastructure_Research.docx` | Research | Google ADK, supply chain analysis, GentlyOS as counter-architecture |
-
-### Rust Web Dashboard (`cage-web/`)
-
-Replaces the Flask dashboard with Rust (axum) + HTMX server-side rendering. Zero React, zero Next.js.
-
-**Stack:** axum 0.8 + askama templates + HTMX 2.0 + dark theme CSS
-
-**Build & Run:**
-```bash
-make build-web        # Compile Rust binary
-make web-rs           # Start dashboard at http://localhost:5000
-make codie-seed       # Parse .codie files and seed to MongoDB
-make codie-parse FILE=path.codie  # Parse a single .codie file
-make codie-list       # List seeded CODIE programs
-```
-
-**Architecture:** Subprocess wrappers shell out to docker CLI, `node store.js` (MongoDB), and `python3 -m ptc.engine`. Only the CODIE parser is native Rust.
-
-**Routes:**
-| Route | Method | Purpose |
-|-------|--------|---------|
-| `/` | GET | Dashboard with sessions, health, quick actions |
-| `/sessions` | GET | Session list (HTMX fragment) |
-| `/sessions/new` | POST | Create session |
-| `/sessions/{name}` | GET | Session detail with logs |
-| `/sessions/{name}/stop` | POST | Stop session |
-| `/sessions/{name}/start` | POST | Start session |
-| `/sessions/{name}/destroy` | DELETE | Destroy session |
-| `/tree` | GET | GentlyOS tree hierarchy |
-| `/tree/{node_id}` | GET | Node detail |
-| `/tree/blast-radius` | GET | Risk calculation |
-| `/codie` | GET | CODIE programs grid |
-| `/codie/{name}` | GET | Program source + AST |
-| `/codie/{name}/execute` | POST | Execute program plan |
-| `/codie/parse` | POST | Parse raw CODIE source |
-| `/api/health` | GET | JSON health status |
-| `/api/sessions` | GET | JSON session list |
-| `/api/gentlyos/tree` | GET | JSON tree |
-
-### CODIE Language Parser (`cage-web/src/codie_parser.rs`)
-
-Parses 12-keyword CODIE `.codie` files into an AST. Handles pipe-tree notation (`|  +--`), brace blocks, and all keywords: pug, bark, spin, cali, elf, turk, fence, pin, bone, blob, biz, anchor.
-
-**Parsed programs:** 9 `.codie` orchestration maps from `codie-maps/`
-
-**Integration:** CODIE mode added to `ptc/executor.py` -- when PTC decomposes to leaf tasks, each can be expressed as a CODIE instruction chain.
-
-## GentlyOS Application Layer
-
-GentlyOS-Rusted-Metal (28 Rust crates, ~79K LOC) runs as the primary application workload inside claude-cage's containerized sandbox. The full source lives at `gentlyos-core/` and builds into a Docker image alongside an IPFS Kubo daemon.
-
-### Build & Run
-
-```bash
-make build-gently           # Build cage-gently:latest (Rust compile in Docker)
-make run-gently              # Start GentlyOS + IPFS (detached)
-make stop-gently             # Stop both services
-make gently-logs             # Follow logs
-make gently-shell            # Shell into cage-gently
-make gently-status           # Health check (GentlyOS + IPFS connectivity)
-make clean-gently            # Remove containers
-make clean-gently-volumes    # Remove containers + data volumes
-```
-
-### Services
-
-| Service | Container | Ports | Purpose |
-|---------|-----------|-------|---------|
-| `gently` | cage-gently | 3000 (MCP), 8080 (health) | GentlyOS Rust application |
-| `ipfs` | cage-ipfs | 4001 (swarm), 5001 (API), 8081 (gateway) | IPFS Kubo daemon |
-
-### Networking
-
-- Both services connect to `cage-net` (cage-filtered bridge, ICC disabled)
-- Private `gently-internal` bridge enables gently<->ipfs communication (ICC enabled, internal-only)
-- IPFS is reachable from GentlyOS at `http://cage-ipfs:5001`
-
-### Security
-
-- GentlyOS inherits the `x-common` security anchor (read-only root, cap-drop ALL, seccomp, no-new-privileges)
-- IPFS overrides `read_only: false` (needs writable datastore)
-- Dedicated AppArmor profile: `security/apparmor-gentlyos` (denies mount/ptrace/raw-network, allows `/data/**` RW)
-- Agent seccomp profile: `security/seccomp-agents.json` (34 syscall allowlist for Ollama isolation)
-
-### Data Volumes
-
-| Volume | Mount | Purpose |
-|--------|-------|---------|
-| `cage-gently-blobs` | `/data/blobs` | Content blobs |
-| `cage-gently-genesis` | `/data/genesis` | Genesis keys |
-| `cage-gently-knowledge` | `/data/knowledge` | Knowledge base |
-| `cage-gently-ipfs` | `/data/ipfs` | GentlyOS IPFS data |
-| `cage-gently-ipfs-daemon` | `/data/ipfs` (IPFS container) | Kubo daemon datastore |
+Fire-and-forget key/value store backed by MongoDB Atlas. Node.js + native `mongodb` driver.
+
+- `store.js` — CLI: put, log, get, search, aggregate, bulk, stats, ping
+- `seed-artifacts.js` — Batch-loads project artifacts
+- `.env` — MONGODB_URI (never committed)
 
 ### Configuration
 
-`config/default.yaml` keys: `gentlyos_enabled`, `gentlyos_image`, `gentlyos_mcp_port`, `gentlyos_health_port`, `gentlyos_log_level`, `gentlyos_tier`, `ipfs_daemon_enabled`, `ipfs_swarm_port`, `ipfs_api_port`, `ipfs_gateway_port`, `ipfs_image`.
+`config/default.yaml` holds all defaults. User overrides: `~/.config/claude-cage/config.yaml`. Loaded into `CAGE_CFG[]` associative array.
 
-All ports are configurable via environment variables: `GENTLY_MCP_PORT`, `GENTLY_HEALTH_PORT`, `IPFS_SWARM_PORT`, `IPFS_API_PORT`, `IPFS_GATEWAY_PORT`.
+## GentlyOS Organizational Tree
 
-### Source Tree
+35-agent virtual organization following Google monorepo coordination patterns.
 
-`gentlyos-core/` contains the full GentlyOS-Rusted-Metal source (excluded from the cage Cargo workspace). Key crates: gently-core (crypto), gently-mcp (MCP server), gently-web (HTMX GUI), gently-security (16 daemons + FAFO), gently-ipfs, gently-brain (LLM), gently-ptc (PTC Brain), gently-sandbox (agent isolation).
+**Files:**
+- `gentlyos/tree.json` — Full tree (3 Executives + 8 Directors + 24 Captains)
+- `gentlyos/universal-node.schema.json` — Schema every node follows
+- `gentlyos/seed.js` — Seeds tree + docs into MongoDB
 
-### Install
+**Tree of Life mapping:**
+| Sephira | Department | Crate Domain |
+|---------|-----------|-------------|
+| Keter | Interface | gently-web, gently-mcp |
+| Chokmah/Binah | Protocol | gently-alexandria, gently-search |
+| Daath | Security | gently-security, gently-sandbox |
+| Chesed/Gevurah | DevOps | Docker, bash CLI, cage-web |
+| Tiferet | Orchestration | gently-ptc, gently-codie |
+| Netzach/Hod | Runtime | gently-brain, gently-gateway |
+| Yesod | Tokenomics | gently-chain, gently-inference |
+| Malkuth | Foundation | gently-core, gently-artisan |
 
-```bash
-./install.sh --with-gentlyos    # Full install including GentlyOS image build
-```
+**Coordination:** 8 phases (INTAKE → TRIAGE → PLAN → REVIEW → EXECUTE → VERIFY → INTEGRATE → SHIP)
 
-## No Tests or Linting
+**Approval cascade:** Risk 1-3: Captain | 4-6: Director | 7-8: CTO | 9-10: Human
 
-There is no test suite or linting configuration. The primary verification mechanism is `make verify-sandbox` which inspects a running container's security settings.
+## PTC Engine (`ptc/`)
+
+Python Tree Compiler — the orchestration nervous system. 12 modules, 8-phase pipeline.
+
+| Module | Purpose |
+|--------|---------|
+| `engine.py` | 8-phase coordination (INTAKE through SHIP) |
+| `executor.py` | 7 execution modes (native, claude, shell, codie, design, inspect, compose) |
+| `crate_graph.py` | Dependency analysis + blast radius calculation |
+| `architect.py` | Blueprint system (cache-first design) |
+| `docs.py` | Circular documentation with staleness tracking |
+| `embeddings.py` | Vector embeddings |
+| `federation.py` | Inter-agent messaging |
+| `git_ops.py` | Git operations |
+| `huggingface.py` | HuggingFace API integration |
+| `ipfs.py` | IPFS operations |
+| `lora.py` | LoRA fine-tuning |
+| `porkbun.py` | Domain registration |
+
+## Sui/Move Contracts (`sui/cage_nft/`)
+
+Move smart contracts on Sui (linear types, object-centric).
+
+| Module | Purpose |
+|--------|---------|
+| `nft.move` | Object-based NFT with mint/burn/transfer |
+| `collection.move` | Shared object NFT collection with cap-gated minting |
+| `synth_token.move` | SYNTH coin (Proof-of-Reasoning token) |
+
+**Three Kings Provenance:** Gold (WHO), Myrrh (WHAT), Frankincense (WHY) — blake3 hashes published as `ReasoningStep` Move resources when quality >= 0.7.
+
+## Claude Integration (`.claude/`)
+
+### Agents
+| Agent | Description |
+|-------|-------------|
+| `gentlyos-orchestrator` | Reads tree.json, routes tasks to correct node |
+| `session-manager` | Container session lifecycle |
+| `security-auditor` | 8-layer security audit |
+| `mongo-analyst` | Query MongoDB store |
+
+### Slash Commands
+| Command | Description |
+|---------|-------------|
+| `/atlas` | MongoDB Atlas management |
+| `/session` | Session lifecycle |
+| `/mongo` | Query MongoDB store |
+| `/build` | Build container images |
+| `/status` | System overview |
+| `/security-audit` | Security audit |
+| `/gentlyos` | Tree routing, blast radius |
+| `/mia` | Encrypted secrets manager |
+| `/route` | Route intent through tree |
+
+### Hooks (PostToolUse)
+| Hook | Trigger | Effect |
+|------|---------|--------|
+| `command-logger.py` | Bash | Logs commands to MongoDB + audit/ |
+| `session-tracker.py` | Bash, Write | Tracks container lifecycle |
+
+## Key Implementation Notes
+
+- Session names: `<adjective>-<noun>-<hex4>` (e.g., "swift-fox-a1b2")
+- Containers labeled `managed-by=claude-cage` for discovery
+- Network filtering happens *after* container launch (resolves hosts, injects iptables)
+- `docker-compose.yml` and `lib/docker.sh` construct equivalent security flags independently
+- All MongoDB writes are fire-and-forget (backgrounded, never block CLI)
+- GentlyOS crate compilation requires the `gentlyos-core/` workspace, not root
+
+## Import Bucket (`.import-bucket/`)
+
+Transient staging area for external imports. Contents gitignored, only README tracked. Drop in, process, clean up.
 
 ## Subproject: headless-ubuntu-auto
 
-`projects/headless-ubuntu-auto/` is a separate 24-file project for headless GPU server provisioning (2x RTX 3090). It has its own Makefile and is independent of the main claude-cage codebase. See its own README for details.
+`projects/headless-ubuntu-auto/` — headless GPU server provisioning (2x RTX 3090 Ti). Independent Makefile and docs.
+
+## No Test Suite
+
+No global test suite or linting config. Verification:
+- `make verify-sandbox` — inspect container security
+- `cargo test -p gently-security` — 56 security tests
+- `cargo test -p gently-goo` — 70+ GOO field tests
+- `sui move test` — Move contract tests
