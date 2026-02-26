@@ -1,7 +1,7 @@
 //! Semantic Chars -- `/semantic-chars`
 //!
-//! Thin UI wrapper over gently_sploit::threats for character threat display.
-//! All threat data and detection logic lives in gently-sploit crate.
+//! Character threat display for the GentlyOS IO surface.
+//! Threat catalog and severity levels inlined from gently-sploit.
 
 use std::sync::Arc;
 
@@ -15,8 +15,15 @@ use crate::middleware::Layer;
 use crate::routes::{is_htmx, wrap_page};
 use crate::AppState;
 
-// Re-use gently-sploit threat detection
-use gently_sploit::threats;
+// Severity level (inlined from gently_sploit::threats)
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Severity {
+    Critical,
+    High,
+    Medium,
+    #[allow(dead_code)]
+    Info,
+}
 
 // ---------------------------------------------------------------
 //  Template Data
@@ -66,27 +73,27 @@ struct DisplayThreat {
     codepoint: &'static str,
     name: &'static str,
     threat_label: &'static str,
-    severity: threats::Severity,
+    severity: Severity,
     description: &'static str,
     attack_vector: &'static str,
     example: &'static str,
 }
 
 static DISPLAY_THREATS: &[DisplayThreat] = &[
-    DisplayThreat { codepoint: "U+200B", name: "Zero-Width Space", threat_label: "INVISIBLE", severity: threats::Severity::High, description: "Invisible character that can split strings without visible change.", attack_vector: "Keyword filter bypass, hidden payload delimiter", example: "pass[ZWSP]word" },
-    DisplayThreat { codepoint: "U+200C", name: "Zero-Width Non-Joiner", threat_label: "INVISIBLE", severity: threats::Severity::High, description: "Prevents ligature formation. Steganographic watermarking vector.", attack_vector: "Steganographic data channel, tracking watermark", example: "ZWNJ=0 in binary encoding" },
-    DisplayThreat { codepoint: "U+200D", name: "Zero-Width Joiner", threat_label: "STEGANOGRAPHIC", severity: threats::Severity::High, description: "Forces ligature/joining. Binary stego encoding with ZWNJ.", attack_vector: "Steganographic encoding, compound emoji smuggling", example: "Hidden 8-bit ASCII via ZWJ/ZWNJ" },
-    DisplayThreat { codepoint: "U+200E/U+200F", name: "LTR/RTL Mark", threat_label: "BIDI OVERRIDE", severity: threats::Severity::Critical, description: "Invisible directional overrides. CVE-2021-42574 Trojan Source.", attack_vector: "Trojan Source attacks, filename spoofing", example: "code appears as if(isAdmin) but executes if(!isAdmin)" },
-    DisplayThreat { codepoint: "U+202A-U+202E", name: "Bidi Embedding/Override", threat_label: "BIDI OVERRIDE", severity: threats::Severity::Critical, description: "Strong directional overrides for text reversal.", attack_vector: "Filename extension spoofing, text reordering", example: "harmless.txt[RLO]txt.exe" },
-    DisplayThreat { codepoint: "U+2066-U+2069", name: "Bidi Isolates", threat_label: "BIDI OVERRIDE", severity: threats::Severity::High, description: "Newer bidi isolate characters, harder to detect.", attack_vector: "Modern Trojan Source variant", example: "Isolate blocks reversing display order" },
-    DisplayThreat { codepoint: "U+00AD", name: "Soft Hyphen", threat_label: "INVISIBLE", severity: threats::Severity::Medium, description: "Invisible except at line breaks. Filter bypass vector.", attack_vector: "Filter bypass, content fingerprinting", example: "mal[SHY]ware passes filter" },
-    DisplayThreat { codepoint: "U+0430", name: "Cyrillic Small A", threat_label: "HOMOGLYPH", severity: threats::Severity::Critical, description: "Visually identical to Latin 'a'. IDN homograph attacks.", attack_vector: "IDN homograph attacks, phishing, impersonation", example: "apple.com vs [Cyrillic a]pple.com" },
-    DisplayThreat { codepoint: "U+0435", name: "Cyrillic Small IE", threat_label: "HOMOGLYPH", severity: threats::Severity::Critical, description: "Visually identical to Latin 'e'.", attack_vector: "URL spoofing, credential phishing", example: "googl[Cyrillic e].com" },
-    DisplayThreat { codepoint: "U+0456", name: "Cyrillic Small I", threat_label: "HOMOGLYPH", severity: threats::Severity::High, description: "Identical to Latin 'i'. Dangerous due to 'i' frequency.", attack_vector: "Mixed-script URL spoofing", example: "w[Cyrillic i]k[Cyrillic i]pedia.org" },
-    DisplayThreat { codepoint: "U+FEFF", name: "BOM (Byte Order Mark)", threat_label: "INVISIBLE", severity: threats::Severity::Medium, description: "Zero-width no-break space. Disruptive mid-text.", attack_vector: "File parsing disruption", example: "JSON with BOM fails strict parsers" },
-    DisplayThreat { codepoint: "U+2028/U+2029", name: "Line/Paragraph Separator", threat_label: "INVISIBLE", severity: threats::Severity::Medium, description: "Unicode line separators not recognized by many tools.", attack_vector: "HTTP header injection, log injection", example: "Header split via U+2028" },
-    DisplayThreat { codepoint: "U+FE00-U+FE0F", name: "Variation Selectors", threat_label: "CONFUSABLE", severity: threats::Severity::Medium, description: "Alter glyph appearance without changing semantics.", attack_vector: "Visual ambiguity, fingerprinting, cache poisoning", example: "Same codepoint, different rendering" },
-    DisplayThreat { codepoint: "U+E0020-U+E007F", name: "Tag Characters", threat_label: "STEGANOGRAPHIC", severity: threats::Severity::High, description: "Invisible Plane 14 tag characters. Perfect stego channel.", attack_vector: "Steganographic data exfiltration", example: "Hidden ASCII in tag characters" },
+    DisplayThreat { codepoint: "U+200B", name: "Zero-Width Space", threat_label: "INVISIBLE", severity: Severity::High, description: "Invisible character that can split strings without visible change.", attack_vector: "Keyword filter bypass, hidden payload delimiter", example: "pass[ZWSP]word" },
+    DisplayThreat { codepoint: "U+200C", name: "Zero-Width Non-Joiner", threat_label: "INVISIBLE", severity: Severity::High, description: "Prevents ligature formation. Steganographic watermarking vector.", attack_vector: "Steganographic data channel, tracking watermark", example: "ZWNJ=0 in binary encoding" },
+    DisplayThreat { codepoint: "U+200D", name: "Zero-Width Joiner", threat_label: "STEGANOGRAPHIC", severity: Severity::High, description: "Forces ligature/joining. Binary stego encoding with ZWNJ.", attack_vector: "Steganographic encoding, compound emoji smuggling", example: "Hidden 8-bit ASCII via ZWJ/ZWNJ" },
+    DisplayThreat { codepoint: "U+200E/U+200F", name: "LTR/RTL Mark", threat_label: "BIDI OVERRIDE", severity: Severity::Critical, description: "Invisible directional overrides. CVE-2021-42574 Trojan Source.", attack_vector: "Trojan Source attacks, filename spoofing", example: "code appears as if(isAdmin) but executes if(!isAdmin)" },
+    DisplayThreat { codepoint: "U+202A-U+202E", name: "Bidi Embedding/Override", threat_label: "BIDI OVERRIDE", severity: Severity::Critical, description: "Strong directional overrides for text reversal.", attack_vector: "Filename extension spoofing, text reordering", example: "harmless.txt[RLO]txt.exe" },
+    DisplayThreat { codepoint: "U+2066-U+2069", name: "Bidi Isolates", threat_label: "BIDI OVERRIDE", severity: Severity::High, description: "Newer bidi isolate characters, harder to detect.", attack_vector: "Modern Trojan Source variant", example: "Isolate blocks reversing display order" },
+    DisplayThreat { codepoint: "U+00AD", name: "Soft Hyphen", threat_label: "INVISIBLE", severity: Severity::Medium, description: "Invisible except at line breaks. Filter bypass vector.", attack_vector: "Filter bypass, content fingerprinting", example: "mal[SHY]ware passes filter" },
+    DisplayThreat { codepoint: "U+0430", name: "Cyrillic Small A", threat_label: "HOMOGLYPH", severity: Severity::Critical, description: "Visually identical to Latin 'a'. IDN homograph attacks.", attack_vector: "IDN homograph attacks, phishing, impersonation", example: "apple.com vs [Cyrillic a]pple.com" },
+    DisplayThreat { codepoint: "U+0435", name: "Cyrillic Small IE", threat_label: "HOMOGLYPH", severity: Severity::Critical, description: "Visually identical to Latin 'e'.", attack_vector: "URL spoofing, credential phishing", example: "googl[Cyrillic e].com" },
+    DisplayThreat { codepoint: "U+0456", name: "Cyrillic Small I", threat_label: "HOMOGLYPH", severity: Severity::High, description: "Identical to Latin 'i'. Dangerous due to 'i' frequency.", attack_vector: "Mixed-script URL spoofing", example: "w[Cyrillic i]k[Cyrillic i]pedia.org" },
+    DisplayThreat { codepoint: "U+FEFF", name: "BOM (Byte Order Mark)", threat_label: "INVISIBLE", severity: Severity::Medium, description: "Zero-width no-break space. Disruptive mid-text.", attack_vector: "File parsing disruption", example: "JSON with BOM fails strict parsers" },
+    DisplayThreat { codepoint: "U+2028/U+2029", name: "Line/Paragraph Separator", threat_label: "INVISIBLE", severity: Severity::Medium, description: "Unicode line separators not recognized by many tools.", attack_vector: "HTTP header injection, log injection", example: "Header split via U+2028" },
+    DisplayThreat { codepoint: "U+FE00-U+FE0F", name: "Variation Selectors", threat_label: "CONFUSABLE", severity: Severity::Medium, description: "Alter glyph appearance without changing semantics.", attack_vector: "Visual ambiguity, fingerprinting, cache poisoning", example: "Same codepoint, different rendering" },
+    DisplayThreat { codepoint: "U+E0020-U+E007F", name: "Tag Characters", threat_label: "STEGANOGRAPHIC", severity: Severity::High, description: "Invisible Plane 14 tag characters. Perfect stego channel.", attack_vector: "Steganographic data exfiltration", example: "Hidden ASCII in tag characters" },
 ];
 
 static SAFE_RANGES: &[(&str, &str, u32, &str)] = &[
@@ -100,21 +107,21 @@ static SAFE_RANGES: &[(&str, &str, u32, &str)] = &[
     ("GentlyOS Glyphs", "0x0001-0xFFFF", 57, "Mapped glyph addresses (replaces emoji)"),
 ];
 
-fn severity_class(s: threats::Severity) -> &'static str {
+fn severity_class(s: Severity) -> &'static str {
     match s {
-        threats::Severity::Critical => "sev-critical",
-        threats::Severity::High => "sev-high",
-        threats::Severity::Medium => "sev-medium",
-        threats::Severity::Info => "sev-info",
+        Severity::Critical => "sev-critical",
+        Severity::High => "sev-high",
+        Severity::Medium => "sev-medium",
+        Severity::Info => "sev-info",
     }
 }
 
-fn severity_label(s: threats::Severity) -> &'static str {
+fn severity_label(s: Severity) -> &'static str {
     match s {
-        threats::Severity::Critical => "CRITICAL",
-        threats::Severity::High => "HIGH",
-        threats::Severity::Medium => "MEDIUM",
-        threats::Severity::Info => "INFO",
+        Severity::Critical => "CRITICAL",
+        Severity::High => "HIGH",
+        Severity::Medium => "MEDIUM",
+        Severity::Info => "INFO",
     }
 }
 
@@ -161,8 +168,8 @@ async fn semantic_chars_page(
         })
         .collect();
 
-    let critical_count = DISPLAY_THREATS.iter().filter(|t| t.severity == threats::Severity::Critical).count();
-    let high_count = DISPLAY_THREATS.iter().filter(|t| t.severity == threats::Severity::High).count();
+    let critical_count = DISPLAY_THREATS.iter().filter(|t| t.severity == Severity::Critical).count();
+    let high_count = DISPLAY_THREATS.iter().filter(|t| t.severity == Severity::High).count();
     let safe_codepoints: u32 = SAFE_RANGES.iter().map(|(_, _, c, _)| c).sum();
 
     let content = SemanticCharsTemplate {
