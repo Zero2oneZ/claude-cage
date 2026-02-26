@@ -1,0 +1,43 @@
+<div class="port-stats-bar">
+  <span>Allocated: <strong>{{ total_ports }}</strong></span>
+  <span>Rogue: <strong class="port-rogue-count">{{ total_rogue }}</strong></span>
+</div>
+<div class="port-legend">
+  <span class="port-trusted">[O] TRUSTED</span>
+  <span class="port-managed">[/\] MANAGED</span>
+  <span class="port-rogue">[#] ROGUE</span>
+</div>
+<table class="port-table">
+  <thead>
+    <tr>
+      <th>Trust</th>
+      <th>Assigned</th>
+      <th>Requested</th>
+      <th>Service</th>
+      <th>Data In</th>
+      <th>Data Out</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for port in ports %}
+    <tr class="{{ port.trust_class }}">
+      <td><span title="{{ port.trust_label }}">{{ port.trust_shape }}</span> {{ port.trust_label }}</td>
+      <td>{{ port.assigned_port }}</td>
+      <td>{{ port.requested_port }}</td>
+      <td>{{ port.service_name }}</td>
+      <td>{{ port.data_in }}</td>
+      <td>{{ port.data_out }}</td>
+    </tr>
+    {% endfor %}
+    {% for rp in rogue_ports %}
+    <tr class="{{ rp.trust_class }}">
+      <td><span title="{{ rp.trust_label }}">{{ rp.trust_shape }}</span> {{ rp.trust_label }}</td>
+      <td>{{ rp.assigned_port }}</td>
+      <td>{{ rp.requested_port }}</td>
+      <td>{{ rp.service_name }}</td>
+      <td>{{ rp.data_in }}</td>
+      <td>{{ rp.data_out }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

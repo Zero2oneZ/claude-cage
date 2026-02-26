@@ -1,0 +1,52 @@
+{
+  "node_id": "capt:scaffold",
+  "title": "Project Scaffold",
+  "scale": "captain",
+  "description": "Project Scaffold (captain)",
+  "what_it_does": [
+    "Rule: no_overwrite \u2014 tree.json exists \u2192 block"
+  ],
+  "owned_files": [
+    "lib/tree.sh"
+  ],
+  "entry_points": [
+    "tree_init"
+  ],
+  "key_concepts": [
+    "no_overwrite",
+    "scaffold"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:tree",
+      "children": [],
+      "siblings": [
+        "capt:tree-ops"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:tree",
+        "files": [
+          "lib/tree.sh"
+        ]
+      },
+      {
+        "node": "capt:tree-ops",
+        "files": [
+          "lib/tree.sh"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:f5aa98f928541e4656012513c7027bf56b223005bfa374c1790e20115112e9e8",
+    "is_stale": false,
+    "last_verified": "2026-02-07T23:08:43.794121+00:00"
+  },
+  "content_hash": "sha256:45a23f84553835ac29fd780d47e574b6d9a903a075dff3d269e7ca23c7de1a58",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T23:08:43.794121+00:00"
+}

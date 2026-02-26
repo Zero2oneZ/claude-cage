@@ -1,0 +1,56 @@
+{
+  "node_id": "capt:network",
+  "title": "Network Filter",
+  "scale": "captain",
+  "description": "Network Filter (captain)",
+  "what_it_does": [
+    "Rule: allowlist_only \u2014 host not in allowed_hosts \u2192 block",
+    "Rule: icc_disabled \u2014 inter-container comms \u2192 block"
+  ],
+  "owned_files": [
+    "lib/sandbox.sh"
+  ],
+  "entry_points": [
+    "sandbox_apply_network_filter"
+  ],
+  "key_concepts": [
+    "icc_disabled",
+    "network-filter",
+    "allowlist_only"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:security",
+      "children": [],
+      "siblings": [
+        "capt:sandbox",
+        "capt:seccomp",
+        "capt:apparmor"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:security",
+        "files": [
+          "lib/sandbox.sh"
+        ]
+      },
+      {
+        "node": "capt:sandbox",
+        "files": [
+          "lib/sandbox.sh"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:f102a7543d6c3de8ce19a32132076ac1f1644e0ccf85e2969929a7f522d2b5b3",
+    "is_stale": false,
+    "last_verified": "2026-02-07T23:08:43.791993+00:00"
+  },
+  "content_hash": "sha256:b6614f74a7070d211072d1e0de122d9aedda74a8b2fb78fd313d3748fd22b492",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T23:08:43.791993+00:00"
+}

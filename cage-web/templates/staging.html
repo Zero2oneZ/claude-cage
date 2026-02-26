@@ -1,0 +1,111 @@
+<div class="staging-page">
+<div class="tool-header">
+  <span class="tool-title">Staging</span>
+  <span class="badge">THE FIELD</span>
+</div>
+
+<div class="staging-stats-bar">
+  <span>Staged: <strong>{{ total_staged }}</strong></span>
+  <span>Applied: <strong>{{ total_applied }}</strong></span>
+  <span>Reverted: <strong>{{ total_reverted }}</strong></span>
+</div>
+
+<!-- FOCAL POINT with HTMX live polling -->
+<div class="shield-section-label">FOCAL POINT</div>
+<div id="focal-panel" hx-get="/partials/focal-point" hx-trigger="every 5s" hx-swap="innerHTML">
+  <div class="focal-card">
+    <div class="focal-primary"><span class="focal-shape">[*]</span> <strong>{{ focal.primary_node }}</strong></div>
+    <div class="focal-path">{{ focal.primary_path }}</div>
+    <div class="focal-stats">Strength: <strong>{{ focal.primary_strength }}</strong> | Confidence: <strong>{{ focal.confidence }}</strong> | Stable: <strong>{{ focal.stable_for }}</strong></div>
+    <div class="focal-tiers">
+      <span class="tier-hot">HOT: {{ focal.tier_hot }}</span>
+      <span class="tier-warm">WARM: {{ focal.tier_warm }}</span>
+    </div>
+    {% if !focal.secondary_nodes.is_empty() %}
+    <div class="focal-secondary">
+      {% for node in focal.secondary_nodes %}
+      <span class="focal-sec-node">{{ node.0 }} ({{ node.1 }})</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <div class="focal-hotpath">Prediction: {{ focal.hot_path_prediction }} (confidence: {{ focal.hot_path_confidence }})</div>
+  </div>
+</div>
+
+<!-- CHANGESET STATUS LEGEND -->
+<div class="cs-legend" style="margin-top:24px;">
+  <span class="cs-staged">[~] Staged</span>
+  <span class="cs-testing">[&lt;&gt;] Testing</span>
+  <span class="cs-approved">[O] Approved</span>
+  <span class="cs-applied">[+] Applied</span>
+  <span class="cs-reverted">[-] Reverted</span>
+</div>
+
+<!-- ACTIVE CHANGESETS with HTMX live polling -->
+<div class="shield-section-label" style="margin-top:24px;">CHANGESETS</div>
+<div id="changesets-panel" hx-get="/partials/changesets" hx-trigger="every 10s" hx-swap="innerHTML">
+  {% for cs in changesets %}
+  <div class="cs-row {{ cs.status_class }}">
+    <div class="cs-header">
+      <span class="cs-shape">{{ cs.status_shape }}</span>
+      <strong>{{ cs.title }}</strong>
+      <span class="cs-id">{{ cs.id }}</span>
+    </div>
+    <div class="cs-meta">
+      <span class="{{ cs.risk_class }}">Risk: {{ cs.risk_level }}/10</span> |
+      {{ cs.approval }} |
+      +{{ cs.lines_added }} -{{ cs.lines_removed }} in {{ cs.files_changed }} files
+    </div>
+    <div class="cs-tests">Tests: {{ cs.test_status }}</div>
+    <div class="cs-blast">Blast: {{ cs.blast_items.join(", ") }}</div>
+    {% if cs.status == "Staged" || cs.status == "Approved" %}
+    <div class="cs-actions">
+      {% if cs.status == "Staged" %}
+      <button class="btn btn-sm btn-primary"
+              hx-post="/staging/{{ cs.id }}/approve"
+              hx-target="closest .cs-row"
+              hx-swap="afterend">Approve</button>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% if cs.status == "Applied" %}
+    <div class="cs-actions">
+      <button class="btn btn-sm btn-outline"
+              hx-post="/staging/{{ cs.id }}/revert"
+              hx-target="closest .cs-row"
+              hx-swap="afterend">Revert</button>
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+<!-- UNDO STACK -->
+<div class="shield-section-label" style="margin-top:24px;">UNDO STACK</div>
+<div class="undo-stack">
+  {% for entry in undo_stack %}
+  <div class="undo-row {{ entry.undo_class }}">
+    <span class="undo-id">{{ entry.changeset_id }}</span>
+    <span class="undo-title">{{ entry.title }}</span>
+    <span class="undo-time">{{ entry.applied_at }}</span>
+    {% if entry.can_undo %}
+    <button class="btn btn-sm btn-outline"
+            hx-post="/staging/{{ entry.changeset_id }}/revert"
+            hx-target="closest .undo-row"
+            hx-swap="outerHTML">Undo</button>
+    {% else %}
+    <span class="undo-expired-label">expired</span>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+<!-- RISK LEGEND -->
+<div class="shield-section-label" style="margin-top:24px;">RISK LEVELS</div>
+<div class="risk-legend">
+  <div class="risk-row risk-low">1-3: Captain (auto-approve)</div>
+  <div class="risk-row risk-medium">4-6: Director required</div>
+  <div class="risk-row risk-high">7-8: CTO required</div>
+  <div class="risk-row risk-critical">9-10: Human required</div>
+</div>
+</div>

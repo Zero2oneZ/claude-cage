@@ -1,0 +1,17 @@
+{% for tool in tools %}
+<div class="ring-card {{ tool.status_class }}">
+  <div class="ring-summary">
+    <span class="ring-shape" title="{{ tool.status_label }}">{{ tool.status_shape }}</span>
+    <span class="ring-name">{{ tool.name }}</span>
+    <span class="ring-state-label">v{{ tool.version }}</span>
+    <span class="ring-events">{{ tool.enabled_shape }} {{ tool.requests_served }} reqs</span>
+  </div>
+  <div class="ring-detail">
+    <span class="ring-desc">{{ tool.description }}</span>
+  </div>
+  <div class="ring-detail">
+    <span class="ring-desc">Transport: {{ tool.transport_shape }} {{ tool.transport_label }}</span>
+    <span class="ring-last">Socket: {{ tool.socket_path }}</span>
+  </div>
+</div>
+{% endfor %}

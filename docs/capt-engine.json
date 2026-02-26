@@ -1,0 +1,49 @@
+{
+  "node_id": "capt:engine",
+  "title": "PTC Engine",
+  "scale": "captain",
+  "description": "PTC Engine (captain)",
+  "what_it_does": [
+    "Rule: 8_phase \u2014 always \u2192 pass"
+  ],
+  "owned_files": [
+    "ptc/engine.py"
+  ],
+  "entry_points": [
+    "decompose",
+    "execute_leaf",
+    "aggregate",
+    "run"
+  ],
+  "key_concepts": [
+    "engine",
+    "8_phase"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:ptc",
+      "children": [],
+      "siblings": [
+        "capt:executor"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:ptc",
+        "files": [
+          "ptc/engine.py"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:64a11891a887f16d4b7d4ff7bf1b46649a28d64c89162792670d7e9c03d75d36",
+    "is_stale": false,
+    "last_verified": "2026-02-07T23:08:43.794465+00:00"
+  },
+  "content_hash": "sha256:15b41b8502ad0a3c081ca1d58411a022259256035f4bb7cec03b9f82b46c8791",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T23:08:43.794465+00:00"
+}

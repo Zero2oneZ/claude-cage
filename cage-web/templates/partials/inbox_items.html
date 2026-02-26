@@ -1,0 +1,40 @@
+{% if items.is_empty() %}
+<div class="inbox-empty">No files in inbox. Drop files into ~/gently/inbox/ to begin.</div>
+{% else %}
+{% for item in items %}
+<div class="inbox-item {{ item.status_class }}">
+  <div class="inbox-item-header">
+    <span class="inbox-shape" title="{{ item.status_label }}">{{ item.status_shape }}</span>
+    <span class="inbox-filename">{{ item.filename }}</span>
+    <span class="inbox-size">{{ item.size }}</span>
+    <span class="inbox-status">{{ item.status_label }}</span>
+  </div>
+  <div class="inbox-item-detail">
+    <div class="inbox-scan-row">
+      <span class="inbox-scan-label">Threat Level</span>
+      <span class="inbox-scan-value">{{ item.threat_level }}</span>
+    </div>
+    <div class="inbox-scan-row">
+      <span class="inbox-scan-label">Scan Summary</span>
+      <span class="inbox-scan-value">{{ item.scan_summary }}</span>
+    </div>
+    <div class="inbox-scan-row">
+      <span class="inbox-scan-label">Content Type</span>
+      <span class="inbox-scan-value">{{ item.content_type }}</span>
+    </div>
+    {% if item.can_action %}
+    <div class="inbox-actions">
+      <button class="btn btn-sm btn-primary"
+              hx-post="/inbox/{{ item.filename }}/approve"
+              hx-target="#inbox-items"
+              hx-swap="innerHTML">Approve</button>
+      <button class="btn btn-sm btn-danger"
+              hx-post="/inbox/{{ item.filename }}/reject"
+              hx-target="#inbox-items"
+              hx-swap="innerHTML">Reject</button>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+{% endif %}

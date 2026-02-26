@@ -1,0 +1,4 @@
+node_modules/
+cage_nft/build/
+.env
+*.key

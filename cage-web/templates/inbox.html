@@ -1,0 +1,85 @@
+<div class="inbox-page">
+<div class="tool-header">
+  <span class="tool-title">Inbox Pipeline</span>
+  <span class="badge {{ layer_badge }}">{{ layer_label }}</span>
+</div>
+
+<div class="inbox-stats-bar">
+  <span>Pending: <strong>{{ pending_count }}</strong></span>
+  <span>Approved: <strong>{{ approved_count }}</strong></span>
+  <span>Rejected: <strong>{{ rejected_count }}</strong></span>
+  <span>Quarantined: <strong>{{ quarantined_count }}</strong></span>
+</div>
+
+<div class="inbox-info">
+  <p>All external files land in <code>~/gently/inbox/</code>. Nothing executes until scanned by gently-sploit
+  and approved through this pipeline. Files are promoted to <code>vault/</code> on approval or moved to
+  <code>log/evidence/</code> on rejection.</p>
+</div>
+
+<div class="shield-section-label">INBOX QUEUE</div>
+<div id="inbox-items" hx-get="/partials/inbox-items" hx-trigger="every 5s" hx-swap="innerHTML">
+  {% if items.is_empty() %}
+  <div class="inbox-empty">No files in inbox. Drop files into ~/gently/inbox/ to begin.</div>
+  {% else %}
+  {% for item in items %}
+  <div class="inbox-item {{ item.status_class }}">
+    <div class="inbox-item-header">
+      <span class="inbox-shape" title="{{ item.status_label }}">{{ item.status_shape }}</span>
+      <span class="inbox-filename">{{ item.filename }}</span>
+      <span class="inbox-size">{{ item.size }}</span>
+      <span class="inbox-status">{{ item.status_label }}</span>
+    </div>
+    <div class="inbox-item-detail">
+      <div class="inbox-scan-row">
+        <span class="inbox-scan-label">Threat Level</span>
+        <span class="inbox-scan-value">{{ item.threat_level }}</span>
+      </div>
+      <div class="inbox-scan-row">
+        <span class="inbox-scan-label">Scan Summary</span>
+        <span class="inbox-scan-value">{{ item.scan_summary }}</span>
+      </div>
+      <div class="inbox-scan-row">
+        <span class="inbox-scan-label">Content Type</span>
+        <span class="inbox-scan-value">{{ item.content_type }}</span>
+      </div>
+      {% if item.can_action %}
+      <div class="inbox-actions">
+        <button class="btn btn-sm btn-primary"
+                hx-post="/inbox/{{ item.filename }}/approve"
+                hx-target="#inbox-items"
+                hx-swap="innerHTML">Approve</button>
+        <button class="btn btn-sm btn-danger"
+                hx-post="/inbox/{{ item.filename }}/reject"
+                hx-target="#inbox-items"
+                hx-swap="innerHTML">Reject</button>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+</div>
+
+<div class="shield-section-label" style="margin-top:24px;">SCAN LEGEND</div>
+<div class="inbox-legend">
+  <div class="inbox-legend-item">
+    <span class="inbox-pending">[?] PENDING</span> -- Awaiting scan
+  </div>
+  <div class="inbox-legend-item">
+    <span class="inbox-clean">[O] CLEAN</span> -- Scanned, no threats. Ready for approval.
+  </div>
+  <div class="inbox-legend-item">
+    <span class="inbox-suspect">[/\] SUSPECT</span> -- Low-severity findings. Review recommended.
+  </div>
+  <div class="inbox-legend-item">
+    <span class="inbox-danger">[#] DANGER</span> -- High-severity threats. Quarantined.
+  </div>
+  <div class="inbox-legend-item">
+    <span class="inbox-approved">[+] APPROVED</span> -- Promoted to vault.
+  </div>
+  <div class="inbox-legend-item">
+    <span class="inbox-rejected">[x] REJECTED</span> -- Moved to evidence log.
+  </div>
+</div>
+</div>

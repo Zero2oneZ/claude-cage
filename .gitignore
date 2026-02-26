@@ -17,11 +17,14 @@ logs/
 
 # Secrets — never commit
 .env
+.env.*
 *.key
 *.pem
 credentials.json
-.secrets/*.enc.yaml
-.secrets/*/
+.secrets/.env*
+.secrets/.env.*
+.secrets/*/vault.*
+.secrets/.sops.yaml
 
 # Node
 node_modules/
@@ -46,7 +49,6 @@ mongodb/package-lock.json
 
 # Rust build artifacts
 target/
-Cargo.lock
 
 # Audit logs (runtime-generated, not source)
 audit/
@@ -66,3 +68,10 @@ projects/Gently-nix/
 *.docx
 *.zip
 *.~lock.*
+
+# Solana/Move build artifacts
+solana/*/build/
+
+# Large data files
+**/btc-data/
+*.mmdb

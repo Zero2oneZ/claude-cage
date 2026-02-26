@@ -1,0 +1,16 @@
+[package]
+name = "cage-docker"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+cage-core = { workspace = true }
+cage-config = { workspace = true }
+cage-mongodb = { workspace = true }
+bollard = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+futures = { workspace = true }
+tracing = { workspace = true }

@@ -1,0 +1,14 @@
+{% for ring in rings %}
+<div class="ring-card {{ ring.state_class }}">
+  <div class="ring-summary">
+    <span class="ring-shape" title="{{ ring.state_label }}">{{ ring.state_shape }}</span>
+    <span class="ring-name">{{ ring.name }}</span>
+    <span class="ring-state-label">{{ ring.state_label }}</span>
+    <span class="ring-events">{{ ring.events_total }} events</span>
+  </div>
+  <div class="ring-detail">
+    <span class="ring-desc">{{ ring.description }}</span>
+    <span class="ring-last">Last: {{ ring.last_event }}</span>
+  </div>
+</div>
+{% endfor %}

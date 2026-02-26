@@ -1,0 +1,55 @@
+{
+  "node_id": "capt:blueprints",
+  "title": "Blueprint Manager",
+  "scale": "captain",
+  "description": "Blueprint Manager (captain)",
+  "what_it_does": [
+    "Rule: validate_schema \u2014 blueprint created \u2192 pass",
+    "Rule: require_acceptance \u2014 no acceptance criteria \u2192 block"
+  ],
+  "owned_files": [
+    "ptc/architect.py",
+    "schemas/blueprint.schema.json"
+  ],
+  "entry_points": [
+    "create_blueprint",
+    "cache_check",
+    "blueprint_to_tasks",
+    "validate_blueprint",
+    "verify_blueprint"
+  ],
+  "key_concepts": [
+    "require_acceptance",
+    "blueprints",
+    "validate_schema"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:architect",
+      "children": [],
+      "siblings": [
+        "capt:ipfs",
+        "capt:vectors",
+        "capt:docs"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:architect",
+        "files": [
+          "ptc/architect.py"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:6ea35fc365291255053287d65deb3ba354e55ea0a685bbdbeb0312040353f080",
+    "is_stale": false,
+    "last_verified": "2026-02-07T23:08:43.795468+00:00"
+  },
+  "content_hash": "sha256:86c872c1186ffa16d630a20edb4f0ac88f74771c4f6dc17d0cc6482219e0972b",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T23:08:43.795468+00:00"
+}

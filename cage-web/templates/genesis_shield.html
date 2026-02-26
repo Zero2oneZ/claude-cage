@@ -12,7 +12,214 @@
   <span>Score: <strong class="shield-score">{{ pass_count }}/{{ total_layers }}</strong></span>
 </div>
 
-<div class="shield-section-label">DEFENSE-IN-DEPTH LAYERS</div>
+<!-- DEFENSE RINGS with HTMX live polling -->
+<div class="shield-section-label">DEFENSE RINGS</div>
+<div id="rings-panel" hx-get="/partials/rings" hx-trigger="every 10s" hx-swap="innerHTML">
+  {% for ring in rings %}
+  <div class="ring-card {{ ring.state_class }}">
+    <div class="ring-summary">
+      <span class="ring-shape" title="{{ ring.state_label }}">{{ ring.state_shape }}</span>
+      <span class="ring-name">{{ ring.name }}</span>
+      <span class="ring-state-label">{{ ring.state_label }}</span>
+      <span class="ring-events">{{ ring.events_total }} events</span>
+    </div>
+    <div class="ring-detail">
+      <span class="ring-desc">{{ ring.description }}</span>
+      <span class="ring-last">Last: {{ ring.last_event }}</span>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- PORT SOVEREIGNTY TRANSLATION TABLE with HTMX live polling -->
+<div class="shield-section-label" style="margin-top:24px;">PORT SOVEREIGNTY</div>
+<div id="ports-panel" hx-get="/partials/ports" hx-trigger="every 10s" hx-swap="innerHTML">
+  <div class="port-stats-bar">
+    <span>Allocated: <strong>{{ total_ports }}</strong></span>
+    <span>Rogue: <strong class="port-rogue-count">{{ total_rogue }}</strong></span>
+  </div>
+  <div class="port-legend">
+    <span class="port-trusted">[O] TRUSTED</span>
+    <span class="port-managed">[/\] MANAGED</span>
+    <span class="port-rogue">[#] ROGUE</span>
+  </div>
+  <table class="port-table">
+    <thead>
+      <tr>
+        <th>Trust</th>
+        <th>Assigned</th>
+        <th>Requested</th>
+        <th>Service</th>
+        <th>Data In</th>
+        <th>Data Out</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for port in ports %}
+      <tr class="{{ port.trust_class }}">
+        <td><span title="{{ port.trust_label }}">{{ port.trust_shape }}</span> {{ port.trust_label }}</td>
+        <td>{{ port.assigned_port }}</td>
+        <td>{{ port.requested_port }}</td>
+        <td>{{ port.service_name }}</td>
+        <td>{{ port.data_in }}</td>
+        <td>{{ port.data_out }}</td>
+      </tr>
+      {% endfor %}
+      {% for rp in rogue_ports %}
+      <tr class="{{ rp.trust_class }}">
+        <td><span title="{{ rp.trust_label }}">{{ rp.trust_shape }}</span> {{ rp.trust_label }}</td>
+        <td>{{ rp.assigned_port }}</td>
+        <td>{{ rp.requested_port }}</td>
+        <td>{{ rp.service_name }}</td>
+        <td>{{ rp.data_in }}</td>
+        <td>{{ rp.data_out }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- RECENT SECURITY EVENTS with HTMX live polling -->
+<div class="shield-section-label" style="margin-top:24px;">RECENT EVENTS</div>
+<div id="events-panel" hx-get="/partials/events" hx-trigger="every 5s" hx-swap="innerHTML">
+  {% for event in events %}
+  <div class="event-row {{ event.severity_class }}">
+    <span class="event-time">{{ event.timestamp }}</span>
+    <span class="event-severity">{{ event.severity }}</span>
+    <span class="event-source">{{ event.source }}</span>
+    <span class="event-msg">{{ event.message }}</span>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- SCREEN SOVEREIGNTY + RECORDING AWARENESS with HTMX live polling -->
+<div class="shield-section-label" style="margin-top:24px;">SCREEN SOVEREIGNTY + RECORDING AWARENESS</div>
+<div id="screen-capture-panel" hx-get="/partials/screen-capture" hx-trigger="every 5s" hx-swap="innerHTML">
+  <div class="capture-stats-bar">
+    <span>Authorized: <strong class="capture-auth-count">{{ total_captures }}</strong></span>
+    <span>Denied: <strong class="capture-denied-count">{{ total_denied }}</strong></span>
+    <span>FAFO: <strong class="capture-fafo-count">{{ total_fafo }}</strong></span>
+    <span>Active: <strong>{{ active_captures }}</strong></span>
+  </div>
+
+  <div class="capture-legend">
+    <span class="capture-authorized">[O] AUTHORIZED</span>
+    <span class="capture-denied">[#] DENIED</span>
+    <span class="capture-fafo">[/\] FAFO</span>
+  </div>
+
+  <!-- ACTIVE RECORDINGS -->
+  <div class="capture-subsection">ACTIVE RECORDINGS</div>
+  {% if is_anything_live %}
+  <div class="rec-device-legend">
+    <span class="rec-camera">[O] Camera</span>
+    <span class="rec-mic">[~] Mic</span>
+    <span class="rec-cam-mic">[O~] Cam+Mic</span>
+    <span class="rec-screen">[=] Screen</span>
+    <span class="rec-everything">[*] FULL EXPOSURE</span>
+  </div>
+  <table class="capture-table rec-active-table">
+    <thead>
+      <tr>
+        <th>Device</th>
+        <th>Overlay</th>
+        <th>Process</th>
+        <th>PID</th>
+        <th>Duration</th>
+        <th>Ack</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for rec in active_recordings %}
+      <tr class="{{ rec.device_class }} rec-active-row">
+        <td><span title="{{ rec.device_label }}">{{ rec.device_shape }}</span> {{ rec.device_label }}</td>
+        <td>{{ rec.overlay_label }}</td>
+        <td>{{ rec.process_name }}</td>
+        <td>{{ rec.pid }}</td>
+        <td>{{ rec.duration }}</td>
+        <td>{{ rec.ack_label }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="rec-idle">No active recordings. All devices idle.</div>
+  {% endif %}
+
+  <!-- RECORDING HISTORY -->
+  <div class="capture-subsection">RECORDING HISTORY</div>
+  <table class="capture-table">
+    <thead>
+      <tr>
+        <th>Device</th>
+        <th>Time</th>
+        <th>Process</th>
+        <th>Action</th>
+        <th>Duration</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in recording_history %}
+      <tr class="{{ event.device_class }}">
+        <td><span title="{{ event.device_label }}">{{ event.device_shape }}</span> {{ event.device_label }}</td>
+        <td>{{ event.timestamp }}</td>
+        <td>{{ event.process_name }}</td>
+        <td>{{ event.action }}</td>
+        <td>{{ event.duration }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- CAPTURE POLICY -->
+  <div class="capture-subsection">POLICY</div>
+  <div class="capture-policy-list">
+    {% for policy in screen_policies %}
+    <div class="capture-policy-row {% if policy.is_active %}capture-policy-active{% endif %}">
+      <span class="capture-policy-shape">{{ policy.active_shape }}</span>
+      <span class="capture-policy-name">{{ policy.name }}</span>
+      <span class="capture-policy-desc">{{ policy.description }}</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="capture-subsection">AUTHORIZED PROCESSES</div>
+  <div class="capture-process-list">
+    {% for proc in authorized_processes %}
+    <div class="capture-process-row">
+      <span class="capture-process-name">{{ proc.process_name }}</span>
+      <span class="capture-process-auth">{{ proc.authority }}</span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="capture-subsection">CAPTURE HISTORY</div>
+  <table class="capture-table">
+    <thead>
+      <tr>
+        <th>Verdict</th>
+        <th>Time</th>
+        <th>Process</th>
+        <th>Type</th>
+        <th>Protocol</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for event in capture_history %}
+      <tr class="{{ event.verdict_class }}">
+        <td><span title="{{ event.verdict_label }}">{{ event.verdict_shape }}</span> {{ event.verdict_label }}</td>
+        <td>{{ event.timestamp }}</td>
+        <td>{{ event.process }}</td>
+        <td>{{ event.capture_type }}</td>
+        <td>{{ event.protocol }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- DEFENSE-IN-DEPTH LAYERS -->
+<div class="shield-section-label" style="margin-top:24px;">DEFENSE-IN-DEPTH LAYERS</div>
 <div class="shield-layers-list">
   {% for layer in layers %}
   <div class="shield-layer-card" onclick="this.classList.toggle('shield-card-expanded')">
@@ -41,6 +248,7 @@
   {% endfor %}
 </div>
 
+<!-- BOOT SEQUENCE -->
 <div class="shield-section-label" style="margin-top:24px;">BOOT SEQUENCE</div>
 <div class="boot-checks-list">
   <div class="boot-total">Total boot time: <strong>{{ boot_total_ms }}ms</strong></div>

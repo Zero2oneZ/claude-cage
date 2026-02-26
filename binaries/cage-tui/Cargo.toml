@@ -1,0 +1,25 @@
+[package]
+name = "cage-tui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "cage-tui"
+path = "src/main.rs"
+
+[dependencies]
+cage-core = { workspace = true }
+cage-config = { workspace = true }
+cage-mongodb = { workspace = true }
+cage-docker = { workspace = true }
+cage-session = { workspace = true }
+cage-observe = { workspace = true }
+cage-tree = { workspace = true }
+cage-dashboard = { workspace = true }
+ratatui = { workspace = true }
+crossterm = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }

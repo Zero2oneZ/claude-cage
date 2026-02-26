@@ -1,0 +1,50 @@
+{
+  "node_id": "capt:extract",
+  "title": "Training Extractor",
+  "scale": "captain",
+  "description": "Training Extractor (captain)",
+  "what_it_does": [
+    "Rule: cot_structure \u2014 always \u2192 pass"
+  ],
+  "owned_files": [
+    "ptc/training.py"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "extraction",
+    "cot_structure"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:training",
+      "children": [],
+      "siblings": [
+        "capt:lora"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:training",
+        "files": [
+          "ptc/training.py"
+        ]
+      },
+      {
+        "node": "capt:lora",
+        "files": [
+          "ptc/training.py"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:ed31f774f9d65bf55dbcdb80eb0931828a5c9e246a8f7a43bf03490b14f9125a",
+    "is_stale": false,
+    "last_verified": "2026-02-07T23:08:43.794839+00:00"
+  },
+  "content_hash": "sha256:5ebb238054d818fc715354e8f56775afc62e8df184423202e7524b8c597a215d",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T23:08:43.794839+00:00"
+}

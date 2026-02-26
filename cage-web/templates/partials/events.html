@@ -1,0 +1,8 @@
+{% for event in events %}
+<div class="event-row {{ event.severity_class }}">
+  <span class="event-time">{{ event.timestamp }}</span>
+  <span class="event-severity">{{ event.severity }}</span>
+  <span class="event-source">{{ event.source }}</span>
+  <span class="event-msg">{{ event.message }}</span>
+</div>
+{% endfor %}

@@ -3,6 +3,23 @@
 //! Visual representation of cookies collected across domains.
 //! Each cookie has risk level, flags, plain-English explanation,
 //! and per-cookie approval workflow. Features are tier-gated.
+//!
+//! ## Integration with gently-cookie-vault
+//!
+//! This UI route displays cookie data. The backend storage and encryption
+//! lives in the `gently-cookie-vault` crate (L3 containment layer):
+//!
+//! ```ignore
+//! use gently_cookie_vault::CookieVault;
+//!
+//! let vault = CookieVault::new(cookie_key, vault_path);
+//! vault.store_cookie(domain, name, value, provenance, flags)?;
+//! let token = vault.read_cookie(&id)?;     // read-once token
+//! let plaintext = vault.redeem_token(token)?; // single redemption
+//! ```
+//!
+//! This route can wire into CookieVault for encrypted persistence
+//! once the full L3 integration layer is assembled.
 
 use std::sync::Arc;
 

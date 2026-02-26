@@ -1,0 +1,40 @@
+{
+  "node_id": "capt:mongodb",
+  "title": "MongoDB Store",
+  "scale": "captain",
+  "description": "MongoDB Store (captain)",
+  "what_it_does": [
+    "Rule: async_only \u2014 write request \u2192 pass",
+    "Rule: never_block_cli \u2014 storage failure \u2192 pass"
+  ],
+  "owned_files": [
+    "mongodb/store.js",
+    "mongodb/vector-setup.js"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "async_only",
+    "mongodb",
+    "never_block_cli"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:observe",
+      "children": [],
+      "siblings": [
+        "capt:metrics"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:06dd8f5eee416493d2a0ba5b617fc6b802f4f25ebb7356e36db448e8df0cc28a",
+    "is_stale": false,
+    "last_verified": "2026-02-07T23:08:43.792780+00:00"
+  },
+  "content_hash": "sha256:a77e7316e58eeb804895265b7d7766345561928b7816e4f2320b6c72508cb1e7",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T23:08:43.792780+00:00"
+}

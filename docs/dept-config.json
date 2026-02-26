@@ -1,0 +1,59 @@
+{
+  "node_id": "dept:config",
+  "title": "Configuration",
+  "scale": "department",
+  "description": "Configuration (department)",
+  "what_it_does": [
+    "Rule: default_merge \u2014 user override exists \u2192 transform",
+    "Rule: validate \u2014 required keys missing \u2192 block"
+  ],
+  "owned_files": [
+    "lib/config.sh",
+    "config/default.yaml"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "default_merge",
+    "config",
+    "validate"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "root:cage",
+      "children": [
+        "capt:yaml",
+        "capt:cli-parse"
+      ],
+      "siblings": [
+        "dept:runtime",
+        "dept:security",
+        "dept:sessions",
+        "dept:observe",
+        "dept:web",
+        "dept:tree",
+        "dept:ptc",
+        "dept:training",
+        "dept:architect",
+        "project:gentlyos"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "capt:yaml",
+        "files": [
+          "config/default.yaml"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:bb2d88660bc3f49e2124b89929472639854a34feae2686233b4d2f2816dc2b65",
+    "is_stale": false,
+    "last_verified": "2026-02-07T23:08:43.792263+00:00"
+  },
+  "content_hash": "sha256:e60d1a4f718d684aacce5e88bb244de4818a7c7a3f26cffc360a3891b23fc22c",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T23:08:43.792263+00:00"
+}

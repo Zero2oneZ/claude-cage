@@ -1,0 +1,53 @@
+{
+  "node_id": "capt:docs",
+  "title": "Documentation Circle",
+  "scale": "captain",
+  "description": "The circle. Documentation as code. Change one side, the other knows.",
+  "what_it_does": [
+    "The circle. Documentation as code. Change one side, the other knows.",
+    "Rule: hash_track \u2014 file modified \u2192 log",
+    "Rule: propagate_stale \u2014 doc marked stale \u2192 pass",
+    "Rule: bidirectional \u2014 edge created \u2192 pass"
+  ],
+  "owned_files": [
+    "ptc/docs.py",
+    "lib/docs.sh"
+  ],
+  "entry_points": [
+    "generate_doc",
+    "generate_all",
+    "full_interconnect",
+    "check_staleness",
+    "propagate_staleness",
+    "search_docs"
+  ],
+  "key_concepts": [
+    "propagate_stale",
+    "docs",
+    "bidirectional",
+    "hash_track",
+    "circle"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:architect",
+      "children": [],
+      "siblings": [
+        "capt:blueprints",
+        "capt:ipfs",
+        "capt:vectors"
+      ]
+    },
+    "code_shared": [],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:5c8cb00f77726772edffb91da96a1c169084821e624ed6b516bed5dea2df5476",
+    "is_stale": false,
+    "last_verified": "2026-02-07T23:08:43.795865+00:00"
+  },
+  "content_hash": "sha256:68107a5838f91d995c60adc798407e37098f305679c3ddc5004f5a2a9187ee86",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T23:08:43.795865+00:00"
+}

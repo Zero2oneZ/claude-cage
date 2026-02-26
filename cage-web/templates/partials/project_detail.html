@@ -1,0 +1,84 @@
+<div class="project-detail-page">
+<div class="tool-header">
+  <span class="tool-title">{{ name }}</span>
+  {% if is_active %}<span class="badge tier-founder">ACTIVE</span>{% endif %}
+</div>
+
+<!-- API Keys / Secrets shelf -->
+<div class="shield-section-label">API KEYS &amp; SECRETS</div>
+<div class="port-legend">
+  <span class="scope-enabled">[O] Enabled</span>
+  <span class="scope-disabled">[_] Disabled</span>
+  <span class="scope-project">[*] Project-specific</span>
+</div>
+{% for secret in secrets %}
+<div class="ring-card {{ secret.scope_class }}">
+  <div class="ring-summary">
+    <span class="ring-shape">{{ secret.scope_shape }}</span>
+    <span class="ring-name">{{ secret.name }}</span>
+    <span class="ring-state-label">{{ secret.category }}</span>
+    <span class="ring-events">{{ secret.scope_label }}</span>
+  </div>
+  {% if can_manage %}
+  <div class="ring-detail" style="margin-top:4px;">
+    <button hx-post="/projects/{{ id }}/secret/{{ secret.name }}/toggle" hx-target="#flash" hx-swap="innerHTML" class="btn btn-sm">Toggle</button>
+  </div>
+  {% endif %}
+</div>
+{% endfor %}
+
+<!-- Tools shelf -->
+<div class="shield-section-label" style="margin-top:24px;">TOOLS</div>
+{% for tool in tools %}
+<div class="ring-card {{ tool.enabled_class }}">
+  <div class="ring-summary">
+    <span class="ring-shape">{{ tool.enabled_shape }}</span>
+    <span class="ring-name">{{ tool.name }}</span>
+    <span class="ring-events">{% if tool.enabled %}Enabled{% else %}Disabled{% endif %}</span>
+  </div>
+  {% if can_manage %}
+  <div class="ring-detail" style="margin-top:4px;">
+    <button hx-post="/projects/{{ id }}/tool/{{ tool.name }}/toggle" hx-target="#flash" hx-swap="innerHTML" class="btn btn-sm">Toggle</button>
+  </div>
+  {% endif %}
+</div>
+{% endfor %}
+
+<!-- Models shelf -->
+<div class="shield-section-label" style="margin-top:24px;">MODELS</div>
+{% for model in models %}
+<div class="ring-card {{ model.enabled_class }}">
+  <div class="ring-summary">
+    <span class="ring-shape">{{ model.enabled_shape }}</span>
+    <span class="ring-name">{{ model.name }}</span>
+    <span class="ring-events">{{ model.default_shape }} {% if model.is_default %}DEFAULT{% endif %}</span>
+  </div>
+  {% if can_manage %}
+  <div class="ring-detail" style="margin-top:4px;">
+    <button hx-post="/projects/{{ id }}/model/{{ model.name }}/toggle" hx-target="#flash" hx-swap="innerHTML" class="btn btn-sm">Toggle</button>
+    {% if !model.is_default && model.enabled %}
+    <button hx-post="/projects/{{ id }}/model/{{ model.name }}/default" hx-target="#flash" hx-swap="innerHTML" class="btn btn-sm">Set Default</button>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endfor %}
+
+<!-- Environment Variables -->
+<div class="shield-section-label" style="margin-top:24px;">ENVIRONMENT VARIABLES (.env killer)</div>
+<table class="port-table">
+  <thead>
+    <tr><th>Env Variable</th><th>Secret Source</th></tr>
+  </thead>
+  <tbody>
+    {% for ev in env_vars %}
+    <tr>
+      <td><code>{{ ev.env_name }}</code></td>
+      <td>{{ ev.secret_name }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div id="flash"></div>
+</div>

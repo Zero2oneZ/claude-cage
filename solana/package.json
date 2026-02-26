@@ -1,0 +1,19 @@
+{
+  "name": "cage-move",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Move smart contract & NFT development workspace (Sui + Aptos)",
+  "type": "module",
+  "scripts": {
+    "build": "cd cage_nft && sui move build",
+    "test": "cd cage_nft && sui move test",
+    "publish": "cd cage_nft && sui client publish --gas-budget 100000000",
+    "balance": "node scripts/balance.js",
+    "mint-nft": "node scripts/mint-nft.js",
+    "faucet": "sui client faucet"
+  },
+  "dependencies": {
+    "@mysten/sui": "^1.21.0",
+    "@mysten/bcs": "^1.2.0"
+  }
+}

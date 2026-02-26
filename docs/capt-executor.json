@@ -1,0 +1,46 @@
+{
+  "node_id": "capt:executor",
+  "title": "Leaf Executor",
+  "scale": "captain",
+  "description": "Leaf Executor (captain)",
+  "what_it_does": [
+    "Rule: safe_commands_only \u2014 shell mode \u2192 pass",
+    "Rule: never_destructive \u2014 rm or force \u2192 block"
+  ],
+  "owned_files": [
+    "ptc/executor.py"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "never_destructive",
+    "executor",
+    "safe_commands_only"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:ptc",
+      "children": [],
+      "siblings": [
+        "capt:engine"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:ptc",
+        "files": [
+          "ptc/executor.py"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:fe908c27b33cfdcf93ae5da3f34725b09644ca68088e8afc404ec5fa6a7ee962",
+    "is_stale": false,
+    "last_verified": "2026-02-07T23:08:43.794599+00:00"
+  },
+  "content_hash": "sha256:25a28e7ed1816e1a1a0beacca05e799994fe2afa3a8173aab9fa235881aa3b87",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T23:08:43.794599+00:00"
+}

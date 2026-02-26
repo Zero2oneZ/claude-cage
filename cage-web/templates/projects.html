@@ -1,0 +1,39 @@
+<div class="projects-page">
+<div class="tool-header">
+  <span class="tool-title">Projects</span>
+  <span class="badge {{ layer_badge }}">{{ layer_label }}</span>
+</div>
+
+<div class="shield-stats-bar">
+  <span>Total: <strong>{{ total_projects }}</strong></span>
+  <span>Active: <strong>{{ active_project }}</strong></span>
+</div>
+
+{% if can_manage %}
+<div style="margin-bottom:16px;">
+  <button hx-post="/projects/create" hx-target="#flash" hx-swap="innerHTML" class="btn btn-sm">+ New Project</button>
+</div>
+{% endif %}
+
+{% for project in projects %}
+<div class="ring-card {% if project.is_active %}ring-green{% endif %}">
+  <div class="ring-summary">
+    <span class="ring-shape">{{ project.active_shape }}</span>
+    <a href="/projects/{{ project.id }}" hx-get="/projects/{{ project.id }}" hx-target="#main" hx-push-url="true" class="ring-name" style="cursor:pointer;">{{ project.name }}</a>
+    <span class="ring-state-label">{% if project.is_active %}ACTIVE{% else %}INACTIVE{% endif %}</span>
+  </div>
+  <div class="ring-detail">
+    <span class="ring-desc">Secrets: {{ project.secret_count }} | Tools: {{ project.tool_count }} | Models: {{ project.model_count }}</span>
+    <span class="ring-last">Default model: {{ project.default_model }}</span>
+  </div>
+  <div class="ring-detail">
+    <span class="ring-desc">Last opened: {{ project.last_opened }}</span>
+    {% if can_manage && !project.is_active %}
+    <button hx-post="/projects/{{ project.id }}/open" hx-target="#flash" hx-swap="innerHTML" class="btn btn-sm" style="margin-left:8px;">Activate</button>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+
+<div id="flash"></div>
+</div>

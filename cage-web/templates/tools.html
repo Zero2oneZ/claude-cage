@@ -1,0 +1,59 @@
+<div class="tools-page">
+<div class="tool-header">
+  <span class="tool-title">Tools</span>
+  <span class="badge {{ layer_badge }}">{{ layer_label }}</span>
+</div>
+
+<div class="shield-stats-bar">
+  <span>Total: <strong>{{ total_tools }}</strong></span>
+  <span>Connected: <strong>{{ connected_count }}</strong></span>
+  <span>Enabled: <strong>{{ enabled_count }}</strong></span>
+</div>
+
+<div class="port-legend">
+  <span class="tool-connected">[O] CONNECTED</span>
+  <span class="tool-registered">[/\] REGISTERED</span>
+  <span class="tool-error">[#] ERROR</span>
+</div>
+
+<div id="tool-rows" hx-get="/partials/tool-rows" hx-trigger="every 10s" hx-swap="innerHTML">
+  {% for tool in tools %}
+  <div class="ring-card {{ tool.status_class }}">
+    <div class="ring-summary">
+      <span class="ring-shape" title="{{ tool.status_label }}">{{ tool.status_shape }}</span>
+      <span class="ring-name">{{ tool.name }}</span>
+      <span class="ring-state-label">v{{ tool.version }}</span>
+      <span class="ring-events">{{ tool.enabled_shape }} {{ tool.requests_served }} reqs</span>
+    </div>
+    <div class="ring-detail">
+      <span class="ring-desc">{{ tool.description }}</span>
+    </div>
+    <div class="ring-detail">
+      <span class="ring-desc">Transport: {{ tool.transport_shape }} {{ tool.transport_label }}</span>
+      <span class="ring-last">Socket: {{ tool.socket_path }}</span>
+    </div>
+    {% if !tool.permissions.is_empty() %}
+    <div class="ring-detail">
+      <span class="ring-desc">Permissions: {% for perm in tool.permissions %}{{ perm }}{% if !loop.last %}, {% endif %}{% endfor %}</span>
+    </div>
+    {% endif %}
+    {% if !tool.secret_refs.is_empty() %}
+    <div class="ring-detail">
+      <span class="ring-desc">Secrets: {% for sec in tool.secret_refs %}{{ sec }}{% if !loop.last %}, {% endif %}{% endfor %}</span>
+    </div>
+    {% endif %}
+    {% if tool.can_toggle %}
+    <div class="ring-detail" style="margin-top:4px;">
+      {% if tool.enabled %}
+      <button hx-post="/tools/{{ tool.id }}/disable" hx-target="#flash" hx-swap="innerHTML" class="btn btn-sm">Disable</button>
+      {% else %}
+      <button hx-post="/tools/{{ tool.id }}/enable" hx-target="#flash" hx-swap="innerHTML" class="btn btn-sm">Enable</button>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+<div id="flash"></div>
+</div>

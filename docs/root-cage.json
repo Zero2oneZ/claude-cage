@@ -1,0 +1,63 @@
+{
+  "node_id": "root:cage",
+  "title": "claude-cage",
+  "scale": "executive",
+  "description": "Root of all trees. Every project is a branch. Every trace flows back.",
+  "what_it_does": [
+    "Root of all trees. Every project is a branch. Every trace flows back.",
+    "Rule: dispatch \u2014 command received \u2192 pass",
+    "Rule: safety_check \u2014 destructive action \u2192 escalate",
+    "Rule: final_authority \u2014 risk >= 9 \u2192 block"
+  ],
+  "owned_files": [
+    "bin/claude-cage",
+    "Makefile",
+    "tree.json",
+    "CLAUDE.md",
+    "README.md"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "final_authority",
+    "ALL",
+    "safety_check",
+    "dispatch"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": null,
+      "children": [
+        "dept:runtime",
+        "dept:security",
+        "dept:sessions",
+        "dept:config",
+        "dept:observe",
+        "dept:web",
+        "dept:tree",
+        "dept:ptc",
+        "dept:training",
+        "dept:architect",
+        "project:gentlyos"
+      ],
+      "siblings": []
+    },
+    "code_shared": [
+      {
+        "node": "dept:tree",
+        "files": [
+          "tree.json"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:d90e1cf635123179006f3c4065950fb9c0386f8cb26403adbfc4f26cf15e9f33",
+    "is_stale": false,
+    "last_verified": "2026-02-07T23:08:43.790562+00:00"
+  },
+  "content_hash": "sha256:ed5b93e3960ee2fa0db824fa136dc52f58528c9b4dea100edfb53b08e9d39941",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T23:08:43.790562+00:00"
+}

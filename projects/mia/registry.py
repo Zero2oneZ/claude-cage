@@ -145,7 +145,9 @@ def is_available():
         bool
     """
     result = _node_store("ping")
-    return result is not None and "pong" in (result or "").lower()
+    if result is None:
+        return False
+    return "pong" in result.lower() or '"ok":1' in result or '"ok": 1' in result
 
 
 def format_table(entries):

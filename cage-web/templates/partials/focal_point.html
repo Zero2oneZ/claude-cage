@@ -1,0 +1,23 @@
+<div class="focal-card">
+  <div class="focal-primary"><span class="focal-shape">[*]</span> <strong>{{ focal.primary_node }}</strong></div>
+  <div class="focal-path">{{ focal.primary_path }}</div>
+  <div class="focal-stats">
+    Strength: <strong>{{ focal.primary_strength }}</strong> |
+    Confidence: <strong>{{ focal.confidence }}</strong> |
+    Stable: <strong>{{ focal.stable_for }}</strong>
+  </div>
+  <div class="focal-tiers">
+    <span class="tier-hot">HOT: {{ focal.tier_hot }}</span>
+    <span class="tier-warm">WARM: {{ focal.tier_warm }}</span>
+  </div>
+  {% if !focal.secondary_nodes.is_empty() %}
+  <div class="focal-secondary">
+    {% for node in focal.secondary_nodes %}
+    <span class="focal-sec-node">{{ node.0 }} ({{ node.1 }})</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <div class="focal-hotpath">
+    Prediction: {{ focal.hot_path_prediction }} (confidence: {{ focal.hot_path_confidence }})
+  </div>
+</div>

@@ -1,0 +1,74 @@
+{
+  "node_id": "dept:tree",
+  "title": "Tree Infrastructure",
+  "scale": "department",
+  "description": "Tree Infrastructure (department)",
+  "what_it_does": [
+    "Rule: one_pattern \u2014 always \u2192 pass",
+    "Rule: schema_valid \u2014 node missing required fields \u2192 block"
+  ],
+  "owned_files": [
+    "lib/tree.sh",
+    "tree.json",
+    "universal-node.schema.json"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "one_pattern",
+    "schema_valid",
+    "scaffold",
+    "tree",
+    "universal-node"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "root:cage",
+      "children": [
+        "capt:tree-ops",
+        "capt:scaffold"
+      ],
+      "siblings": [
+        "dept:runtime",
+        "dept:security",
+        "dept:sessions",
+        "dept:config",
+        "dept:observe",
+        "dept:web",
+        "dept:ptc",
+        "dept:training",
+        "dept:architect",
+        "project:gentlyos"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "root:cage",
+        "files": [
+          "tree.json"
+        ]
+      },
+      {
+        "node": "capt:tree-ops",
+        "files": [
+          "lib/tree.sh"
+        ]
+      },
+      {
+        "node": "capt:scaffold",
+        "files": [
+          "lib/tree.sh"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:232581d7c447d22d13a8575efd4564173376f56703cd74eff217be8a64cc11fa",
+    "is_stale": false,
+    "last_verified": "2026-02-07T23:08:43.793757+00:00"
+  },
+  "content_hash": "sha256:4cc6e04ad39b4686306943c2efb456d58b2f32cff1f6065e0b36eddf74bde2bc",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T23:08:43.793757+00:00"
+}

@@ -7,11 +7,16 @@ pub mod genesis_shield;
 pub mod gentlyos;
 pub mod glyph_registry;
 pub mod health;
+pub mod inbox;
+pub mod models;
 pub mod pages;
+pub mod projects;
 pub mod semantic_chars;
 pub mod sessions;
+pub mod staging;
 pub mod surface;
 pub mod tier;
+pub mod tools;
 pub mod tos_interceptor;
 
 /// Check if the request comes from HTMX (has HX-Request header).
@@ -56,11 +61,18 @@ pub fn wrap_page(title: &str, content: &str) -> String {
             <li><a href="/codie" hx-get="/codie" hx-target="#main" hx-push-url="true">CODIE Programs</a></li>
             <li><a href="/tier" hx-get="/tier" hx-target="#main" hx-push-url="true">Tier Hierarchy</a></li>
             <li><a href="/surface" hx-get="/surface" hx-target="#main" hx-push-url="true">IO Surface</a></li>
+            <li class="nav-section">The Field</li>
+            <li><a href="/staging" hx-get="/staging" hx-target="#main" hx-push-url="true">Staging</a></li>
+            <li class="nav-section">Intelligence</li>
+            <li><a href="/models" hx-get="/models" hx-target="#main" hx-push-url="true">Models</a></li>
+            <li><a href="/tools" hx-get="/tools" hx-target="#main" hx-push-url="true">Tools</a></li>
+            <li><a href="/projects" hx-get="/projects" hx-target="#main" hx-push-url="true">Projects</a></li>
             <li class="nav-section">IO Tools</li>
             <li><a href="/cookie-jar" hx-get="/cookie-jar" hx-target="#main" hx-push-url="true">Cookie Jar</a></li>
             <li><a href="/glyph-registry" hx-get="/glyph-registry" hx-target="#main" hx-push-url="true">Glyph Registry</a></li>
             <li><a href="/consent-gate" hx-get="/consent-gate" hx-target="#main" hx-push-url="true">Consent Gate</a></li>
             <li><a href="/genesis-shield" hx-get="/genesis-shield" hx-target="#main" hx-push-url="true">Genesis Shield</a></li>
+            <li><a href="/inbox" hx-get="/inbox" hx-target="#main" hx-push-url="true">Inbox Pipeline</a></li>
             <li><a href="/emoji-rewriter" hx-get="/emoji-rewriter" hx-target="#main" hx-push-url="true">Emoji Rewriter</a></li>
             <li><a href="/semantic-chars" hx-get="/semantic-chars" hx-target="#main" hx-push-url="true">Semantic Chars</a></li>
             <li><a href="/tos-interceptor" hx-get="/tos-interceptor" hx-target="#main" hx-push-url="true">ToS Interceptor</a></li>

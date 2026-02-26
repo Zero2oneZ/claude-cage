@@ -1,0 +1,35 @@
+[package]
+name = "cage-web"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+cage-core = { workspace = true }
+cage-config = { workspace = true }
+cage-docker = { workspace = true }
+cage-sandbox = { workspace = true }
+cage-session = { workspace = true }
+cage-memory = { workspace = true }
+cage-observe = { workspace = true }
+cage-tree = { workspace = true }
+cage-ptc = { workspace = true }
+cage-architect = { workspace = true }
+cage-training = { workspace = true }
+cage-docs = { workspace = true }
+cage-git = { workspace = true }
+cage-federation = { workspace = true }
+cage-mongodb = { workspace = true }
+cage-ipfs = { workspace = true }
+cage-embeddings = { workspace = true }
+cage-porkbun = { workspace = true }
+cage-nounproject = { workspace = true }
+cage-hf = { workspace = true }
+cage-dashboard = { workspace = true }
+axum = { workspace = true }
+tower = { workspace = true }
+tower-http = { workspace = true }
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }

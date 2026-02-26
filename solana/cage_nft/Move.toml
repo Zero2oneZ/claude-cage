@@ -1,0 +1,10 @@
+[package]
+name = "cage_nft"
+edition = "2024"
+authors = ["Zero2oneZ <tomlee3ddesign@gmail.com>"]
+
+[dependencies]
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/testnet" }
+
+[addresses]
+cage_nft = "0x0"

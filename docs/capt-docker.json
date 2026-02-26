@@ -1,0 +1,52 @@
+{
+  "node_id": "capt:docker",
+  "title": "Docker Lifecycle",
+  "scale": "captain",
+  "description": "Docker Lifecycle (captain)",
+  "what_it_does": [
+    "Rule: label_all \u2014 container created \u2192 pass",
+    "Rule: force_guard \u2014 force destroy without confirm \u2192 escalate"
+  ],
+  "owned_files": [
+    "lib/docker.sh"
+  ],
+  "entry_points": [
+    "docker_run_session",
+    "docker_stop_session",
+    "docker_destroy_session",
+    "docker_exec_session"
+  ],
+  "key_concepts": [
+    "docker",
+    "force_guard",
+    "label_all"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "dept:runtime",
+      "children": [],
+      "siblings": [
+        "capt:compose",
+        "capt:images"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "dept:runtime",
+        "files": [
+          "lib/docker.sh"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:449bf41028d7e4f288d0dd6172549e6c79af14eddcc311534752ceab67a791a4",
+    "is_stale": false,
+    "last_verified": "2026-02-07T23:08:43.791307+00:00"
+  },
+  "content_hash": "sha256:2c7a6e13ee021446ee0b1f48547fef0288f69ea07a3fe16787ed52c57ee6f7b5",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T23:08:43.791307+00:00"
+}

@@ -1,0 +1,13 @@
+[package]
+name = "cage-porkbun"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+cage-core = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }

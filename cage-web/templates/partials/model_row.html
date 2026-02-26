@@ -1,0 +1,17 @@
+{% for model in models %}
+<div class="ring-card {{ model.status_class }}">
+  <div class="ring-summary">
+    <span class="ring-shape" title="{{ model.status_label }}">{{ model.status_shape }}</span>
+    <span class="ring-name">{{ model.name }}</span>
+    <span class="ring-state-label">{{ model.parameters }} | {{ model.format }} {{ model.quantization }}</span>
+    <span class="ring-events">{{ model.size_gb }}</span>
+  </div>
+  <div class="ring-detail">
+    <span class="ring-desc">{{ model.source }}</span>
+    <span class="ring-last">VRAM: {{ model.vram_bar }} {{ model.vram_text }}</span>
+  </div>
+  <div class="ring-detail">
+    <span class="ring-desc">Runtime: {{ model.runtime }} | Loaded {{ model.times_loaded }}x | Last: {{ model.last_used }}</span>
+  </div>
+</div>
+{% endfor %}

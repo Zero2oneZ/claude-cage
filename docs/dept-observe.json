@@ -1,0 +1,59 @@
+{
+  "node_id": "dept:observe",
+  "title": "Observability",
+  "scale": "department",
+  "description": "Observability (department)",
+  "what_it_does": [
+    "Rule: fire_and_forget \u2014 event received \u2192 log",
+    "Rule: never_block \u2014 storage failure \u2192 pass"
+  ],
+  "owned_files": [
+    "lib/cli.sh"
+  ],
+  "entry_points": [],
+  "key_concepts": [
+    "mongodb",
+    "never_block",
+    "observability",
+    "fire_and_forget"
+  ],
+  "cross_refs": {
+    "structural": {
+      "parent": "root:cage",
+      "children": [
+        "capt:metrics",
+        "capt:mongodb"
+      ],
+      "siblings": [
+        "dept:runtime",
+        "dept:security",
+        "dept:sessions",
+        "dept:config",
+        "dept:web",
+        "dept:tree",
+        "dept:ptc",
+        "dept:training",
+        "dept:architect",
+        "project:gentlyos"
+      ]
+    },
+    "code_shared": [
+      {
+        "node": "capt:cli-parse",
+        "files": [
+          "lib/cli.sh"
+        ]
+      }
+    ],
+    "semantic": []
+  },
+  "staleness": {
+    "source_hash": "sha256:2fac0d8796639b37c40643448b62b4a04e4b92205ca23dfedf00ccfbbb439ab2",
+    "is_stale": false,
+    "last_verified": "2026-02-07T23:08:43.792602+00:00"
+  },
+  "content_hash": "sha256:d63a0f728ffe7b2bf77f7c075514d6e06026d679a33918809d023b68623a15e6",
+  "ipfs_cid": null,
+  "project": "claude-cage",
+  "_ts": "2026-02-07T23:08:43.792602+00:00"
+}

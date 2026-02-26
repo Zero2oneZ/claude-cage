@@ -1,0 +1,52 @@
+<div class="models-page">
+<div class="tool-header">
+  <span class="tool-title">Models</span>
+  <span class="badge {{ layer_badge }}">{{ layer_label }}</span>
+</div>
+
+<div class="shield-stats-bar">
+  <span>Total: <strong>{{ total_models }}</strong></span>
+  <span>Loaded: <strong>{{ loaded_count }}</strong></span>
+  <span>VRAM: <strong>{{ vram_bar }} {{ vram_text }}</strong></span>
+</div>
+
+<div class="port-legend">
+  <span class="model-ready">[O] READY</span>
+  <span class="model-stopped">[/\] STOPPED</span>
+  <span class="model-loading">[<>] LOADING</span>
+  <span class="model-error">[#] ERROR</span>
+</div>
+
+<div id="model-rows" hx-get="/partials/model-rows" hx-trigger="every 10s" hx-swap="innerHTML">
+  {% for model in models %}
+  <div class="ring-card {{ model.status_class }}">
+    <div class="ring-summary">
+      <span class="ring-shape" title="{{ model.status_label }}">{{ model.status_shape }}</span>
+      <span class="ring-name">{{ model.name }}</span>
+      <span class="ring-state-label">{{ model.parameters }} | {{ model.format }} {{ model.quantization }}</span>
+      <span class="ring-events">{{ model.size_gb }}</span>
+    </div>
+    <div class="ring-detail">
+      <span class="ring-desc">{{ model.source }}</span>
+      <span class="ring-last">VRAM: {{ model.vram_bar }} {{ model.vram_text }}</span>
+    </div>
+    <div class="ring-detail">
+      <span class="ring-desc">Runtime: {{ model.runtime }} | Loaded {{ model.times_loaded }}x | Last: {{ model.last_used }}</span>
+    </div>
+    {% if can_manage %}
+    <div class="ring-detail" style="margin-top:4px;">
+      {% if model.can_load %}
+      <button hx-post="/models/{{ model.id }}/load" hx-target="#flash" hx-swap="innerHTML" class="btn btn-sm">Load</button>
+      {% endif %}
+      {% if model.can_unload %}
+      <button hx-post="/models/{{ model.id }}/unload" hx-target="#flash" hx-swap="innerHTML" class="btn btn-sm">Unload</button>
+      {% endif %}
+      <button hx-post="/models/{{ model.id }}/delete" hx-target="#flash" hx-swap="innerHTML" hx-confirm="Delete model {{ model.name }}?" class="btn btn-sm btn-danger">Delete</button>
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+<div id="flash"></div>
+</div>
