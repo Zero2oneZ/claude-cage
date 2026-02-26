@@ -35,6 +35,16 @@ docker_build_desktop() {
     echo "==> Desktop image built successfully."
 }
 
+docker_build_gently() {
+    mongo_log "docker" "build:gently"
+    echo "==> Building GentlyOS image..."
+    docker build \
+        -t "$(config_get gentlyos_image cage-gently:latest)" \
+        -f "$CAGE_ROOT/docker/gentlyos/Dockerfile" \
+        "$CAGE_ROOT"
+    echo "==> GentlyOS image built successfully."
+}
+
 docker_run_session() {
     local name="$1"
     local mode="$2"
@@ -134,6 +144,12 @@ docker_run_session() {
     fi
     if [[ -d "$CAGE_ROOT/templates" ]]; then
         cmd+=(-v "${CAGE_ROOT}/templates:/opt/cage/templates:ro")
+    fi
+
+    # Auto-detect GentlyOS source and mount read-only
+    if [[ -d "$CAGE_ROOT/gentlyos-core" && -f "$CAGE_ROOT/gentlyos-core/Cargo.toml" ]]; then
+        cmd+=(-v "${CAGE_ROOT}/gentlyos-core:/opt/gentlyos:ro")
+        echo "    GentlyOS source detected: mounted at /opt/gentlyos"
     fi
 
     # Port mappings

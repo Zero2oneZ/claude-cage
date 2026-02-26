@@ -44,6 +44,7 @@ exclude = [
     "projects/*",
     "cage-web",
     "solana",
+    "gentlyos-core",
 ]
 
 [workspace.package]

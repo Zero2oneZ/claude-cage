@@ -1,0 +1,1110 @@
+# GENTLYOS FORGE
+## GPU Tech Stack • Goals Matrix • Design Studio
+## Bidirectional Game Creation Platform
+
+```
+                    ╔═══════════════════════════════════════════════════════╗
+                    ║              GENTLYOS FORGE ARCHITECTURE              ║
+                    ╠═══════════════════════════════════════════════════════╣
+                    ║                                                       ║
+                    ║   FORWARD: Semantic → CODIE → Engine → Ship          ║
+                    ║   BACKWARD: .exe/.apk → Decompile → CODIE → Atomic   ║
+                    ║                                                       ║
+                    ║   ONE PLATFORM. BOTH DIRECTIONS. ANY ENGINE.          ║
+                    ║                                                       ║
+                    ╚═══════════════════════════════════════════════════════╝
+```
+
+---
+
+# PART 1: GPU TECH STACK
+
+## Hardware Foundation
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        TOM'S DEVELOPMENT RIG                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   GPU 0: RTX 3090 Ti (24GB VRAM)                                           │
+│   ├── Primary: AI inference, tiny models, CODIE generation                  │
+│   ├── CUDA Cores: 10,752                                                    │
+│   ├── Tensor Cores: 336 (3rd gen)                                          │
+│   ├── RT Cores: 84 (2nd gen)                                               │
+│   ├── Memory: 24GB GDDR6X @ 21 Gbps                                        │
+│   ├── Bandwidth: 1,008 GB/s                                                │
+│   └── TDP: 450W                                                            │
+│                                                                             │
+│   GPU 1: RTX 3090 Ti (24GB VRAM)                                           │
+│   ├── Secondary: 3D rendering, physics, real-time preview                  │
+│   ├── Can split: 12GB AI + 12GB render                                     │
+│   └── NVLink: Not supported (use PCIe for multi-GPU)                       │
+│                                                                             │
+│   TOTAL: 48GB VRAM, 21,504 CUDA cores                                      │
+│                                                                             │
+│   CPU: [Your CPU]                                                          │
+│   RAM: 32GB+ recommended                                                    │
+│   Storage: NVMe SSD (fast asset streaming)                                 │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## GPU Workload Distribution
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         GPU WORKLOAD MATRIX                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   GPU 0 (AI PRIMARY)              │   GPU 1 (RENDER PRIMARY)               │
+│   ════════════════════            │   ══════════════════════               │
+│                                   │                                        │
+│   ┌─────────────────────┐         │   ┌─────────────────────┐              │
+│   │ TINY MODEL (1-3B)   │         │   │ VULKAN RENDERER     │              │
+│   │ ├── CODIE gen       │         │   │ ├── Real-time 3D    │              │
+│   │ ├── Semantic parse  │         │   │ ├── PBR materials   │              │
+│   │ ├── Behavior AI     │         │   │ ├── Ray tracing     │              │
+│   │ └── 8GB VRAM        │         │   │ └── 16GB VRAM       │              │
+│   └─────────────────────┘         │   └─────────────────────┘              │
+│                                   │                                        │
+│   ┌─────────────────────┐         │   ┌─────────────────────┐              │
+│   │ TEXTURE GEN         │         │   │ PHYSICS ENGINE      │              │
+│   │ ├── SD/SDXL local   │         │   │ ├── Parry3D/Rapier  │              │
+│   │ ├── Layer compose   │         │   │ ├── Collision       │              │
+│   │ └── 8GB VRAM        │         │   │ └── 4GB VRAM        │              │
+│   └─────────────────────┘         │   └─────────────────────┘              │
+│                                   │                                        │
+│   ┌─────────────────────┐         │   ┌─────────────────────┐              │
+│   │ MESH GEN            │         │   │ COMPUTE SHADERS     │              │
+│   │ ├── Point-E/Shap-E  │         │   │ ├── Terrain gen     │              │
+│   │ ├── NeRF baking     │         │   │ ├── Procedural      │              │
+│   │ └── 8GB VRAM        │         │   │ └── 4GB VRAM        │              │
+│   └─────────────────────┘         │   └─────────────────────┘              │
+│                                   │                                        │
+│   OVERFLOW ←──────────────────────┼──────────────────────→ OVERFLOW        │
+│   (Can borrow from GPU 1)         │   (Can borrow from GPU 0)              │
+│                                   │                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## Software Stack
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          SOFTWARE STACK                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  LAYER 5: APPLICATION                                                       │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  GentlyOS Forge Studio                                              │   │
+│  │  ├── HTMX/WebGL UI (phone-first)                                    │   │
+│  │  ├── Claude MCP integration                                         │   │
+│  │  ├── Voice input (Whisper)                                          │   │
+│  │  └── Collaborative mode                                             │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  LAYER 4: RUNTIME                                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  GentlyOS Core (Rust)                                               │   │
+│  │  ├── CODIE Parser/Generator                                         │   │
+│  │  ├── Entity System (BONES)                                          │   │
+│  │  ├── Asset Manager (BLOB)                                           │   │
+│  │  ├── Protocol Bridge (BIZ)                                          │   │
+│  │  ├── Spatial Context (CIRCLE)                                       │   │
+│  │  └── Identity System (PIN)                                          │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  LAYER 3: AI/ML                                                            │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  Local AI Stack                                                     │   │
+│  │  ├── llama.cpp (GGUF models, CPU+GPU)                               │   │
+│  │  ├── Ollama (model management)                                      │   │
+│  │  ├── vLLM (high-throughput serving)                                 │   │
+│  │  ├── Stable Diffusion (ComfyUI backend)                             │   │
+│  │  ├── Whisper.cpp (voice transcription)                              │   │
+│  │  └── ONNX Runtime (cross-platform inference)                        │   │
+│  │                                                                     │   │
+│  │  Models:                                                            │   │
+│  │  ├── Tiny CODIE (1B, fine-tuned for CODIE syntax)                   │   │
+│  │  ├── Qwen2.5-Coder-3B (code generation)                             │   │
+│  │  ├── SDXL-Turbo (fast texture gen)                                  │   │
+│  │  └── Shap-E / Point-E (mesh generation)                             │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  LAYER 2: GRAPHICS/COMPUTE                                                 │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  GPU APIs                                                           │   │
+│  │  ├── Vulkan 1.3 (primary graphics)                                  │   │
+│  │  │   ├── VK_KHR_ray_tracing_pipeline                                │   │
+│  │  │   ├── VK_KHR_acceleration_structure                              │   │
+│  │  │   └── VK_EXT_mesh_shader                                         │   │
+│  │  ├── CUDA 12.x (compute/AI)                                         │   │
+│  │  │   ├── cuBLAS (matrix ops)                                        │   │
+│  │  │   ├── cuDNN (neural networks)                                    │   │
+│  │  │   └── cuRAND (procedural gen)                                    │   │
+│  │  ├── wgpu-rs (Rust WebGPU, cross-platform)                          │   │
+│  │  └── OpenXR (VR/AR for Meta Quest)                                  │   │
+│  │                                                                     │   │
+│  │  Rust GPU Libraries:                                                │   │
+│  │  ├── ash (Vulkan bindings)                                          │   │
+│  │  ├── wgpu (WebGPU implementation)                                   │   │
+│  │  ├── rust-gpu (GPU shaders in Rust)                                 │   │
+│  │  ├── glam (math, SIMD optimized)                                    │   │
+│  │  ├── nalgebra (linear algebra)                                      │   │
+│  │  └── parry3d (collision detection)                                  │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  LAYER 1: SYSTEM                                                           │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  Operating System                                                   │   │
+│  │  ├── Linux (Ubuntu 24.04 / Arch)                                    │   │
+│  │  ├── NVIDIA Driver 550+                                             │   │
+│  │  ├── Vulkan ICD loader                                              │   │
+│  │  └── Wayland/X11 (display)                                          │   │
+│  │                                                                     │   │
+│  │  Development:                                                       │   │
+│  │  ├── Rust 1.75+ (nightly for GPU features)                          │   │
+│  │  ├── Python 3.11+ (AI tooling)                                      │   │
+│  │  ├── Node.js 20+ (HTMX dev server)                                  │   │
+│  │  └── Docker (containerized builds)                                  │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  LAYER 0: HARDWARE                                                         │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  RTX 3090 Ti × 2                                                    │   │
+│  │  ├── PCIe 4.0 x16 (each)                                            │   │
+│  │  ├── NVENC/NVDEC (video encode/decode)                              │   │
+│  │  └── Tensor Cores (FP16, BF16, INT8, TF32)                          │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## Rust GPU Crate Stack
+
+```rust
+// Cargo.toml - Core GPU dependencies
+
+[dependencies]
+# Graphics
+wgpu = "0.19"                    # WebGPU (cross-platform)
+ash = "0.37"                     # Vulkan bindings
+vulkano = "0.34"                 # Safe Vulkan wrapper
+
+# Math
+glam = { version = "0.25", features = ["cuda"] }
+nalgebra = "0.32"
+ultraviolet = "0.9"              # SIMD math
+
+# Physics
+parry3d = "0.13"                 # Collision detection
+rapier3d = "0.18"                # Physics engine
+
+# Asset Loading
+gltf = "1.4"                     # glTF loader
+image = "0.24"                   # Image processing
+tobj = "4.0"                     # OBJ loader
+
+# AI/ML
+candle-core = "0.4"              # Rust ML framework
+ort = "2.0"                      # ONNX Runtime
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+bincode = "1.3"                  # Binary serialization
+rmp-serde = "1.1"                # MessagePack
+
+# Async
+tokio = { version = "1.35", features = ["full"] }
+async-channel = "2.1"
+
+# Networking
+tungstenite = "0.21"             # WebSocket
+axum = "0.7"                     # HTTP server
+
+[build-dependencies]
+spirv-builder = "0.9"            # Compile Rust to SPIR-V
+```
+
+## GPU Memory Layout
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      GPU VRAM ALLOCATION (per GPU)                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  GPU 0: 24GB VRAM                         GPU 1: 24GB VRAM                 │
+│  ══════════════════                       ══════════════════               │
+│                                                                             │
+│  ┌──────────────────────┐                 ┌──────────────────────┐         │
+│  │ TINY MODEL           │ 4GB             │ FRAME BUFFERS        │ 2GB     │
+│  │ (quantized weights)  │                 │ (triple buffered)    │         │
+│  ├──────────────────────┤                 ├──────────────────────┤         │
+│  │ KV CACHE             │ 2GB             │ DEPTH/STENCIL        │ 512MB   │
+│  │ (context window)     │                 │                      │         │
+│  ├──────────────────────┤                 ├──────────────────────┤         │
+│  │ TEXTURE GEN          │ 8GB             │ SCENE GEOMETRY       │ 8GB     │
+│  │ (SDXL workspace)     │                 │ (vertex/index)       │         │
+│  ├──────────────────────┤                 ├──────────────────────┤         │
+│  │ MESH GEN             │ 6GB             │ TEXTURES             │ 8GB     │
+│  │ (3D model gen)       │                 │ (loaded assets)      │         │
+│  ├──────────────────────┤                 ├──────────────────────┤         │
+│  │ STAGING              │ 2GB             │ RAY TRACING          │ 4GB     │
+│  │ (upload/download)    │                 │ (BVH/acceleration)   │         │
+│  ├──────────────────────┤                 ├──────────────────────┤         │
+│  │ RESERVED             │ 2GB             │ COMPUTE SCRATCH      │ 1.5GB   │
+│  │ (overflow/system)    │                 │ (physics, particles) │         │
+│  └──────────────────────┘                 └──────────────────────┘         │
+│                                                                             │
+│  INTER-GPU TRANSFER: PCIe 4.0 (~25 GB/s bidirectional)                     │
+│  ├── Asset streaming (GPU0 gen → GPU1 render)                              │
+│  ├── Async copy queues                                                     │
+│  └── Pinned system memory staging                                          │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+# PART 2: GOALS MATRIX
+
+## Complete Project Goals
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         GENTLYOS ECOSYSTEM GOALS                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ████████████████████████████████████████████████████████████████████████  │
+│  █                                                                        █  │
+│  █   MISSION: Sovereignty-first computing where Claude is the             █  │
+│  █   primary interface, eliminating traditional desktop environments      █  │
+│  █   while giving creators the power to build and ship games              █  │
+│  █   to any platform from a phone.                                        █  │
+│  █                                                                        █  │
+│  ████████████████████████████████████████████████████████████████████████  │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║  TIER 1: CORE SYSTEMS (Foundational)                                      ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║                                                                           ║
+║  [●] 1.1 CODIE Language                                                   ║
+║      ├── 94.7% token compression DSL                                      ║
+║      ├── Vector Barf normalization (VB1-VB5)                              ║
+║      ├── Hashable, diffable, GPU-agnostic                                 ║
+║      ├── Berlin Clock KDF temporal linking                                ║
+║      └── XOR cipher for state encryption                                  ║
+║                                                                           ║
+║  [●] 1.2 BONES/BLOB/BIZ/CIRCLE/PIN Architecture                          ║
+║      ├── BONES: Entity structure and behaviors                            ║
+║      ├── BLOB: Binary asset containers                                    ║
+║      ├── BIZ: I/O protocol layer (the interface)                          ║
+║      ├── CIRCLE: Spatial/temporal context                                 ║
+║      └── PIN: Identity and provenance                                     ║
+║                                                                           ║
+║  [●] 1.3 .CDI File Format                                                 ║
+║      ├── Universal container for all five atomic types                    ║
+║      ├── Hydrates to any game engine                                      ║
+║      ├── Blake3 checksums, Ed25519 signatures                             ║
+║      └── Compression (LZ4/Zstd)                                           ║
+║                                                                           ║
+║  [ ] 1.4 Rust 3D Kernel                                                   ║
+║      ├── Headless scene graph                                             ║
+║      ├── glam math, parry3d collision                                     ║
+║      ├── glTF export (Y-up, meters)                                       ║
+║      └── MCP socket bridge (port 9876)                                    ║
+║                                                                           ║
+║  [ ] 1.5 Tiny Local Model (1-3B params)                                   ║
+║      ├── Fine-tuned on CODIE syntax                                       ║
+║      ├── Semantic → CODIE parsing                                         ║
+║      ├── Always running, phone-capable                                    ║
+║      └── GGUF quantized (4-bit)                                           ║
+║                                                                           ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║  TIER 2: DESIGN STUDIO (The Forward Path)                                 ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║                                                                           ║
+║  [ ] 2.1 Phone-First UI                                                   ║
+║      ├── HTMX (no React bloat)                                            ║
+║      ├── Portrait mode default                                            ║
+║      ├── 3D viewport (60% screen)                                         ║
+║      ├── Magic bar (semantic input)                                       ║
+║      ├── Tab system (Build/Paint/Files/Settings)                          ║
+║      └── Touch gestures (orbit, pinch zoom, tap select)                   ║
+║                                                                           ║
+║  [ ] 2.2 Voice Integration                                                ║
+║      ├── Whisper.cpp local transcription                                  ║
+║      ├── Wake word detection                                              ║
+║      ├── Semantic command parsing                                         ║
+║      └── "Make a rusty sword" → CODIE → 3D                               ║
+║                                                                           ║
+║  [ ] 2.3 Texture Stack System                                             ║
+║      ├── Semantic → procedural layers                                     ║
+║      ├── CSS preview (real-time)                                          ║
+║      ├── Bake to PNG/shader                                               ║
+║      └── PBR material output                                              ║
+║                                                                           ║
+║  [ ] 2.4 Behavior Editor                                                  ║
+║      ├── Fallout-style AI packages                                        ║
+║      ├── Temperament sliders (0-1)                                        ║
+║      ├── GPS spawn zones                                                  ║
+║      ├── Schedule system                                                  ║
+║      └── Quirks and special abilities                                     ║
+║                                                                           ║
+║  [ ] 2.5 Real-Time Preview                                                ║
+║      ├── Vulkan renderer (GPU 1)                                          ║
+║      ├── PBR materials                                                    ║
+║      ├── Basic physics                                                    ║
+║      └── Play mode (test in editor)                                       ║
+║                                                                           ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║  TIER 3: HYDRATION ENGINE (Multi-Engine Export)                           ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║                                                                           ║
+║  [ ] 3.1 Unity Hydrator                                                   ║
+║      ├── .unitypackage generation                                         ║
+║      ├── ScriptableObject templates                                       ║
+║      ├── Prefab structure                                                 ║
+║      ├── C# code generation                                               ║
+║      └── Value scaling (0-1 → 0-100)                                      ║
+║                                                                           ║
+║  [ ] 3.2 Unreal Hydrator                                                  ║
+║      ├── .uasset generation                                               ║
+║      ├── Blueprint templates                                              ║
+║      ├── C++ header generation                                            ║
+║      └── Value scaling (0-1 → 0-1000)                                     ║
+║                                                                           ║
+║  [ ] 3.3 Godot Hydrator                                                   ║
+║      ├── .tscn/.tres generation                                           ║
+║      ├── GDScript templates                                               ║
+║      ├── Resource classes                                                 ║
+║      └── Native coordinate system                                         ║
+║                                                                           ║
+║  [ ] 3.4 Roblox Hydrator                                                  ║
+║      ├── .rbxm model generation                                           ║
+║      ├── Lua/Luau scripts                                                 ║
+║      ├── ModuleScript templates                                           ║
+║      └── ReplicatedStorage structure                                      ║
+║                                                                           ║
+║  [ ] 3.5 Meta Quest Hydrator                                              ║
+║      ├── OpenXR integration                                               ║
+║      ├── Hand tracking setup                                              ║
+║      ├── Spatial anchors                                                  ║
+║      └── Passthrough AR support                                           ║
+║                                                                           ║
+║  [ ] 3.6 GTA6/RAGE Hydrator (Future)                                      ║
+║      ├── .ytyp/.ymap generation                                           ║
+║      ├── When modding tools available                                     ║
+║      └── RPF packaging                                                    ║
+║                                                                           ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║  TIER 4: DECOMPILER ENGINE (The Backward Path)                            ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║                                                                           ║
+║  [ ] 4.1 Asset Extractor                                                  ║
+║      ├── .fbx/.glb → BLOB                                                 ║
+║      ├── .png/.dds → Texture layers                                       ║
+║      ├── Scene graph → BONES hierarchy                                    ║
+║      └── Scripts → behavior patterns                                      ║
+║                                                                           ║
+║  [ ] 4.2 Unity Decompiler                                                 ║
+║      ├── .unitypackage → CDI                                              ║
+║      ├── Prefab analysis                                                  ║
+║      ├── Script pattern detection                                         ║
+║      └── Value normalization (÷100)                                       ║
+║                                                                           ║
+║  [ ] 4.3 Pattern Recognition                                              ║
+║      ├── AI-assisted behavior detection                                   ║
+║      ├── Combat system fingerprinting                                     ║
+║      ├── Inventory pattern matching                                       ║
+║      └── Generate CODIE from patterns                                     ║
+║                                                                           ║
+║  [ ] 4.4 Atomic Decomposition                                             ║
+║      ├── Any asset → BONES/BLOB/BIZ/CIRCLE/PIN                           ║
+║      ├── Reusable building blocks                                         ║
+║      └── Cross-platform ready                                             ║
+║                                                                           ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║  TIER 5: COLLABORATION & DISTRIBUTION                                     ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║                                                                           ║
+║  [ ] 5.1 Collaborative Build Mode                                         ║
+║      ├── Compute pool sharing                                             ║
+║      ├── Real-time sync (CRDT)                                            ║
+║      ├── Role assignment (artist/coder/designer)                          ║
+║      └── Deterministic builds                                             ║
+║                                                                           ║
+║  [ ] 5.2 Alexandria Protocol                                              ║
+║      ├── "Google for Intelligence"                                        ║
+║      ├── Index reasoning paths, not static content                        ║
+║      ├── Decentralized knowledge topology                                 ║
+║      └── CODIE asset discovery                                            ║
+║                                                                           ║
+║  [ ] 5.3 SYNTH Tokenomics                                                 ║
+║      ├── "Bitcoin for Intelligence"                                       ║
+║      ├── Proof-of-reasoning rewards                                       ║
+║      ├── Asset marketplace                                                ║
+║      └── Creator royalties                                                ║
+║                                                                           ║
+║  [ ] 5.4 Distribution Pipelines                                           ║
+║      ├── Steam (PC)                                                       ║
+║      ├── App Store / Play Store (mobile)                                  ║
+║      ├── Meta Quest Store (VR)                                            ║
+║      ├── itch.io (indie)                                                  ║
+║      └── Direct download (.exe/.apk/.ipa)                                 ║
+║                                                                           ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║  TIER 6: GENTLYOS CORE                                                    ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║                                                                           ║
+║  [ ] 6.1 OS Interface                                                     ║
+║      ├── Claude as primary interface                                      ║
+║      ├── No traditional desktop                                           ║
+║      ├── Voice-first interaction                                          ║
+║      └── Multi-modal (text, voice, gesture)                               ║
+║                                                                           ║
+║  [ ] 6.2 Multi-Layer Intelligence                                         ║
+║      ├── Tiny model: routine tasks (local)                                ║
+║      ├── Medium model: complex parsing (local)                            ║
+║      ├── Claude: deep reasoning (API)                                     ║
+║      └── Seamless handoff                                                 ║
+║                                                                           ║
+║  [ ] 6.3 Prometheus Protocol                                              ║
+║      ├── Consensual cognitive enhancement                                 ║
+║      ├── NLP/Kabbalistic influence system                                 ║
+║      ├── Creativity amplification                                         ║
+║      └── Engineering mindset reinforcement                                ║
+║                                                                           ║
+║  [ ] 6.4 Security Layer                                                   ║
+║      ├── UEFI-level clean boot                                            ║
+║      ├── Air-gap principles                                               ║
+║      ├── End-to-end encryption                                            ║
+║      └── Zero-knowledge proofs                                            ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+```
+
+## Priority Matrix
+
+```
+                        IMPACT
+                    LOW         HIGH
+                ┌───────────┬───────────┐
+           HIGH │  QUICK    │  CRITICAL │
+                │  WINS     │  PATH     │
+    EFFORT      │           │           │
+                │  2.2,2.3  │  1.4,1.5  │
+                │  4.1      │  2.1,3.1  │
+                ├───────────┼───────────┤
+           LOW  │  SKIP     │  DO NOW   │
+                │  (defer)  │  (done)   │
+                │           │           │
+                │  3.6,5.3  │  1.1,1.2  │
+                │           │  1.3      │
+                └───────────┴───────────┘
+
+RECOMMENDED ORDER:
+1. [DONE] CODIE Language (1.1)
+2. [DONE] BONES/BLOB/BIZ/CIRCLE/PIN (1.2)
+3. [DONE] .CDI Format (1.3)
+4. [NEXT] Rust 3D Kernel (1.4)
+5. [NEXT] Phone UI (2.1)
+6. [NEXT] Unity Hydrator (3.1)
+7. [THEN] Tiny Model (1.5)
+8. [THEN] Other hydrators
+9. [THEN] Decompiler
+10. [THEN] Collaboration
+```
+
+---
+
+# PART 3: DESIGN STUDIO
+
+## Bidirectional Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    GENTLYOS FORGE DESIGN STUDIO                             │
+│                      Bidirectional Game Creation                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   ════════════════════════════════════════════════════════════════════     │
+│   ║                    FORWARD PATH (CREATE)                          ║     │
+│   ════════════════════════════════════════════════════════════════════     │
+│                                                                             │
+│   SEMANTIC INPUT          CODIE GENERATION        ENGINE OUTPUT            │
+│   ══════════════          ════════════════        ═════════════            │
+│                                                                             │
+│   "tough boss with     →  E.boss{              →  Unity: Boss.prefab       │
+│    fire sword that        _id:e001                Unreal: BP_Boss          │
+│    guards treasure"       n:"Fire Guardian"       Godot: boss.tscn         │
+│                           p:0.9,h:0.9             Roblox: BossModule       │
+│   Voice/Text/Touch        w:w001,g:e003           Quest: SpatialBoss       │
+│                           ai:aggressive        →                            │
+│                           ...                                               │
+│                         }                                                   │
+│                                                                             │
+│   ┌─────────────┐      ┌─────────────┐      ┌─────────────┐               │
+│   │  SEMANTIC   │  →   │   CODIE     │  →   │  HYDRATED   │               │
+│   │  LAYER      │      │   LAYER     │      │  LAYER      │               │
+│   │             │      │             │      │             │               │
+│   │ • Voice     │      │ • Parser    │      │ • Templates │               │
+│   │ • Text      │      │ • Validator │      │ • Code gen  │               │
+│   │ • Gestures  │      │ • Optimizer │      │ • Assets    │               │
+│   │ • Import    │      │ • Store     │      │ • Package   │               │
+│   └─────────────┘      └─────────────┘      └─────────────┘               │
+│         │                    │                    │                        │
+│         ▼                    ▼                    ▼                        │
+│   ┌─────────────────────────────────────────────────────────┐             │
+│   │                    .CDI FILE                            │             │
+│   │  Universal container with BONES/BLOB/BIZ/CIRCLE/PIN     │             │
+│   └─────────────────────────────────────────────────────────┘             │
+│         │                    │                    │                        │
+│         ▼                    ▼                    ▼                        │
+│   ┌─────────────┐      ┌─────────────┐      ┌─────────────┐               │
+│   │  PATTERN    │  ←   │   CODIE     │  ←   │  EXTRACTED  │               │
+│   │  LAYER      │      │   LAYER     │      │  LAYER      │               │
+│   │             │      │             │      │             │               │
+│   │ • AI detect │      │ • Normalize │      │ • Decompile │               │
+│   │ • Fingerprint│     │ • Abstract  │      │ • Parse     │               │
+│   │ • Catalog   │      │ • Generate  │      │ • Extract   │               │
+│   │ • Reusable  │      │ • Validate  │      │ • Analyze   │               │
+│   └─────────────┘      └─────────────┘      └─────────────┘               │
+│                                                                             │
+│   ATOMIC BLOCKS           CODIE ABSTRACTION       EXISTING ASSETS          │
+│   ═════════════           ═════════════════       ═══════════════          │
+│                                                                             │
+│   Reusable                Normalized 0-1          .unitypackage            │
+│   building blocks     ←   representation      ←   .fbx, .glb               │
+│   for any project         of any game asset       .prefab, .tscn           │
+│                                                   .rbxm, .esm              │
+│                                                                             │
+│   ════════════════════════════════════════════════════════════════════     │
+│   ║                   BACKWARD PATH (DECOMPOSE)                       ║     │
+│   ════════════════════════════════════════════════════════════════════     │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## The Clock Architecture
+### Building Block Asset System
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         THE CLOCK ARCHITECTURE                              │
+│              Building Blocks Ready for Cross-Platform Protocols             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│                              12 (EXPORT)                                    │
+│                                  ║                                          │
+│                         ╔════════╩════════╗                                │
+│                         ║   SHIP READY    ║                                │
+│                         ║  .exe .apk .ipa ║                                │
+│                         ╚═════════════════╝                                │
+│                                  ║                                          │
+│            11 ══════════════════╬═══════════════════ 1                     │
+│           TEST                  ║                  BUILD                   │
+│                                 ║                                          │
+│      10 ════════════════════════╬════════════════════════ 2                │
+│     OPTIMIZE                    ║                       DESIGN             │
+│                                 ║                                          │
+│                         ╔═══════╩═══════╗                                  │
+│       9 ════════════════║    CODIE     ║════════════════ 3                 │
+│      BEHAVIOR           ║    CORE      ║              ASSETS               │
+│                         ║              ║                                   │
+│                         ║  ┌────────┐  ║                                   │
+│       8 ════════════════║  │ BONES │  ║════════════════ 4                 │
+│      LOGIC              ║  │ BLOB  │  ║              TEXTURE               │
+│                         ║  │ BIZ   │  ║                                   │
+│                         ║  │CIRCLE │  ║                                   │
+│       7 ════════════════║  │ PIN   │  ║════════════════ 5                 │
+│      AUDIO              ║  └────────┘  ║              PHYSICS              │
+│                         ╚═══════╦═══════╝                                  │
+│                                 ║                                          │
+│            6 ═══════════════════╬═══════════════════                       │
+│           UI                    ║                                          │
+│                                 ║                                          │
+│                              IMPORT                                        │
+│                         (existing assets)                                  │
+│                                                                             │
+│   ═══════════════════════════════════════════════════════════════════      │
+│                                                                             │
+│   CLOCK POSITIONS (Development Phases):                                    │
+│                                                                             │
+│   12:00 - EXPORT      Ship to stores, distribute                           │
+│    1:00 - BUILD       Create entities, scenes                              │
+│    2:00 - DESIGN      Plan structure, layout                               │
+│    3:00 - ASSETS      Import/create 3D models                              │
+│    4:00 - TEXTURE     Create/apply materials                               │
+│    5:00 - PHYSICS     Collision, rigidbody                                 │
+│    6:00 - UI          Menus, HUD, controls                                 │
+│    7:00 - AUDIO       Music, SFX, voice                                    │
+│    8:00 - LOGIC       Scripts, game rules                                  │
+│    9:00 - BEHAVIOR    AI, NPCs, enemies                                    │
+│   10:00 - OPTIMIZE    Performance, LOD                                     │
+│   11:00 - TEST        QA, bug fixes                                        │
+│                                                                             │
+│   IMPORT (6:00 bottom) - Bring in existing assets                          │
+│                                                                             │
+│   ═══════════════════════════════════════════════════════════════════      │
+│                                                                             │
+│   BIDIRECTIONAL MOVEMENT:                                                  │
+│                                                                             │
+│   CLOCKWISE (Forward):                                                     │
+│   Import → Design → Build → Assets → ... → Test → Export                   │
+│                                                                             │
+│   COUNTER-CLOCKWISE (Backward):                                            │
+│   Existing Game → Decompile → Extract → Normalize → Atomic Blocks          │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## Cross-Platform Protocol Layer
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    CROSS-PLATFORM PROTOCOL LAYER                            │
+│                  The BIZ in Action - Universal I/O                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│                           ┌─────────────────┐                              │
+│                           │  GentlyOS Forge │                              │
+│                           │     Studio      │                              │
+│                           └────────┬────────┘                              │
+│                                    │                                        │
+│                           ┌────────▼────────┐                              │
+│                           │   CODIE CORE    │                              │
+│                           │  (Normalized)   │                              │
+│                           └────────┬────────┘                              │
+│                                    │                                        │
+│              ┌─────────────────────┼─────────────────────┐                 │
+│              │                     │                     │                 │
+│     ┌────────▼────────┐   ┌────────▼────────┐   ┌────────▼────────┐       │
+│     │   BIZ ADAPTER   │   │   BIZ ADAPTER   │   │   BIZ ADAPTER   │       │
+│     │     UNITY       │   │    UNREAL       │   │     GODOT       │       │
+│     └────────┬────────┘   └────────┬────────┘   └────────┬────────┘       │
+│              │                     │                     │                 │
+│     ┌────────▼────────┐   ┌────────▼────────┐   ┌────────▼────────┐       │
+│     │ GentlyEntity.cs │   │ GentlyActor.cpp │   │ gently_entity.gd│       │
+│     │ GentlyWeapon.cs │   │ GentlyWeapon.h  │   │ gently_weapon.gd│       │
+│     │ GentlyBehavior  │   │ BehaviorTree    │   │ gently_ai.gd    │       │
+│     │ .unitypackage   │   │ .uasset         │   │ .tscn/.tres     │       │
+│     └─────────────────┘   └─────────────────┘   └─────────────────┘       │
+│              │                     │                     │                 │
+│     ┌────────▼────────┐   ┌────────▼────────┐   ┌────────▼────────┐       │
+│     │ Unity Editor    │   │ Unreal Editor   │   │ Godot Editor    │       │
+│     │ (drag & drop)   │   │ (drag & drop)   │   │ (drag & drop)   │       │
+│     └─────────────────┘   └─────────────────┘   └─────────────────┘       │
+│                                                                             │
+│  ═══════════════════════════════════════════════════════════════════════   │
+│                                                                             │
+│     ┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐       │
+│     │   BIZ ADAPTER   │   │   BIZ ADAPTER   │   │   BIZ ADAPTER   │       │
+│     │    ROBLOX       │   │   META QUEST    │   │    BETHESDA     │       │
+│     └────────┬────────┘   └────────┬────────┘   └────────┬────────┘       │
+│              │                     │                     │                 │
+│     ┌────────▼────────┐   ┌────────▼────────┐   ┌────────▼────────┐       │
+│     │ ModuleScript    │   │ OVR Prefabs     │   │ Actor records   │       │
+│     │ Lua scripts     │   │ OpenXR config   │   │ .esm plugin     │       │
+│     │ .rbxm model     │   │ Spatial anchors │   │ Papyrus scripts │       │
+│     └─────────────────┘   └─────────────────┘   └─────────────────┘       │
+│                                                                             │
+│  ═══════════════════════════════════════════════════════════════════════   │
+│                                                                             │
+│   PROTOCOL FEATURES:                                                       │
+│                                                                             │
+│   • MCP Tools: spawn_entity, modify_entity, get_scene, etc.               │
+│   • WebSocket: Real-time sync (port 9876)                                  │
+│   • JSON-RPC 2.0: Standard request/response                                │
+│   • Value Scaling: Automatic normalization (0-1 ↔ engine scale)           │
+│   • Coordinate Transform: Y-up meters ↔ engine-specific                   │
+│   • Asset Conversion: .glb ↔ engine-native formats                        │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## Cross-Team Collaboration
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      CROSS-TEAM COLLABORATION                               │
+│                    Multiple Teams, One CODIE Source                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   TEAM A (Unity)              SHARED CODIE              TEAM B (Unreal)    │
+│   ═════════════              ════════════              ══════════════       │
+│                                                                             │
+│   ┌─────────────┐           ┌─────────────┐           ┌─────────────┐      │
+│   │   Artist    │           │             │           │   Artist    │      │
+│   │  (Unity)    │──────────▶│   game.cdi  │◀──────────│  (Unreal)   │      │
+│   └─────────────┘           │             │           └─────────────┘      │
+│                             │  E.player{  │                                │
+│   ┌─────────────┐           │   p:0.7     │           ┌─────────────┐      │
+│   │  Designer   │──────────▶│   h:0.8     │◀──────────│  Designer   │      │
+│   │  (Unity)    │           │   s:0.6     │           │  (Unreal)   │      │
+│   └─────────────┘           │  }          │           └─────────────┘      │
+│                             │             │                                │
+│   ┌─────────────┐           │  W.sword{   │           ┌─────────────┐      │
+│   │ Programmer  │──────────▶│   dmg:0.5   │◀──────────│ Programmer  │      │
+│   │  (Unity)    │           │   spd:0.7   │           │  (Unreal)   │      │
+│   └─────────────┘           │  }          │           └─────────────┘      │
+│                             │             │                                │
+│         │                   └──────┬──────┘                   │            │
+│         │                          │                          │            │
+│         ▼                          ▼                          ▼            │
+│   ┌─────────────┐           ┌─────────────┐           ┌─────────────┐      │
+│   │   Unity     │           │    CODIE    │           │   Unreal    │      │
+│   │   Build     │           │   Server    │           │   Build     │      │
+│   │             │           │  (port 9876)│           │             │      │
+│   │ Player.prefab│◀─────────│             │──────────▶│ BP_Player   │      │
+│   │ Sword.prefab │          │  Real-time  │           │ BP_Sword    │      │
+│   └─────────────┘           │    sync     │           └─────────────┘      │
+│         │                   └─────────────┘                   │            │
+│         ▼                                                     ▼            │
+│   ┌─────────────┐                                       ┌─────────────┐    │
+│   │   Steam     │                                       │   Epic      │    │
+│   │  (PC)       │                                       │  (PC)       │    │
+│   └─────────────┘                                       └─────────────┘    │
+│                                                                             │
+│   ═══════════════════════════════════════════════════════════════════      │
+│                                                                             │
+│   SYNC PROTOCOL (CRDT-based):                                              │
+│                                                                             │
+│   1. Each team member edits locally                                        │
+│   2. Changes pushed to CODIE server                                        │
+│   3. Server merges (conflict resolution)                                   │
+│   4. Hydrators auto-update engine projects                                 │
+│   5. Deterministic builds from same CODIE                                  │
+│                                                                             │
+│   ROLES:                                                                   │
+│   • ARTIST: Edits BLOB (meshes, textures)                                  │
+│   • DESIGNER: Edits BONES (entities, levels)                               │
+│   • PROGRAMMER: Edits BONES (scripts, logic)                               │
+│   • AUDIO: Edits BLOB (sounds, music)                                      │
+│   • QA: Read-only, test builds                                             │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## Design Studio UI
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      DESIGN STUDIO UI (Phone-First)                         │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   PORTRAIT MODE (Default)                 LANDSCAPE MODE (Optional)        │
+│   ═════════════════════                   ══════════════════════           │
+│                                                                             │
+│   ┌─────────────────────┐                 ┌─────────────────────────────┐  │
+│   │ ≡ FORGE      🔥 87% │ 44px            │ ≡ FORGE                87% │  │
+│   ├─────────────────────┤                 ├───────────────┬─────────────┤  │
+│   │                     │                 │               │             │  │
+│   │                     │                 │               │   TOOLS     │  │
+│   │    3D VIEWPORT      │                 │  3D VIEWPORT  │   PANEL     │  │
+│   │      (60%)          │                 │    (70%)      │   (30%)     │  │
+│   │                     │                 │               │             │  │
+│   │  [touch: orbit]     │                 │               │  ┌───────┐  │  │
+│   │  [pinch: zoom]      │                 │               │  │ CODIE │  │  │
+│   │  [tap: select]      │                 │               │  │preview│  │  │
+│   │                     │                 │               │  └───────┘  │  │
+│   ├─────────────────────┤                 │               │             │  │
+│   │[make rusty sword▼]⚡│ 48px            │               │  [Build]    │  │
+│   ├─────────────────────┤                 │               │  [Paint]    │  │
+│   │                     │                 │               │  [Logic]    │  │
+│   │    TOOLS PANEL      │                 │               │  [Export]   │  │
+│   │      (35%)          │                 │               │             │  │
+│   │                     │                 ├───────────────┴─────────────┤  │
+│   │  ┌───────────────┐  │                 │[semantic input...      ]🎤⚡│  │
+│   │  │ Entity List   │  │                 └─────────────────────────────┘  │
+│   │  │ - Player      │  │                                                  │
+│   │  │ - Enemy_01    │  │                                                  │
+│   │  │ - Sword_01    │  │                                                  │
+│   │  └───────────────┘  │                                                  │
+│   │                     │                                                  │
+│   ├─────────────────────┤                                                  │
+│   │🧱│🎨│📁│⚙️│🔄│📤│ 56px                                                 │
+│   │BLD│PNT│FIL│SET│SYN│EXP│                                                │
+│   └─────────────────────┘                                                  │
+│                                                                             │
+│   ═══════════════════════════════════════════════════════════════════      │
+│                                                                             │
+│   TAB FUNCTIONS:                                                           │
+│                                                                             │
+│   🧱 BUILD    - Entity creation, hierarchy, prefabs                        │
+│   🎨 PAINT    - Texture layers, materials, shaders                         │
+│   📁 FILES    - Project tree, assets, import/export                        │
+│   ⚙️ SETTINGS - Project config, engine targets, preferences                │
+│   🔄 SYNC     - Collaboration, team sync, version control                  │
+│   📤 EXPORT   - Hydrate to engines, package, distribute                    │
+│                                                                             │
+│   ═══════════════════════════════════════════════════════════════════      │
+│                                                                             │
+│   MAGIC BAR MODES:                                                         │
+│                                                                             │
+│   "make rusty sword"     → CODIE generation → 3D preview                   │
+│   "import boss.fbx"      → Asset import → BLOB extraction                  │
+│   "decompose this"       → Backward analysis → atomic blocks               │
+│   "export to unity"      → Hydration → .unitypackage                       │
+│   "sync with team"       → Push changes → CRDT merge                       │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## Backward Crawl (Decompiler)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         BACKWARD CRAWL ENGINE                               │
+│                  Decompose Existing Games into Atoms                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│   INPUT                          PROCESS                      OUTPUT       │
+│   ═════                          ═══════                      ══════       │
+│                                                                             │
+│   .unitypackage    ──┐                                                     │
+│   .uasset          ──┤        ┌─────────────────┐                          │
+│   .tscn            ──┼───────▶│  ASSET PARSER   │                          │
+│   .rbxm            ──┤        │                 │                          │
+│   .esm             ──┤        │ • Mesh extract  │        ┌──────────────┐  │
+│   .glb/.fbx        ──┘        │ • Texture split │───────▶│    BLOB      │  │
+│                               │ • Audio isolate │        │  (raw data)  │  │
+│                               └────────┬────────┘        └──────────────┘  │
+│                                        │                                   │
+│                                        ▼                                   │
+│   C# scripts       ──┐        ┌─────────────────┐                          │
+│   Blueprints       ──┤        │ PATTERN DETECT  │                          │
+│   GDScript         ──┼───────▶│                 │                          │
+│   Lua              ──┤        │ AI-assisted:    │        ┌──────────────┐  │
+│   Papyrus          ──┘        │ • Combat system │───────▶│   BONES      │  │
+│                               │ • Inventory     │        │ (structure)  │  │
+│                               │ • AI behavior   │        └──────────────┘  │
+│                               │ • Movement      │                          │
+│                               │ • Dialogue      │                          │
+│                               └────────┬────────┘                          │
+│                                        │                                   │
+│                                        ▼                                   │
+│   Scene hierarchy  ──┐        ┌─────────────────┐                          │
+│   Prefab structure ──┼───────▶│  NORMALIZER     │                          │
+│   Entity relations ──┘        │                 │        ┌──────────────┐  │
+│                               │ • Value scale   │───────▶│   CODIE      │  │
+│                               │   (÷100, ÷1000) │        │ (normalized) │  │
+│                               │ • Coord convert │        └──────────────┘  │
+│                               │ • Unit standard │                          │
+│                               └────────┬────────┘                          │
+│                                        │                                   │
+│                                        ▼                                   │
+│                               ┌─────────────────┐        ┌──────────────┐  │
+│                               │  CDI GENERATOR  │───────▶│   .CDI FILE  │  │
+│                               │                 │        │  (portable)  │  │
+│                               │ Pack into five  │        └──────────────┘  │
+│                               │ atomic types    │                          │
+│                               └─────────────────┘                          │
+│                                                                             │
+│   ═══════════════════════════════════════════════════════════════════      │
+│                                                                             │
+│   PATTERN FINGERPRINTS:                                                    │
+│                                                                             │
+│   COMBAT SYSTEM:                                                           │
+│   • Health component + damage dealer + hitbox = COMBAT                     │
+│   • Attack animation + cooldown + damage = WEAPON                          │
+│   • Block/parry + stamina + iframe = DEFENSE                               │
+│                                                                             │
+│   INVENTORY SYSTEM:                                                        │
+│   • Item array + UI grid + equip slots = INVENTORY                         │
+│   • Stack count + weight + value = ITEM                                    │
+│   • Drag/drop + tooltip + sort = INVENTORY_UI                              │
+│                                                                             │
+│   AI BEHAVIOR:                                                             │
+│   • State machine + perception + action = AI_CONTROLLER                    │
+│   • Patrol path + waypoints + speed = PATROL                               │
+│   • Target + chase + attack range = AGGRESSIVE                             │
+│                                                                             │
+│   MOVEMENT:                                                                │
+│   • CharacterController + input + speed = PLAYER_MOVEMENT                  │
+│   • NavMeshAgent + destination + speed = NPC_MOVEMENT                      │
+│   • Rigidbody + force + drag = PHYSICS_MOVEMENT                            │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+## Complete Data Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        COMPLETE DATA FLOW                                   │
+│              From Idea to Ship (and back to Atoms)                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│                                                                             │
+│    ┌──────────────────────────────────────────────────────────────────┐    │
+│    │                      FORWARD PATH                                 │    │
+│    └──────────────────────────────────────────────────────────────────┘    │
+│                                                                             │
+│    HUMAN INPUT                                                             │
+│    ══════════                                                              │
+│         │                                                                   │
+│         ▼                                                                   │
+│    ┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐            │
+│    │  VOICE  │────▶│ WHISPER │────▶│  TEXT   │────▶│ SEMANTIC│            │
+│    │  INPUT  │     │  (STT)  │     │ COMMAND │     │ PARSER  │            │
+│    └─────────┘     └─────────┘     └─────────┘     └────┬────┘            │
+│                                                          │                  │
+│    ┌─────────┐                                          │                  │
+│    │  TEXT   │─────────────────────────────────────────▶│                  │
+│    │  INPUT  │                                          │                  │
+│    └─────────┘                                          │                  │
+│                                                          │                  │
+│    ┌─────────┐     ┌─────────┐                          │                  │
+│    │ GESTURE │────▶│ GESTURE │─────────────────────────▶│                  │
+│    │  INPUT  │     │ DECODE  │                          │                  │
+│    └─────────┘     └─────────┘                          ▼                  │
+│                                                    ┌─────────┐             │
+│                                                    │  TINY   │             │
+│                                                    │  MODEL  │             │
+│                                                    │ (LOCAL) │             │
+│                                                    └────┬────┘             │
+│                                                         │                  │
+│                                                         ▼                  │
+│                                                    ┌─────────┐             │
+│                                                    │  CODIE  │             │
+│                                                    │ GENERATE│             │
+│                                                    └────┬────┘             │
+│                                                         │                  │
+│         ┌───────────────────────────────────────────────┤                  │
+│         │                                               │                  │
+│         ▼                                               ▼                  │
+│    ┌─────────┐                                    ┌─────────┐             │
+│    │  BLOB   │◀──── Generate ────────────────────│  BONES  │             │
+│    │ CREATOR │      textures,                    │ CREATOR │             │
+│    │         │      meshes                       │         │             │
+│    └────┬────┘                                   └────┬────┘             │
+│         │                                              │                  │
+│         │         ┌─────────┐                          │                  │
+│         └────────▶│   .CDI  │◀─────────────────────────┘                  │
+│                   │  FILE   │                                             │
+│                   └────┬────┘                                             │
+│                        │                                                   │
+│    ┌───────────────────┼───────────────────────────────────────┐          │
+│    │                   │                                       │          │
+│    ▼                   ▼                   ▼                   ▼          │
+│ ┌──────┐          ┌──────┐          ┌──────┐          ┌──────┐           │
+│ │UNITY │          │UNREAL│          │GODOT │          │ROBLOX│           │
+│ │HYDRA │          │HYDRA │          │HYDRA │          │HYDRA │           │
+│ └──┬───┘          └──┬───┘          └──┬───┘          └──┬───┘           │
+│    │                 │                 │                 │                │
+│    ▼                 ▼                 ▼                 ▼                │
+│ ┌──────┐          ┌──────┐          ┌──────┐          ┌──────┐           │
+│ │.unity│          │.uasset│         │.tscn │          │.rbxm │           │
+│ │package│         │      │          │.tres │          │      │           │
+│ └──┬───┘          └──┬───┘          └──┬───┘          └──┬───┘           │
+│    │                 │                 │                 │                │
+│    ▼                 ▼                 ▼                 ▼                │
+│ ┌──────┐          ┌──────┐          ┌──────┐          ┌──────┐           │
+│ │ .exe │          │ .exe │          │ .exe │          │ROBLOX│           │
+│ │ .apk │          │ .apk │          │ .apk │          │CLOUD │           │
+│ └──────┘          └──────┘          └──────┘          └──────┘           │
+│    │                 │                 │                 │                │
+│    └─────────────────┴─────────────────┴─────────────────┘                │
+│                                    │                                       │
+│                                    ▼                                       │
+│                             ┌─────────────┐                               │
+│                             │   SHIPPED   │                               │
+│                             │    GAME     │                               │
+│                             └─────────────┘                               │
+│                                                                             │
+│    ┌──────────────────────────────────────────────────────────────────┐    │
+│    │                      BACKWARD PATH                                │    │
+│    └──────────────────────────────────────────────────────────────────┘    │
+│                                                                             │
+│                             ┌─────────────┐                               │
+│                             │  EXISTING   │                               │
+│                             │    GAME     │                               │
+│                             └──────┬──────┘                               │
+│                                    │                                       │
+│    ┌───────────────────────────────┼───────────────────────────────┐      │
+│    │                               │                               │      │
+│    ▼                               ▼                               ▼      │
+│ ┌──────┐                      ┌──────┐                      ┌──────┐     │
+│ │ASSETS│                      │SCRIPTS│                     │SCENES│     │
+│ │EXTRACT│                     │EXTRACT│                     │EXTRACT│    │
+│ └──┬───┘                      └──┬───┘                      └──┬───┘     │
+│    │                             │                             │          │
+│    ▼                             ▼                             ▼          │
+│ ┌──────┐                      ┌──────┐                      ┌──────┐     │
+│ │PATTERN│                     │PATTERN│                     │PATTERN│    │
+│ │DETECT │                     │DETECT │                     │DETECT │    │
+│ └──┬───┘                      └──┬───┘                      └──┬───┘     │
+│    │                             │                             │          │
+│    └─────────────────────────────┼─────────────────────────────┘          │
+│                                  │                                         │
+│                                  ▼                                         │
+│                           ┌─────────────┐                                 │
+│                           │  NORMALIZE  │                                 │
+│                           │  TO CODIE   │                                 │
+│                           └──────┬──────┘                                 │
+│                                  │                                         │
+│                                  ▼                                         │
+│                           ┌─────────────┐                                 │
+│                           │   ATOMIC    │                                 │
+│                           │   BLOCKS    │                                 │
+│                           │             │                                 │
+│                           │ • BONES     │                                 │
+│                           │ • BLOB      │                                 │
+│                           │ • BIZ       │                                 │
+│                           │ • CIRCLE    │                                 │
+│                           │ • PIN       │                                 │
+│                           └─────────────┘                                 │
+│                                  │                                         │
+│                                  ▼                                         │
+│                           ┌─────────────┐                                 │
+│                           │  REUSABLE   │                                 │
+│                           │  LIBRARY    │                                 │
+│                           │             │                                 │
+│                           │ Ready for   │                                 │
+│                           │ any project │                                 │
+│                           │ any engine  │                                 │
+│                           └─────────────┘                                 │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+# SUMMARY
+
+```
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                           GENTLYOS FORGE                                  ║
+║                                                                           ║
+║   GPU STACK:      Dual RTX 3090 Ti (48GB VRAM)                           ║
+║                   Vulkan + CUDA + wgpu-rs                                 ║
+║                   Local AI (llama.cpp, SDXL, Whisper)                    ║
+║                                                                           ║
+║   GOALS:          6 Tiers, 24 Major Milestones                           ║
+║                   CODIE → Studio → Hydrators → Decompiler                ║
+║                   Collaboration → Distribution                            ║
+║                                                                           ║
+║   STUDIO:         Bidirectional Design Platform                          ║
+║                   Forward: Semantic → CODIE → Engine → Ship              ║
+║                   Backward: Game → Decompile → CODIE → Atoms             ║
+║                                                                           ║
+║   CLOCK:          12 Development Phases                                   ║
+║                   Clockwise = Create                                      ║
+║                   Counter-clockwise = Decompose                           ║
+║                                                                           ║
+║   PROTOCOL:       Cross-platform, cross-team                              ║
+║                   BIZ adapters for every engine                          ║
+║                   CRDT sync for collaboration                             ║
+║                                                                           ║
+║   PHILOSOPHY:     Kids build at lunch                                     ║
+║                   Devs ship to production                                 ║
+║                   Same platform                                           ║
+║                   Any direction                                           ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+                              🔥 GENTLYOS FORGE 🔥
+```

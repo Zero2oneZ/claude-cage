@@ -1,0 +1,45 @@
+{
+  "defaultAction": "SCMP_ACT_ERRNO",
+  "comment": "GentlyOS agent seccomp profile — allows only safe syscalls for Ollama agent isolation",
+  "syscalls": [
+    {
+      "names": [
+        "read",
+        "write",
+        "openat",
+        "close",
+        "stat",
+        "fstat",
+        "lseek",
+        "mmap",
+        "mprotect",
+        "munmap",
+        "brk",
+        "ioctl",
+        "access",
+        "pipe",
+        "dup2",
+        "fork",
+        "execve",
+        "exit_group",
+        "wait4",
+        "fcntl",
+        "getpid",
+        "getuid",
+        "getgid",
+        "gettid",
+        "clock_gettime",
+        "nanosleep",
+        "poll",
+        "epoll_create",
+        "epoll_wait",
+        "epoll_ctl",
+        "socket",
+        "connect",
+        "sendto",
+        "recvfrom"
+      ],
+      "action": "SCMP_ACT_ALLOW"
+    }
+  ]
+}

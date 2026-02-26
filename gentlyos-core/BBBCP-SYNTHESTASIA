@@ -1,0 +1,1210 @@
+# BONES BLOB BIZ CIRCLE PIN
+## Universal Game Engine Interface Layer
+## The I/O Between All Technologies
+
+```
+     ┌─────────────────────────────────────────────────────────────┐
+     │                     CIRCLE (CONTEXT)                        │
+     │   GPS coordinates, real-world distances, temporal state     │
+     │                                                             │
+     │  ┌─────────────────────────────────────────────────────┐   │
+     │  │                    PIN (IDENTITY)                    │   │
+     │  │      Unique hash, origin, authorship, signature      │   │
+     │  │                                                      │   │
+     │  │  ┌───────────────────────────────────────────────┐  │   │
+     │  │  │             BIZ (INTERFACE/I/O)               │  │   │
+     │  │  │   Protocol bridges, MCP, sockets, exports     │  │   │
+     │  │  │                                               │  │   │
+     │  │  │  ┌─────────────────────────────────────────┐ │  │   │
+     │  │  │  │           BLOB (DATA)                   │ │  │   │
+     │  │  │  │   Binary assets, textures, meshes       │ │  │   │
+     │  │  │  │                                         │ │  │   │
+     │  │  │  │  ┌───────────────────────────────────┐ │ │  │   │
+     │  │  │  │  │        BONES (STRUCTURE)          │ │ │  │   │
+     │  │  │  │  │  Entities, behaviors, hierarchy   │ │ │  │   │
+     │  │  │  │  └───────────────────────────────────┘ │ │  │   │
+     │  │  │  └─────────────────────────────────────────┘ │  │   │
+     │  │  └───────────────────────────────────────────────┘  │   │
+     │  └─────────────────────────────────────────────────────┘   │
+     └─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## THE FIVE ATOMIC TYPES
+
+### 1. BONES (Structure)
+**What it is:** The skeleton of your game - entities, hierarchies, relationships, behaviors
+**Contains:** Scene graphs, entity definitions, AI packages, animations, spawn rules
+
+### 2. BLOB (Data)
+**What it is:** Binary large objects - the raw assets
+**Contains:** Meshes, textures, audio, video, compiled shaders
+
+### 3. BIZ (Interface)
+**What it is:** The I/O layer - how technologies communicate
+**Contains:** Protocol definitions, socket bridges, MCP tools, export pipelines
+
+### 4. CIRCLE (Context)
+**What it is:** Spatial and temporal context
+**Contains:** GPS coordinates, world scale, time systems, real-world distances
+
+### 5. PIN (Identity)
+**What it is:** Unique identification and provenance
+**Contains:** Hashes, signatures, authorship, origin tracking, version control
+
+---
+
+## ENGINE FOLDER STRUCTURES (BONES)
+### The Industry Standard Skeletons
+
+---
+
+### UNITY (C#/.NET)
+
+```
+ProjectName/
+├── Assets/                          # BONES + BLOB combined
+│   ├── _Project/                    # Your game (underscore = top)
+│   │   ├── Art/
+│   │   │   ├── Animations/
+│   │   │   │   ├── AnimationClips/
+│   │   │   │   └── Animators/
+│   │   │   ├── Audio/
+│   │   │   │   ├── AudioClips/
+│   │   │   │   └── AudioMixers/
+│   │   │   ├── Fonts/
+│   │   │   ├── Materials/
+│   │   │   ├── Models/
+│   │   │   ├── PhysicMaterials/
+│   │   │   ├── Shaders/
+│   │   │   ├── Sprites/
+│   │   │   ├── Textures/
+│   │   │   └── UIToolkit/
+│   │   ├── Prefabs/                 # BONES: Instantiable objects
+│   │   │   ├── Characters/
+│   │   │   ├── Environment/
+│   │   │   ├── Props/
+│   │   │   ├── UI/
+│   │   │   └── Weapons/
+│   │   ├── Scenes/                  # BONES: Level structure
+│   │   │   ├── Levels/
+│   │   │   ├── Menus/
+│   │   │   └── Testing/
+│   │   ├── ScriptableObjects/       # BONES: Data containers
+│   │   │   ├── Characters/
+│   │   │   ├── Items/
+│   │   │   └── GameSettings/
+│   │   └── Scripts/                 # BONES: Logic
+│   │       ├── Editor/
+│   │       │   └── [namespace].Editor.asmdef
+│   │       ├── Runtime/
+│   │       │   └── [namespace].Runtime.asmdef
+│   │       └── Tests/
+│   ├── Editor/                      # Reserved: Editor scripts
+│   ├── Editor Default Resources/    # Reserved: Editor assets
+│   ├── Gizmos/                      # Reserved: Gizmo icons
+│   ├── Plugins/                     # Reserved: Native plugins
+│   ├── Resources/                   # Reserved: Runtime loading
+│   ├── Standard Assets/             # Reserved: Unity packages
+│   ├── StreamingAssets/             # Reserved: Raw file access
+│   └── 3rdParty/                    # External assets (preserve structure)
+├── Packages/                        # Package manifest
+│   └── manifest.json
+├── ProjectSettings/                 # Editor/build settings
+│   ├── ProjectSettings.asset
+│   ├── TagManager.asset
+│   ├── InputManager.asset
+│   ├── Physics2DSettings.asset
+│   └── QualitySettings.asset
+├── Library/                         # Cache (gitignore)
+├── Logs/                            # Logs (gitignore)
+├── Temp/                            # Temp (gitignore)
+└── UserSettings/                    # Local prefs (gitignore)
+```
+
+**Unity Special Files:**
+- `.meta` - Asset GUID tracking
+- `.asmdef` - Assembly definitions
+- `.asset` - Serialized ScriptableObjects
+- `.prefab` - Prefab definitions
+- `.unity` - Scene files
+
+---
+
+### UNREAL ENGINE 5 (C++/Blueprints)
+
+```
+ProjectName/
+├── Binaries/                        # Compiled executables
+│   └── Win64/
+├── Build/                           # Platform build files
+├── Config/                          # INI configuration
+│   ├── DefaultEngine.ini
+│   ├── DefaultGame.ini
+│   ├── DefaultInput.ini
+│   └── DefaultEditor.ini
+├── Content/                         # BONES + BLOB (main folder)
+│   └── ProjectName/                 # TOP-LEVEL PROJECT FOLDER
+│       ├── Art/
+│       │   ├── Characters/
+│       │   │   ├── Player/
+│       │   │   │   ├── Meshes/
+│       │   │   │   ├── Materials/
+│       │   │   │   ├── Textures/
+│       │   │   │   └── Animations/
+│       │   │   └── Enemies/
+│       │   ├── Environment/
+│       │   │   ├── Terrain/
+│       │   │   ├── Props/
+│       │   │   └── Architecture/
+│       │   └── Weapons/
+│       ├── Audio/
+│       │   ├── Music/
+│       │   ├── SFX/
+│       │   └── Dialogue/
+│       ├── Blueprints/              # BONES: Visual scripting
+│       │   ├── Characters/
+│       │   ├── GameModes/
+│       │   ├── UI/
+│       │   └── Systems/
+│       ├── Effects/
+│       │   ├── Particles/
+│       │   └── Materials/
+│       ├── Input/
+│       ├── Maps/                    # BONES: Levels
+│       │   ├── Levels/
+│       │   └── Sublevels/
+│       ├── UI/
+│       │   ├── Widgets/
+│       │   └── Menus/
+│       └── Core/                    # Shared systems
+│   ├── Developers/                  # Personal sandboxes
+│   └── Collections/                 # Asset collections
+├── DerivedDataCache/                # Cache (gitignore)
+├── Intermediate/                    # Build temp (gitignore)
+├── Plugins/                         # Engine plugins
+├── Saved/                           # Autosaves/logs
+└── Source/                          # C++ Source
+    └── ProjectName/
+        ├── ProjectName.Build.cs
+        ├── ProjectName.Target.cs
+        ├── ProjectNameEditor.Target.cs
+        ├── Public/                  # Headers
+        │   ├── Characters/
+        │   ├── Components/
+        │   └── Systems/
+        └── Private/                 # Implementation
+            ├── Characters/
+            ├── Components/
+            └── Systems/
+```
+
+**Unreal Naming Conventions:**
+- `BP_` - Blueprint
+- `SM_` - Static Mesh
+- `SK_` - Skeletal Mesh
+- `M_` - Material
+- `MI_` - Material Instance
+- `T_` - Texture
+- `S_` - Sound
+- `PS_` - Particle System
+- `WBP_` - Widget Blueprint
+- `ABP_` - Animation Blueprint
+
+---
+
+### ROBLOX STUDIO (Luau)
+
+```
+game/                                # DataModel root
+├── Workspace/                       # 3D world (BONES)
+│   ├── Map/
+│   │   ├── Terrain/
+│   │   ├── Buildings/
+│   │   └── Props/
+│   ├── NPCs/
+│   ├── Interactables/
+│   └── SpawnLocations/
+├── Players/                         # Active player instances
+├── Lighting/                        # Lighting settings
+├── ReplicatedFirst/                 # Loads first (client)
+│   └── LoadingScreen/
+├── ReplicatedStorage/               # Shared client/server
+│   ├── Modules/                     # Shared modules
+│   │   ├── DataModule.lua
+│   │   ├── UtilityModule.lua
+│   │   └── ConfigModule.lua
+│   ├── Assets/                      # Shared assets
+│   │   ├── Models/
+│   │   ├── Sounds/
+│   │   └── Animations/
+│   ├── Events/                      # RemoteEvents
+│   │   ├── DataEvents/
+│   │   └── GameEvents/
+│   └── Functions/                   # RemoteFunctions
+├── ServerScriptService/             # Server-only scripts (BONES)
+│   └── ServerSource/
+│       └── Server/
+│           ├── Services/            # Knit services
+│           │   ├── DataService.lua
+│           │   ├── GameService.lua
+│           │   └── PlayerService.lua
+│           └── Controllers/
+├── ServerStorage/                   # Server-only assets
+│   ├── Assets/
+│   │   ├── Tools/
+│   │   ├── Characters/
+│   │   └── Items/
+│   └── Modules/
+├── StarterGui/                      # UI (cloned to players)
+│   ├── MainGui/
+│   ├── Inventory/
+│   └── HUD/
+├── StarterPack/                     # Tools (cloned to players)
+├── StarterPlayer/
+│   ├── StarterPlayerScripts/        # Client scripts
+│   │   └── ClientSource/
+│   │       └── Client/
+│   │           ├── Controllers/
+│   │           └── Components/
+│   └── StarterCharacterScripts/     # Character scripts
+├── SoundService/                    # Audio settings
+├── Chat/                            # Chat service
+└── LocalizationService/             # Translations
+```
+
+**Roblox Special Containers:**
+- `Folder` - Generic container
+- `Model` - 3D object group
+- `ModuleScript` - Reusable code
+- `Script` - Server script
+- `LocalScript` - Client script
+
+---
+
+### BETHESDA/CREATION KIT (Starfield/Fallout)
+
+```
+Starfield/                           # Or Fallout 4, Skyrim, etc.
+├── Data/                            # BONES + BLOB main folder
+│   ├── Starfield.esm                # Master file (BONES)
+│   ├── SFBGS001.esm                 # DLC masters
+│   ├── SFBGS002.esm
+│   ├── SFBGS003.esm
+│   ├── BlueprintShips-Starfield.esm
+│   ├── [ModName].esm                # Mod masters
+│   ├── [ModName].esp                # Development plugins
+│   │
+│   ├── *.ba2                        # Archives (BLOB)
+│   │   ├── Starfield - Textures01.ba2
+│   │   ├── Starfield - Meshes.ba2
+│   │   ├── Starfield - Voices.ba2
+│   │   └── Starfield - Main.ba2
+│   │
+│   ├── meshes/                      # .nif, .mesh files
+│   │   ├── actors/
+│   │   │   ├── character/
+│   │   │   │   ├── animations/
+│   │   │   │   └── characterassets/
+│   │   │   └── creatures/
+│   │   ├── architecture/
+│   │   ├── clutter/
+│   │   ├── weapons/
+│   │   └── ships/
+│   │
+│   ├── textures/                    # .dds textures
+│   │   ├── actors/
+│   │   ├── architecture/
+│   │   ├── effects/
+│   │   ├── interface/
+│   │   ├── terrain/
+│   │   └── weapons/
+│   │
+│   ├── sound/                       # Audio
+│   │   ├── fx/
+│   │   ├── voice/
+│   │   └── music/
+│   │
+│   ├── scripts/                     # Papyrus scripts (.pex)
+│   │   └── source/                  # Script source (.psc)
+│   │
+│   ├── interface/                   # UI (.swf, .xml)
+│   │
+│   ├── strings/                     # Localization
+│   │   ├── starfield_en.strings
+│   │   ├── starfield_en.dlstrings
+│   │   └── starfield_en.ilstrings
+│   │
+│   └── seq/                         # Sequence files
+│
+├── Tools/
+│   └── Archive 2/                   # BA2 packer
+│
+└── CreationKit/                     # Editor
+    └── Data/
+```
+
+**Bethesda File Types:**
+- `.esm` - Elder Scrolls Master (plugin)
+- `.esp` - Elder Scrolls Plugin (development)
+- `.ba2` - Bethesda Archive v2
+- `.nif` - NetImmerse Format (mesh)
+- `.mesh` - Starfield mesh
+- `.dds` - DirectDraw Surface (texture)
+- `.pex` - Compiled Papyrus
+- `.psc` - Papyrus source
+
+---
+
+### CRYENGINE
+
+```
+ProjectName/
+├── Bin32/                           # 32-bit executables (legacy)
+├── Bin64/                           # 64-bit executables
+│   ├── Editor.exe                   # Sandbox editor
+│   ├── GameSDK.exe                  # Game launcher
+│   └── *.dll                        # Engine DLLs
+│
+├── Code/                            # C++ source
+│   ├── Solutions/
+│   │   └── CryEngine.sln
+│   ├── CryEngine/                   # Engine code
+│   ├── CryPlugins/                  # Engine plugins
+│   └── GameSDK/                     # Game code
+│
+├── Engine/                          # Engine assets
+│   ├── Config/
+│   ├── EngineAssets/
+│   └── Shaders/
+│
+├── GameSDK/                         # BONES + BLOB (game folder)
+│   ├── *.pak                        # Packed archives
+│   │   ├── GameSDK.pak              # Core game data
+│   │   ├── Objects.pak              # 3D objects
+│   │   ├── Textures.pak             # Textures
+│   │   ├── Music.pak                # Music
+│   │   └── z_*.pak                  # Override packs (loaded last)
+│   │
+│   ├── Animations/                  # .caf, .chrparams
+│   ├── Entities/                    # Entity definitions
+│   │   └── *.ent
+│   ├── Levels/                      # Level folders (BONES)
+│   │   └── LevelName/
+│   │       ├── level.pak
+│   │       ├── level.cfg
+│   │       └── terraintexture.pak
+│   ├── Libs/                        # Libraries
+│   │   ├── MaterialEffects/
+│   │   ├── Particles/
+│   │   └── UI/
+│   ├── Materials/                   # .mtl files
+│   ├── Objects/                     # .cgf, .cga meshes
+│   ├── Prefabs/                     # .xml prefabs
+│   ├── Scripts/                     # Lua scripts
+│   │   ├── AI/
+│   │   ├── Entities/
+│   │   └── GameRules/
+│   ├── Sounds/                      # Audio
+│   ├── Textures/                    # .dds, .tif
+│   └── system.cfg                   # Game config
+│
+├── Tools/                           # Standalone tools
+│   └── RC/                          # Resource Compiler
+│
+└── User/                            # User-generated files
+```
+
+**CryEngine File Types:**
+- `.pak` - Packed archive (zip-based)
+- `.cgf` - CryEngine Geometry Format
+- `.cga` - CryEngine Geometry Animation
+- `.caf` - CryEngine Animation Format
+- `.mtl` - Material definition
+- `.cry` - CryEngine level file
+
+---
+
+### ROCKSTAR RAGE ENGINE (GTA V, GTA6, RDR2)
+
+```
+GTAV/                                # Or RDR2
+├── GTA5.exe                         # Game executable
+├── PlayGTAV.exe                     # Launcher
+│
+├── update/                          # Updates and DLC
+│   ├── update.rpf                   # Main update archive
+│   ├── x64/                         # 64-bit content
+│   │   └── dlcpacks/                # DLC content
+│   │       ├── mpheist/
+│   │       ├── mpluxe/
+│   │       └── [dlcname]/
+│   │           └── dlc.rpf
+│   └── update2.rpf
+│
+├── x64/                             # Main content archives
+│   ├── audio/                       # Audio archives
+│   │   ├── audio_rel.rpf
+│   │   └── sfx/
+│   ├── data/                        # Data archives
+│   │   └── cdimages/
+│   ├── levels/                      # World data
+│   │   ├── gta5/
+│   │   │   ├── generic/
+│   │   │   └── props/
+│   │   └── vespucci/
+│   ├── models/                      # Model archives
+│   │   └── cdimages/
+│   ├── patch/                       # Patch content
+│   │   └── data/
+│   └── textures/                    # Texture archives
+│
+├── common.rpf                       # Common assets
+├── x64a.rpf through x64w.rpf        # World chunks
+│
+└── mods/                            # Mod folder (OpenIV)
+    ├── update/
+    │   └── update.rpf               # Modified updates
+    └── x64/                         # Modified content
+```
+
+**RPF Archive Internal Structure:**
+```
+*.rpf (RAGE Package File)
+├── Header (16 bytes)
+│   ├── Magic: "RPF7" (v7 for GTA5)
+│   ├── TOC Size
+│   ├── Entry Count
+│   └── Encryption Flag
+├── Table of Contents
+│   ├── Directory Entries
+│   │   ├── Name Offset
+│   │   ├── Content Index
+│   │   └── Content Count
+│   └── File Entries
+│       ├── Name Offset
+│       ├── Size (compressed)
+│       ├── Offset
+│       └── Resource Type
+├── Name Section
+└── Data Section (zlib compressed)
+```
+
+**RAGE File Types:**
+- `.rpf` - RAGE Package File
+- `.ydr` - Drawable model
+- `.yft` - Fragment model (destructible)
+- `.ytd` - Texture dictionary
+- `.ymap` - Map placement
+- `.ytyp` - Archetype definitions
+- `.ybn` - Bounds (collision)
+- `.ynd` - Path nodes
+- `.meta` - XML metadata
+
+---
+
+### GODOT 4
+
+```
+ProjectName/
+├── project.godot                    # Project config
+├── export_presets.cfg               # Export settings
+│
+├── addons/                          # Plugins
+│   └── [addon_name]/
+│       ├── plugin.cfg
+│       └── *.gd
+│
+├── assets/                          # BLOB: Raw assets
+│   ├── audio/
+│   │   ├── music/
+│   │   ├── sfx/
+│   │   └── voice/
+│   ├── fonts/
+│   ├── models/                      # .glb, .gltf, .obj
+│   ├── textures/
+│   │   ├── characters/
+│   │   ├── environment/
+│   │   └── ui/
+│   └── shaders/                     # .gdshader
+│
+├── scenes/                          # BONES: Scene hierarchy
+│   ├── main.tscn                    # Entry point
+│   ├── characters/
+│   │   ├── player/
+│   │   │   ├── player.tscn
+│   │   │   └── player.gd
+│   │   └── enemies/
+│   │       └── enemy_base/
+│   │           ├── enemy_base.tscn
+│   │           └── enemy_base.gd
+│   ├── levels/
+│   │   ├── level_01/
+│   │   │   └── level_01.tscn
+│   │   └── level_02/
+│   ├── ui/
+│   │   ├── main_menu/
+│   │   ├── hud/
+│   │   └── pause_menu/
+│   └── objects/
+│       ├── items/
+│       └── interactables/
+│
+├── scripts/                         # BONES: Standalone scripts
+│   ├── autoload/                    # Singletons
+│   │   ├── game_manager.gd
+│   │   ├── audio_manager.gd
+│   │   └── save_manager.gd
+│   ├── resources/                   # Custom Resource classes
+│   │   ├── character_stats.gd
+│   │   └── item_data.gd
+│   └── components/                  # Reusable components
+│       ├── health_component.gd
+│       └── hitbox_component.gd
+│
+├── resources/                       # BONES: Data resources
+│   ├── characters/
+│   │   └── *.tres                   # Character data
+│   ├── items/
+│   │   └── *.tres                   # Item data
+│   └── settings/
+│       └── *.tres                   # Config data
+│
+└── .godot/                          # Cache (gitignore)
+    ├── imported/
+    └── editor/
+```
+
+**Godot File Types:**
+- `.tscn` - Text scene
+- `.scn` - Binary scene
+- `.tres` - Text resource
+- `.res` - Binary resource
+- `.gd` - GDScript
+- `.gdshader` - Shader
+
+---
+
+### META QUEST SDK (VR/AR)
+
+```
+QuestProject/                        # Unity-based Quest project
+├── Assets/
+│   ├── Oculus/                      # Meta SDK
+│   │   ├── OculusProjectConfig.asset
+│   │   └── OculusSettings.asset
+│   ├── XR/
+│   │   ├── XRRig/                   # Camera rig
+│   │   │   └── OVRCameraRig.prefab
+│   │   ├── Hands/                   # Hand tracking
+│   │   │   ├── OVRHandPrefab.prefab
+│   │   │   └── HandPoses/
+│   │   ├── Controllers/             # Controller models
+│   │   └── Interactions/            # Interaction toolkit
+│   └── Scenes/
+│       ├── MixedReality/
+│       └── PassThrough/
+│
+├── Packages/
+│   ├── manifest.json
+│   └── packages-lock.json
+│
+└── ProjectSettings/
+    ├── XRSettings.asset
+    └── OculusSettings.asset
+
+# Native OpenXR Project Structure
+OpenXRProject/
+├── Samples/
+│   └── XrSamples/
+│       ├── XrHandsFB/               # Hand tracking
+│       ├── XrPassthrough/           # Passthrough
+│       ├── XrSpatialAnchor/         # Spatial anchors
+│       └── [SampleName]/
+│           ├── Projects/
+│           │   └── Android/
+│           │       └── build.gradle
+│           └── Src/
+│               └── main.cpp
+├── OpenXR/
+│   ├── Include/
+│   │   └── openxr/
+│   │       └── openxr.h
+│   └── Libs/
+└── Tools/
+```
+
+**Meta Quest Key Components:**
+- `OVRPlugin` - Core Oculus integration
+- `OVRManager` - Session management
+- `OVRCameraRig` - Player camera
+- `OVRHand` - Hand tracking
+- `OVRSpatialAnchor` - World anchoring
+- `OVRPassthroughLayer` - AR passthrough
+
+---
+
+## BEHAVIOR OBJECT (BONES)
+### The Fallout-Inspired Entity System
+
+```
+BEHAVIOR OBJECT SCHEMA
+══════════════════════
+
+Every entity has these normalized (0-1) attributes:
+
+┌─────────────────────────────────────────────────────────────────┐
+│ BEHAVIOR OBJECT                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  IDENTITY                                                       │
+│  ├── _id: string          // Unique identifier                  │
+│  ├── name: string         // Display name                       │
+│  ├── species: enum        // human, robot, creature, vehicle    │
+│  └── sex: enum            // male, female, none, other          │
+│                                                                 │
+│  TEMPERAMENT (0-1 normalized)                                   │
+│  ├── aggression: 0.0-1.0   // When to attack                    │
+│  │   0.0 = Unaggressive (never attacks)                         │
+│  │   0.25 = Aggressive (attacks enemies)                        │
+│  │   0.5 = Very Aggressive (attacks on sight)                   │
+│  │   0.75 = Frenzied (attacks anything)                         │
+│  │   1.0 = Berserk (attacks everything including allies)        │
+│  │                                                              │
+│  ├── confidence: 0.0-1.0   // Flight vs fight                   │
+│  │   0.0 = Cowardly (always flees)                              │
+│  │   0.25 = Cautious (flees if outmatched)                      │
+│  │   0.5 = Average (standard combat)                            │
+│  │   0.75 = Brave (rarely flees)                                │
+│  │   1.0 = Foolhardy (never flees)                              │
+│  │                                                              │
+│  ├── assistance: 0.0-1.0   // Help allies                       │
+│  │   0.0 = None (ignores allies)                                │
+│  │   0.5 = Helps allies only                                    │
+│  │   1.0 = Helps friends and allies                             │
+│  │                                                              │
+│  ├── morality: 0.0-1.0     // Crime threshold                   │
+│  │   0.0 = Any crime (will do anything)                         │
+│  │   0.33 = Violence (no murder)                                │
+│  │   0.66 = Property (no violence or theft)                     │
+│  │   1.0 = No crime (lawful)                                    │
+│  │                                                              │
+│  └── mood: 0.0-1.0         // Base disposition                  │
+│      0.0 = Hostile                                              │
+│      0.25 = Angry                                               │
+│      0.5 = Neutral                                              │
+│      0.75 = Happy                                               │
+│      1.0 = Elated                                               │
+│                                                                 │
+│  STATS (0-1 normalized)                                         │
+│  ├── power: 0.0-1.0        // Offensive capability              │
+│  ├── health: 0.0-1.0       // Defensive capability              │
+│  ├── speed: 0.0-1.0        // Movement rate                     │
+│  ├── perception: 0.0-1.0   // Detection range                   │
+│  └── intelligence: 0.0-1.0 // AI complexity                     │
+│                                                                 │
+│  SPATIAL (CIRCLE context)                                       │
+│  ├── gps: [lat, lon]       // Real-world coordinates            │
+│  ├── altitude: 0.0-1.0     // Normalized height                 │
+│  ├── spawn_radius: meters  // Spawn distance                    │
+│  ├── patrol_radius: meters // Patrol range                      │
+│  └── aggro_radius: meters  // Detection range                   │
+│                                                                 │
+│  GOALS                                                          │
+│  ├── primary: enum         // guard, patrol, wander, follow     │
+│  ├── target: _id           // Entity to interact with           │
+│  ├── location: [x,y,z]     // Position to reach                 │
+│  └── schedule: [time→act]  // Time-based behaviors              │
+│                                                                 │
+│  QUIRKS (unique behaviors)                                      │
+│  ├── fears: [...]          // Things that cause flee            │
+│  ├── loves: [...]          // Things that attract               │
+│  ├── says: [...]           // Dialogue lines                    │
+│  └── special: [...]        // Unique abilities                  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Behavior Object in CODIE Format
+
+```codie
+// CODIE Behavior Notation
+
+B.guard{
+  _id:b001
+  
+  // Temperament
+  agg:0.5       // aggressive (attacks enemies on sight)
+  con:0.75      // brave
+  ast:0.5       // helps allies
+  mor:0.66      // property crime threshold
+  mood:0.5      // neutral
+  
+  // Package
+  pkg:guard
+  rad:10        // 10 meter radius
+  tar:e001      // guards entity e001
+  
+  // Schedule
+  sch:[
+    [06:00,patrol]
+    [12:00,eat]
+    [18:00,guard]
+    [22:00,sleep]
+  ]
+}
+
+B.merchant{
+  _id:b002
+  agg:0.0       // never attacks
+  con:0.25      // cautious
+  ast:0.0       // self only
+  mor:1.0       // lawful
+  mood:0.75     // happy
+  
+  pkg:sandbox
+  loc:shop_counter
+  
+  barter:true
+  gold:500
+  buys:[weapon,armor,misc]
+  sells:[potion,food,ammo]
+}
+
+B.creature_wild{
+  _id:b003
+  species:creature
+  
+  agg:0.75      // frenzied
+  con:0.5       // average
+  ast:1.0       // pack behavior
+  
+  // Spatial
+  gps:[42.3601,-71.0589]  // Boston
+  spawn_rad:100           // 100m spawn radius
+  patrol_rad:50           // 50m patrol
+  aggro_rad:30            // 30m detection
+  
+  // Quirks
+  fears:[fire,loud_noise]
+  loves:[meat,dark_places]
+  special:[night_vision,pack_tactics]
+}
+```
+
+---
+
+## BIZ (Interface Layer)
+### The I/O Protocol Between Technologies
+
+```
+BIZ PROTOCOL DEFINITION
+═══════════════════════
+
+The BIZ is HOW things talk to each other.
+It's the universal adapter between:
+
+  CODIE ←→ Unity
+  CODIE ←→ Unreal
+  CODIE ←→ Godot
+  CODIE ←→ Roblox
+  CODIE ←→ Bethesda
+  CODIE ←→ RAGE
+  CODIE ←→ CryEngine
+  CODIE ←→ Meta Quest
+
+┌─────────────────────────────────────────────────────────────────┐
+│                        BIZ LAYER                                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  TRANSPORT                                                      │
+│  ├── socket: TCP/WebSocket                                      │
+│  ├── port: 9876 (GentlyOS default)                              │
+│  ├── protocol: JSON-RPC 2.0                                     │
+│  └── encoding: UTF-8                                            │
+│                                                                 │
+│  MCP TOOLS (Model Context Protocol)                             │
+│  ├── spawn_entity      // Create entity in world                │
+│  ├── modify_entity     // Change entity properties              │
+│  ├── delete_entity     // Remove entity                         │
+│  ├── get_scene         // Get current scene state               │
+│  ├── import_asset      // Import BLOB                           │
+│  ├── export_asset      // Export BLOB                           │
+│  ├── execute_script    // Run script/behavior                   │
+│  └── query_spatial     // GPS/distance queries                  │
+│                                                                 │
+│  HYDRATION MAPS                                                 │
+│  ├── codie → engine_values                                      │
+│  │   Unity:   power:0.7 → 70 (scale 100)                        │
+│  │   Unreal:  power:0.7 → 700 (scale 1000)                      │
+│  │   Godot:   power:0.7 → 70 (scale 100)                        │
+│  │   Roblox:  power:0.7 → 70 (scale 100)                        │
+│  │                                                              │
+│  └── engine_values → codie                                      │
+│      Unity:   70 → power:0.7 (÷100)                             │
+│      Unreal:  700 → power:0.7 (÷1000)                           │
+│                                                                 │
+│  FILE FORMAT MAPPING                                            │
+│  ├── Mesh                                                       │
+│  │   CDI:     .glb (glTF binary)                                │
+│  │   Unity:   .fbx, .glb → .prefab                              │
+│  │   Unreal:  .fbx → .uasset                                    │
+│  │   Godot:   .glb → .tscn                                      │
+│  │   Roblox:  .fbx → MeshPart                                   │
+│  │   Bethesda: .nif, .mesh                                      │
+│  │   RAGE:    .ydr, .yft                                        │
+│  │   Cry:     .cgf, .cga                                        │
+│  │                                                              │
+│  ├── Texture                                                    │
+│  │   CDI:     .png (source)                                     │
+│  │   Unity:   .png → import settings                            │
+│  │   Unreal:  .png → .uasset                                    │
+│  │   Godot:   .png → .import                                    │
+│  │   Bethesda: .dds                                             │
+│  │   RAGE:    .ytd (texture dictionary)                         │
+│  │   Cry:     .dds, .tif                                        │
+│  │                                                              │
+│  └── Scene/Level                                                │
+│      CDI:     .cdi (embedded)                                   │
+│      Unity:   .unity                                            │
+│      Unreal:  .umap                                             │
+│      Godot:   .tscn                                             │
+│      Roblox:  .rbxl                                             │
+│      Bethesda: .esm (world cells)                               │
+│      RAGE:    .ymap                                             │
+│      Cry:     level.pak                                         │
+│                                                                 │
+│  COORDINATE SYSTEMS                                             │
+│  ├── CDI Native: Y-up, right-handed, meters                     │
+│  ├── Unity:      Y-up, left-handed  → flip Z                    │
+│  ├── Unreal:     Z-up, left-handed  → swap Y↔Z, ×100            │
+│  ├── Godot:      Y-up, right-handed → native                    │
+│  ├── Roblox:     Y-up, right-handed → native                    │
+│  ├── Bethesda:   Z-up              → swap Y↔Z                   │
+│  └── RAGE:       Z-up              → swap Y↔Z                   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### BIZ Socket Protocol
+
+```json
+// Request (Claude → Engine)
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "spawn_entity",
+  "params": {
+    "codie": "E.guard{_id:e001,n:\"Palace Guard\",p:0.7,h:0.8,b:b001}",
+    "position": [10.5, 0, 5.2],
+    "rotation": [0, 180, 0]
+  }
+}
+
+// Response (Engine → Claude)
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "success": true,
+    "entity_id": "e001",
+    "engine_id": "GameObject_12345",  // Unity
+    "position": [10.5, 0, 5.2]
+  }
+}
+
+// MCP Tool Definition
+{
+  "name": "spawn_entity",
+  "description": "Spawn an entity from CODIE definition",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "codie": {
+        "type": "string",
+        "description": "CODIE entity definition"
+      },
+      "position": {
+        "type": "array",
+        "items": {"type": "number"},
+        "description": "[x, y, z] in meters"
+      },
+      "rotation": {
+        "type": "array",
+        "items": {"type": "number"},
+        "description": "[pitch, yaw, roll] in degrees"
+      }
+    },
+    "required": ["codie"]
+  }
+}
+```
+
+---
+
+## CIRCLE (Context Layer)
+### Real-World Spatial Integration
+
+```
+CIRCLE CONTEXT SYSTEM
+═════════════════════
+
+Real-world to game-world mapping.
+GPS coordinates, distances, altitude normalization.
+
+┌─────────────────────────────────────────────────────────────────┐
+│                       CIRCLE LAYER                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  GPS MAPPING                                                    │
+│  ├── origin: [lat, lon]         // World origin point           │
+│  ├── scale: meters_per_degree   // ~111,320m at equator         │
+│  └── bounds: [[min_lat,min_lon],[max_lat,max_lon]]              │
+│                                                                 │
+│  ALTITUDE (BASE System)                                         │
+│  ├── B1: local_sea_level_m      // Set at install               │
+│  ├── B2: light_pole_datum = 12m // Universal constant           │
+│  ├── B3: player_local_height    // Phone altitude - ground      │
+│  └── B4: world_z = B2 + B3      // Normalized game height       │
+│                                                                 │
+│  DISTANCE CALCULATIONS                                          │
+│  ├── haversine(gps1, gps2)      // Real-world distance          │
+│  ├── local_offset(gps, origin)  // Meters from origin           │
+│  └── game_position(gps)         // Convert to game coords       │
+│                                                                 │
+│  TIME CONTEXT                                                   │
+│  ├── real_time: ISO8601         // Current real time            │
+│  ├── game_time: float           // Game world time              │
+│  ├── time_scale: float          // Real:Game ratio              │
+│  └── day_cycle: 0.0-1.0         // Normalized day position      │
+│                                                                 │
+│  AR OVERLAY                                                     │
+│  ├── camera_pose: [pos, rot]    // AR camera transform          │
+│  ├── anchors: [spatial_anchors] // World-locked points          │
+│  └── planes: [detected_planes]  // Floor, walls, etc.           │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Circle in CODIE
+
+```codie
+// Circle context definition
+
+C.world{
+  _id:c001
+  
+  // Origin (Boston Common)
+  origin:[42.3551,-71.0657]
+  
+  // Bounds (Greater Boston)
+  bounds:[
+    [42.2,-71.2],   // SW corner
+    [42.5,-70.9]    // NE corner
+  ]
+  
+  // Scale
+  scale:111320     // meters per degree
+  game_scale:1.0   // 1:1 real world
+  
+  // Altitude
+  sea_level:0
+  datum:12         // light pole
+  max_alt:100      // 100m ceiling
+  
+  // Time
+  time_scale:1.0   // Real time
+  day_start:06:00
+  day_end:18:00
+}
+
+// Entity with GPS position
+E.wild_creature{
+  _id:e010
+  
+  // GPS spawn zone
+  gps:[42.3601,-71.0589]   // Boston coordinates
+  spawn_rad:500            // 500m spawn radius
+  
+  // Distance-based power scaling
+  // Closer = harder
+  power_scale:[
+    [0,1.0],               // At player: full power
+    [100,0.8],             // 100m: 80% power
+    [500,0.3]              // 500m: 30% power
+  ]
+}
+```
+
+---
+
+## PIN (Identity Layer)
+### Provenance and Authentication
+
+```
+PIN IDENTITY SYSTEM
+═══════════════════
+
+Every asset, entity, and file has unique identity.
+Enables versioning, authorship, and trust.
+
+┌─────────────────────────────────────────────────────────────────┐
+│                        PIN LAYER                                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  IDENTITY                                                       │
+│  ├── _id: string            // Human-readable ID                │
+│  ├── _hash: blake3          // Content hash                     │
+│  ├── _version: semver       // Version string                   │
+│  └── _created: ISO8601      // Creation timestamp               │
+│                                                                 │
+│  AUTHORSHIP                                                     │
+│  ├── author: string         // Creator ID                       │
+│  ├── author_hash: blake3    // Author verification              │
+│  ├── signature: ed25519     // Cryptographic signature          │
+│  └── license: string        // Usage license                    │
+│                                                                 │
+│  ORIGIN                                                         │
+│  ├── origin_gps: [lat,lon]  // Where created                    │
+│  ├── origin_device: string  // Device ID                        │
+│  └── origin_chain: [...]    // Derivation chain                 │
+│                                                                 │
+│  VERIFICATION                                                   │
+│  ├── verify(pin) → bool     // Check signature                  │
+│  ├── derive(pin, changes)   // Create derivative                │
+│  └── merkle_root(pins)      // Collection hash                  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## COMPLETE .CDI FILE STRUCTURE
+
+```
+.CDI FILE FORMAT (CODIE DATA INTERCHANGE)
+═════════════════════════════════════════
+
+All five atomic types in one container.
+
+┌─────────────────────────────────────────────────────────────────┐
+│ HEADER (64 bytes)                                               │
+│   magic: "CDI\0"                                                │
+│   version: u16                                                  │
+│   flags: [compressed|encrypted|signed]                          │
+│   timestamps: created, modified                                 │
+│   author_hash: blake3                                           │
+│   origin_gps: [f64, f64]                                        │
+├─────────────────────────────────────────────────────────────────┤
+│ MANIFEST (JSON)                                                 │
+│   name, version, description                                    │
+│   block counts, dependencies                                    │
+├─────────────────────────────────────────────────────────────────┤
+│ BONES BLOCKS                                                    │
+│   E: Entities (behaviors, stats, relationships)                 │
+│   W: Weapons (damage, speed, effects)                           │
+│   B: Behaviors (AI packages, temperaments)                      │
+│   S: Scripts (sequences, triggers)                              │
+├─────────────────────────────────────────────────────────────────┤
+│ BLOB BLOCKS (binary)                                            │
+│   M: Models (.glb embedded)                                     │
+│   T: Textures (.png embedded)                                   │
+│   A: Audio (.opus embedded)                                     │
+├─────────────────────────────────────────────────────────────────┤
+│ BIZ BLOCKS                                                      │
+│   N: Network (MCP config, socket settings)                      │
+│   H: Hydration (engine templates, value mappings)               │
+│   X: Export (engine-specific output configs)                    │
+├─────────────────────────────────────────────────────────────────┤
+│ CIRCLE BLOCKS                                                   │
+│   G: GPS (coordinates, bounds, scale)                           │
+│   D: Data (tables, curves, schedules)                           │
+│   C: Config (game settings, physics)                            │
+├─────────────────────────────────────────────────────────────────┤
+│ PIN BLOCKS                                                      │
+│   P: Provenance (authorship, signatures)                        │
+│   V: Versions (history, derivatives)                            │
+├─────────────────────────────────────────────────────────────────┤
+│ INDEX                                                           │
+│   Block offsets, sizes, types                                   │
+├─────────────────────────────────────────────────────────────────┤
+│ CHECKSUM                                                        │
+│   blake3(all_blocks)                                            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## HYDRATION MATRIX
+### CODIE → Every Engine
+
+| CODIE | Unity | Unreal | Godot | Roblox | Bethesda | RAGE |
+|-------|-------|--------|-------|--------|----------|------|
+| E.entity | GentlyEntity:SO | AGentlyActor | Resource | ModuleScript | ACTI/NPC_ | .ytyp |
+| W.weapon | GentlyWeapon:SO | AGentlyWeapon | Resource | Tool | WEAP | .ydr |
+| B.behavior | AIController | BehaviorTree | BTNode | AI Script | AI Package | .ymt |
+| M.mesh | GameObject+Mesh | StaticMesh | MeshInstance3D | MeshPart | .nif | .ydr |
+| T.texture | Texture2D | UTexture2D | Texture2D | Decal | .dds | .ytd |
+| S.script | MonoBehaviour | Blueprint | GDScript | LocalScript | Papyrus | .ysc |
+
+### Value Scale Matrix
+
+| Engine | HP Scale | Damage Scale | Speed Scale | Distance |
+|--------|----------|--------------|-------------|----------|
+| CDI | 0-1 | 0-1 | 0-1 | meters |
+| Unity | 0-100 | 0-50 | 0-10 | units (1m) |
+| Unreal | 0-1000 | 0-500 | 0-1000 | cm (×100) |
+| Godot | 0-100 | 0-100 | 0-100 | units (1m) |
+| Roblox | 0-100 | 0-100 | 0-50 | studs (0.28m) |
+| Bethesda | 0-1000 | 0-100 | 0-100 | units (1.4cm) |
+
+---
+
+## CLI USAGE
+
+```bash
+# Create .cdi from project
+forge pack ./project -o game.cdi
+
+# Inspect contents
+forge info game.cdi
+
+# Hydrate to specific engine
+forge hydrate game.cdi --engine unity --out ./UnityProject
+forge hydrate game.cdi --engine unreal --out ./UnrealProject
+forge hydrate game.cdi --engine godot --out ./GodotProject
+forge hydrate game.cdi --engine roblox --out ./RobloxProject
+
+# Extract single block
+forge extract game.cdi E.boss_guardian
+
+# Validate integrity
+forge validate game.cdi
+
+# Merge CDI files
+forge merge base.cdi dlc.cdi -o complete.cdi
+
+# Start MCP server
+forge serve game.cdi --port 9876
+```
+
+---
+
+## SUMMARY
+
+```
+BONES = Structure (entities, behaviors, hierarchy)
+BLOB  = Data (meshes, textures, audio)
+BIZ   = Interface (protocols, sockets, exports)
+CIRCLE = Context (GPS, time, space)
+PIN   = Identity (hash, signature, authorship)
+
+One .cdi file contains all five.
+Hydrates to ANY engine.
+Kids build at lunch.
+Devs ship to production.
+Same platform.
+
+🔥 GentlyOS Forge
+```

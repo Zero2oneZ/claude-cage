@@ -1,0 +1,76 @@
+#include <tunables/global>
+
+# GentlyOS AppArmor profile for claude-cage containerized execution.
+# Extends the agent template with /data/** volumes and GentlyOS binary paths.
+#
+# Install:
+#   sudo cp security/apparmor-gentlyos /etc/apparmor.d/cage-gently
+#   sudo apparmor_parser -r /etc/apparmor.d/cage-gently
+
+profile cage-gently flags=(attach_disconnected) {
+  #include <abstractions/base>
+
+  # ── Deny sensitive paths (evaluated first) ──────────────────────────
+  deny /etc/shadow rw,
+  deny /etc/passwd w,
+  deny /proc/*/mem rw,
+  deny /proc/kcore rw,
+  deny /proc/sysrq-trigger rw,
+  deny /sys/firmware/** rw,
+  deny mount,
+  deny umount,
+  deny pivot_root,
+
+  # ── Read-only system paths ──────────────────────────────────────────
+  /usr/** r,
+  /lib/** r,
+  /lib64/** r,
+  /etc/** r,
+
+  # ── GentlyOS binaries (execute) ────────────────────────────────────
+  /usr/local/bin/gently rix,
+  /usr/local/bin/gently-web rix,
+  /usr/bin/curl rix,
+  /usr/bin/jq rix,
+
+  # ── Data volumes (read-write) ──────────────────────────────────────
+  /data/** rw,
+  /data/blobs/** rw,
+  /data/genesis/** rw,
+  /data/knowledge/** rw,
+  /data/ipfs/** rw,
+
+  # ── Agent working directory (read-write) ────────────────────────────
+  /tmp/** rw,
+  /tmp/gently-agents/** rw,
+  /run/** rw,
+
+  # ── Home directory (gently user) ────────────────────────────────────
+  /home/gently/** rw,
+
+  # ── Proc (read-only, limited) ──────────────────────────────────────
+  /proc/*/fd/ r,
+  /proc/*/maps r,
+  /proc/*/stat r,
+  /proc/version r,
+  /proc/meminfo r,
+  /proc/cpuinfo r,
+  /proc/uptime r,
+  /proc/loadavg r,
+
+  # ── Device access ───────────────────────────────────────────────────
+  /dev/null rw,
+  /dev/zero r,
+  /dev/urandom r,
+  /dev/random r,
+
+  # ── Network (TCP/UDP only, no raw sockets) ─────────────────────────
+  network inet stream,
+  network inet dgram,
+  network inet6 stream,
+  network inet6 dgram,
+  network unix stream,
+  network unix dgram,
+  deny network raw,
+  deny network packet,
+}

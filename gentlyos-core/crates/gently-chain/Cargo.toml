@@ -1,0 +1,21 @@
+[package]
+name = "gently-chain"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Sui/Move economic layer for GentlyOS — objects, PTBs, Three Kings provenance"
+
+[dependencies]
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+chrono.workspace = true
+blake3.workspace = true
+reqwest = { version = "0.11", features = ["json"] }
+
+# Sui SDK — use git dep since sui-sdk is not on crates.io
+# TODO: pin to specific commit/tag once stable
+# sui-sdk = { git = "https://github.com/MystenLabs/sui", package = "sui-sdk" }
+# sui-types = { git = "https://github.com/MystenLabs/sui", package = "sui-types" }
+# shared-crypto = { git = "https://github.com/MystenLabs/sui", package = "shared-crypto" }

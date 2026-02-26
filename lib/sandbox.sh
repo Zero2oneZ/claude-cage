@@ -111,6 +111,11 @@ sandbox_tier_hosts() {
             ;;
     esac
 
+    # Add IPFS bootstrap hosts when GENTLY_TIER is set
+    if [[ -n "${GENTLY_TIER:-}" ]]; then
+        hosts="$hosts,dweb.link,ipfs.io,gateway.pinata.cloud"
+    fi
+
     echo "$hosts"
 }
 

@@ -21,10 +21,7 @@ logs/
 *.key
 *.pem
 credentials.json
-.secrets/.env*
-.secrets/.env.*
-.secrets/*/vault.*
-.secrets/.sops.yaml
+.secrets/
 
 # Node
 node_modules/
@@ -49,6 +46,7 @@ mongodb/package-lock.json
 
 # Rust build artifacts
 target/
+gentlyos-core/target/
 
 # Audit logs (runtime-generated, not source)
 audit/
@@ -69,8 +67,12 @@ projects/Gently-nix/
 *.zip
 *.~lock.*
 
-# Solana/Move build artifacts
-solana/*/build/
+# Sui/Move build artifacts
+sui/*/build/
+sui/node_modules/
+
+# Project inboxes (transient downloads)
+projects/*/.inbox/
 
 # Large data files
 **/btc-data/

@@ -1,0 +1,16 @@
+[package]
+name = "gently-ptc"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "PTC Brain engine — tree decomposition, leaf execution, result aggregation"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+blake3.workspace = true
+anyhow.workspace = true
+uuid.workspace = true

@@ -395,6 +395,47 @@ gentlyos-seed: ## Seed GentlyOS docs, tree, and nodes into MongoDB
 gentlyos-tree: ## Show the GentlyOS recursive tree hierarchy
 	@CAGE_ROOT="$(CAGE_ROOT)" bin/claude-cage tree show gentlyos/tree.json
 
+# ── GentlyOS Application Layer ──────────────────────────────
+IMAGE_GENTLY := cage-gently:latest
+
+.PHONY: build-gently run-gently stop-gently gently-logs gently-shell gently-status clean-gently clean-gently-volumes
+
+build-gently: ## Build GentlyOS Docker image (Rust compile)
+	docker build -t $(IMAGE_GENTLY) -f docker/gentlyos/Dockerfile .
+
+run-gently: ## Start GentlyOS + IPFS services (detached)
+	docker compose up gently ipfs -d
+	@echo ""
+	@echo "GentlyOS MCP server:  http://localhost:$${GENTLY_MCP_PORT:-3000}"
+	@echo "GentlyOS health:      http://localhost:$${GENTLY_HEALTH_PORT:-8080}"
+	@echo "IPFS API:             http://localhost:$${IPFS_API_PORT:-5001}"
+	@echo "IPFS Gateway:         http://localhost:$${IPFS_GATEWAY_PORT:-8081}"
+	@echo ""
+	@echo "Stop with: make stop-gently"
+
+stop-gently: ## Stop GentlyOS + IPFS services
+	docker compose stop gently ipfs
+
+gently-logs: ## Follow GentlyOS + IPFS logs
+	docker compose logs -f gently ipfs
+
+gently-shell: ## Shell into the GentlyOS container
+	docker exec -it cage-gently /bin/bash
+
+gently-status: ## Health check for GentlyOS services
+	@echo "── GentlyOS ──"
+	@docker inspect cage-gently --format '  Status: {{.State.Status}}' 2>/dev/null || echo "  cage-gently: not running"
+	@curl -sf http://localhost:$${GENTLY_HEALTH_PORT:-8080}/health 2>/dev/null && echo "  Health: OK" || echo "  Health: unreachable"
+	@echo "── IPFS ──"
+	@docker inspect cage-ipfs --format '  Status: {{.State.Status}}' 2>/dev/null || echo "  cage-ipfs: not running"
+	@docker exec cage-gently curl -sf http://cage-ipfs:5001/api/v0/id 2>/dev/null | jq -r '.ID // empty' | xargs -I{} echo "  IPFS Peer: {}" || echo "  IPFS API: unreachable"
+
+clean-gently: ## Remove GentlyOS + IPFS containers
+	docker compose rm -sf gently ipfs
+
+clean-gently-volumes: clean-gently ## Remove GentlyOS data volumes
+	docker volume rm cage-gently-blobs cage-gently-genesis cage-gently-knowledge cage-gently-ipfs cage-gently-ipfs-daemon 2>/dev/null || true
+
 # ── Security ─────────────────────────────────────────────────────
 
 .PHONY: load-apparmor verify-sandbox

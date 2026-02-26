@@ -62,5 +62,22 @@ architect_auto_embed: true
 # hybrid   - docker for untrusted, native for cargo/nix
 execution_mode: docker
 
+# ── GentlyOS Application Layer ──────────────────────────────────
+# Containerized GentlyOS (Rust) running alongside cage services.
+gentlyos_enabled: false
+gentlyos_image: cage-gently:latest
+gentlyos_mcp_port: 3000
+gentlyos_health_port: 8080
+gentlyos_log_level: info
+gentlyos_tier: free
+
+# ── IPFS (GentlyOS) ───────────────────────────────────────────
+# Kubo daemon for GentlyOS content-addressed storage.
+ipfs_daemon_enabled: false
+ipfs_swarm_port: 4001
+ipfs_api_port: 5001
+ipfs_gateway_port: 8081
+ipfs_image: ipfs/kubo:latest
+
 # ── Logging ──────────────────────────────────────────────────────
 log_level: info

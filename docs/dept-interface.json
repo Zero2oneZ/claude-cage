@@ -16,15 +16,15 @@
   ],
   "entry_points": [],
   "key_concepts": [
-    "prompt_versioned",
     "error_clarity",
-    "gently-cli",
     "api_contracts",
-    "gently-web",
-    "gently-mcp",
-    "gentlyos-tui",
     "gently-gooey",
-    "gently-gateway"
+    "gently-cli",
+    "gently-gateway",
+    "gently-mcp",
+    "prompt_versioned",
+    "gentlyos-tui",
+    "gently-web"
   ],
   "cross_refs": {
     "structural": {
@@ -64,10 +64,10 @@
   "staleness": {
     "source_hash": "sha256:2dd6579ef863edd96701b026285fdb43b9760854e53311e5793b2f149bb8c887",
     "is_stale": false,
-    "last_verified": "2026-02-24T11:30:50.140224+00:00"
+    "last_verified": "2026-02-26T02:35:15.352433+00:00"
   },
-  "content_hash": "sha256:38a831e3781663cd95dd3ee0576e4bcc9084fd8cb1fc5b4bd92554e4319bf24b",
+  "content_hash": "sha256:f4edf740364eee2d9757d8ce8cf4d2c7c1cdd6749665ef460230fdf32b4c50b8",
   "ipfs_cid": null,
   "project": "claude-cage",
-  "_ts": "2026-02-24T11:30:50.140224+00:00"
+  "_ts": "2026-02-26T02:35:15.352433+00:00"
 }

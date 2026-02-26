@@ -1,0 +1,60 @@
+[package]
+name = "gently-brain"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Local Llama 1B + Embedder for GentlyOS - the growing brain"
+
+[dependencies]
+gently-core.workspace = true
+gently-search.workspace = true
+gently-alexandria.workspace = true
+
+# Fastembed - Pure Rust embeddings with ONNX backend
+# Uses ort (ONNX Runtime) internally
+fastembed = { version = "4", optional = true }
+
+# Candle - Pure Rust ML framework for local LLM inference
+candle-core = { version = "0.8", optional = true }
+candle-nn = { version = "0.8", optional = true }
+candle-transformers = { version = "0.8", optional = true }
+hf-hub = { version = "0.4", features = ["tokio"], optional = true }
+tokenizers = { version = "0.20", optional = true }
+
+# Serialization
+serde.workspace = true
+serde_json.workspace = true
+
+# Crypto
+sha2.workspace = true
+rand.workspace = true
+
+# Filesystem
+dirs.workspace = true
+
+# Database
+rusqlite = { workspace = true }
+
+# Async
+tokio.workspace = true
+
+# Utilities
+anyhow.workspace = true
+thiserror = "1.0"
+tracing = "0.1"
+
+# HTTP for model downloads
+reqwest = { version = "0.12", features = ["stream"] }
+indicatif = "0.17"  # Progress bars
+
+# Claude API
+ureq = { version = "2.9", features = ["json"] }
+chrono.workspace = true
+uuid.workspace = true
+hex.workspace = true
+
+[features]
+default = []  # No ML by default (simulated embeddings)
+cuda = []     # Optional CUDA acceleration
+candle = ["dep:candle-core", "dep:candle-nn", "dep:candle-transformers", "dep:hf-hub", "dep:tokenizers"]
+fastembed = ["dep:fastembed"]  # Real embeddings (requires ONNX Runtime)

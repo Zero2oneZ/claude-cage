@@ -1,0 +1,38 @@
+#include <tunables/global>
+
+# GentlyOS AppArmor profile template for Ollama agent isolation.
+# Each agent gets a copy of this profile with agent-specific paths substituted.
+#
+# Install:
+#   sudo cp security/apparmor-gentlyos /etc/apparmor.d/gently-agent-template
+#   sudo apparmor_parser -r /etc/apparmor.d/gently-agent-template
+
+profile gently-agent-template flags=(attach_disconnected) {
+  #include <abstractions/base>
+
+  # ── Deny sensitive paths (evaluated first) ──────────────────────────
+  deny /etc/shadow rw,
+  deny /etc/passwd rw,
+  deny /proc/*/mem rw,
+  deny /proc/kcore rw,
+  deny /proc/sysrq-trigger rw,
+  deny /sys/firmware/** rw,
+
+  # ── Read-only system paths ──────────────────────────────────────────
+  /usr/** r,
+  /lib/** r,
+  /lib64/** r,
+  /etc/** r,
+
+  # Override: re-deny shadow/passwd even though /etc/** r is above
+  # (AppArmor deny rules take precedence over allow rules)
+
+  # ── Agent working directory (read-write) ────────────────────────────
+  /tmp/gently-agents/** rw,
+
+  # ── Ollama runtime (read-only) ──────────────────────────────────────
+  /usr/share/ollama/** r,
+  /usr/local/lib/ollama/** r,
+
+  # ── Deny everything else implicitly (AppArmor default) ──────────────
+}

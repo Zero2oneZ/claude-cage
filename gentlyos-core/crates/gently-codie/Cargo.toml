@@ -1,0 +1,15 @@
+[package]
+name = "gently-codie"
+version = "1.0.0"
+edition = "2021"
+description = "CODIE: Compressed Operational Dense Instruction Encoding - 12-keyword human-semantic instruction language"
+license = "MIT"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+regex = { workspace = true }
+lazy_static = { workspace = true }
+
+[dev-dependencies]

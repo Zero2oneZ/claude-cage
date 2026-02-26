@@ -11,6 +11,7 @@ NO_BUILD=false
 UNINSTALL=false
 SKIP_DEPS=false
 VERBOSE=false
+WITH_GENTLYOS=false
 
 # ── Colors ───────────────────────────────────────────────────────
 RED='\033[0;31m'
@@ -73,6 +74,7 @@ while [[ $# -gt 0 ]]; do
         --skip-deps)  SKIP_DEPS=true; shift ;;
         --uninstall)  UNINSTALL=true; shift ;;
         --verbose)    VERBOSE=true; shift ;;
+        --with-gentlyos) WITH_GENTLYOS=true; shift ;;
         -h|--help)
             echo "Usage: install.sh [options]"
             echo ""
@@ -81,6 +83,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --dir <path>      claude-cage source directory (default: auto-detect)"
             echo "  --no-build        Skip building Docker images"
             echo "  --skip-deps       Skip dependency checks"
+            echo "  --with-gentlyos   Also build GentlyOS Docker image"
             echo "  --uninstall       Remove claude-cage installation"
             echo "  --verbose         Show detailed output"
             echo "  -h, --help        Show this help"
@@ -154,9 +157,9 @@ if $UNINSTALL; then
     # Offer to remove Docker resources
     read -rp "Remove Docker images and volumes? [y/N] " yn
     if [[ "$yn" =~ ^[Yy]$ ]]; then
-        docker rmi claude-cage-cli:latest claude-cage-desktop:latest 2>/dev/null && ok "Removed images" || true
+        docker rmi claude-cage-cli:latest claude-cage-desktop:latest cage-gently:latest 2>/dev/null && ok "Removed images" || true
         docker volume ls -q --filter name=cage- 2>/dev/null | xargs -r docker volume rm 2>/dev/null && ok "Removed volumes" || true
-        docker network rm cage-filtered 2>/dev/null && ok "Removed network" || true
+        docker network rm cage-filtered gently-internal 2>/dev/null && ok "Removed networks" || true
     fi
 
     ok "Uninstall complete."
@@ -254,7 +257,7 @@ _detect_sudo
 info "Creating directories..."
 
 priv mkdir -p "$BIN_DIR"
-priv mkdir -p "$SHARE_DIR/lib" "$SHARE_DIR/docker/cli" "$SHARE_DIR/docker/desktop" "$SHARE_DIR/security" "$SHARE_DIR/config"
+priv mkdir -p "$SHARE_DIR/lib" "$SHARE_DIR/docker/cli" "$SHARE_DIR/docker/desktop" "$SHARE_DIR/docker/gentlyos" "$SHARE_DIR/security" "$SHARE_DIR/config"
 mkdir -p "$CONFIG_DIR"
 mkdir -p "$DATA_DIR/sessions" "$DATA_DIR/logs"
 priv mkdir -p "$COMPLETIONS_DIR" 2>/dev/null || true
@@ -279,9 +282,16 @@ priv cp "$CAGE_DIR/docker/desktop/Dockerfile" "$SHARE_DIR/docker/desktop/"
 priv cp "$CAGE_DIR/docker/desktop/entrypoint-desktop.sh" "$SHARE_DIR/docker/desktop/"
 priv cp "$CAGE_DIR/docker/desktop/openbox-rc.xml" "$SHARE_DIR/docker/desktop/"
 
+# GentlyOS Dockerfile
+if [[ -f "$CAGE_DIR/docker/gentlyos/Dockerfile" ]]; then
+    priv cp "$CAGE_DIR/docker/gentlyos/Dockerfile" "$SHARE_DIR/docker/gentlyos/"
+fi
+
 # Security profiles
 priv cp "$CAGE_DIR/security/seccomp-default.json" "$SHARE_DIR/security/"
 priv cp "$CAGE_DIR/security/apparmor-profile" "$SHARE_DIR/security/"
+[[ -f "$CAGE_DIR/security/seccomp-agents.json" ]] && priv cp "$CAGE_DIR/security/seccomp-agents.json" "$SHARE_DIR/security/"
+[[ -f "$CAGE_DIR/security/apparmor-gentlyos" ]] && priv cp "$CAGE_DIR/security/apparmor-gentlyos" "$SHARE_DIR/security/"
 
 # Default config
 priv cp "$CAGE_DIR/config/default.yaml" "$SHARE_DIR/config/"
@@ -384,6 +394,33 @@ if ! $NO_BUILD; then
     fi
 else
     warn "Skipping image build (--no-build). Run 'claude-cage build' later."
+fi
+
+# ── Step 6b: Build GentlyOS image (optional) ─────────────────
+if $WITH_GENTLYOS && ! $NO_BUILD; then
+    echo ""
+    info "Building GentlyOS image (--with-gentlyos)..."
+
+    # Copy gentlyos-core source for build context
+    if [[ -d "$CAGE_DIR/gentlyos-core" ]]; then
+        priv rsync -a --exclude='target/' "$CAGE_DIR/gentlyos-core/" "$SHARE_DIR/gentlyos-core/"
+
+        info "Building cage-gently:latest (Rust compile, this may take a while)..."
+        if $VERBOSE; then
+            docker build -t cage-gently:latest -f "$SHARE_DIR/docker/gentlyos/Dockerfile" "$SHARE_DIR/"
+        else
+            docker build -t cage-gently:latest -f "$SHARE_DIR/docker/gentlyos/Dockerfile" "$SHARE_DIR/" > /tmp/cage-build-gently.log 2>&1 &
+            if spinner $! "Building cage-gently:latest..."; then
+                ok "GentlyOS image built"
+            else
+                fail "GentlyOS image build failed. See /tmp/cage-build-gently.log"
+            fi
+        fi
+    else
+        warn "gentlyos-core/ not found — skipping GentlyOS image build"
+    fi
+elif $WITH_GENTLYOS; then
+    warn "Skipping GentlyOS build (--no-build). Run 'make build-gently' later."
 fi
 
 # ── Step 7: Verify installation ─────────────────────────────────

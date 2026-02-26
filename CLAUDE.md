@@ -342,6 +342,69 @@ Parses 12-keyword CODIE `.codie` files into an AST. Handles pipe-tree notation (
 
 **Integration:** CODIE mode added to `ptc/executor.py` -- when PTC decomposes to leaf tasks, each can be expressed as a CODIE instruction chain.
 
+## GentlyOS Application Layer
+
+GentlyOS-Rusted-Metal (28 Rust crates, ~79K LOC) runs as the primary application workload inside claude-cage's containerized sandbox. The full source lives at `gentlyos-core/` and builds into a Docker image alongside an IPFS Kubo daemon.
+
+### Build & Run
+
+```bash
+make build-gently           # Build cage-gently:latest (Rust compile in Docker)
+make run-gently              # Start GentlyOS + IPFS (detached)
+make stop-gently             # Stop both services
+make gently-logs             # Follow logs
+make gently-shell            # Shell into cage-gently
+make gently-status           # Health check (GentlyOS + IPFS connectivity)
+make clean-gently            # Remove containers
+make clean-gently-volumes    # Remove containers + data volumes
+```
+
+### Services
+
+| Service | Container | Ports | Purpose |
+|---------|-----------|-------|---------|
+| `gently` | cage-gently | 3000 (MCP), 8080 (health) | GentlyOS Rust application |
+| `ipfs` | cage-ipfs | 4001 (swarm), 5001 (API), 8081 (gateway) | IPFS Kubo daemon |
+
+### Networking
+
+- Both services connect to `cage-net` (cage-filtered bridge, ICC disabled)
+- Private `gently-internal` bridge enables gently<->ipfs communication (ICC enabled, internal-only)
+- IPFS is reachable from GentlyOS at `http://cage-ipfs:5001`
+
+### Security
+
+- GentlyOS inherits the `x-common` security anchor (read-only root, cap-drop ALL, seccomp, no-new-privileges)
+- IPFS overrides `read_only: false` (needs writable datastore)
+- Dedicated AppArmor profile: `security/apparmor-gentlyos` (denies mount/ptrace/raw-network, allows `/data/**` RW)
+- Agent seccomp profile: `security/seccomp-agents.json` (34 syscall allowlist for Ollama isolation)
+
+### Data Volumes
+
+| Volume | Mount | Purpose |
+|--------|-------|---------|
+| `cage-gently-blobs` | `/data/blobs` | Content blobs |
+| `cage-gently-genesis` | `/data/genesis` | Genesis keys |
+| `cage-gently-knowledge` | `/data/knowledge` | Knowledge base |
+| `cage-gently-ipfs` | `/data/ipfs` | GentlyOS IPFS data |
+| `cage-gently-ipfs-daemon` | `/data/ipfs` (IPFS container) | Kubo daemon datastore |
+
+### Configuration
+
+`config/default.yaml` keys: `gentlyos_enabled`, `gentlyos_image`, `gentlyos_mcp_port`, `gentlyos_health_port`, `gentlyos_log_level`, `gentlyos_tier`, `ipfs_daemon_enabled`, `ipfs_swarm_port`, `ipfs_api_port`, `ipfs_gateway_port`, `ipfs_image`.
+
+All ports are configurable via environment variables: `GENTLY_MCP_PORT`, `GENTLY_HEALTH_PORT`, `IPFS_SWARM_PORT`, `IPFS_API_PORT`, `IPFS_GATEWAY_PORT`.
+
+### Source Tree
+
+`gentlyos-core/` contains the full GentlyOS-Rusted-Metal source (excluded from the cage Cargo workspace). Key crates: gently-core (crypto), gently-mcp (MCP server), gently-web (HTMX GUI), gently-security (16 daemons + FAFO), gently-ipfs, gently-brain (LLM), gently-ptc (PTC Brain), gently-sandbox (agent isolation).
+
+### Install
+
+```bash
+./install.sh --with-gentlyos    # Full install including GentlyOS image build
+```
+
 ## No Tests or Linting
 
 There is no test suite or linting configuration. The primary verification mechanism is `make verify-sandbox` which inspects a running container's security settings.
