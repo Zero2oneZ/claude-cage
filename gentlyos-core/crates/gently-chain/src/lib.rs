@@ -24,6 +24,7 @@ pub mod transactions;
 pub mod events;
 pub mod types;
 pub mod three_kings;
+pub mod transpile;
 
 pub use client::SuiClient;
 pub use objects::{SuiObject, ObjectQuery};
@@ -31,3 +32,4 @@ pub use transactions::{PtbBuilder, TransactionResult};
 pub use events::{EventFilter, SuiEvent};
 pub use types::{ReasoningStep, ObjectID};
 pub use three_kings::ThreeKings;
+pub use transpile::{MoveModule, codie_to_move, source_to_move};
