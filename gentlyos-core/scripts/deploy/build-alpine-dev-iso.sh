@@ -598,25 +598,26 @@ cat > "${BUILD_DIR}/iso/boot/grub/grub.cfg" << 'GRUB_CFG'
 set timeout=5
 set default=0
 
-insmod all_video
-insmod gfxterm
-terminal_output gfxterm
-
 set menu_color_normal=white/black
 set menu_color_highlight=black/white
 
 menuentry "GentlyOS Dev" {
-    linux /boot/vmlinuz modules=loop,squashfs,overlay,sd-mod,usb-storage quiet
+    linux /boot/vmlinuz modules=loop,squashfs,overlay,sd-mod,usb-storage nomodeset quiet
     initrd /boot/initramfs
 }
 
 menuentry "GentlyOS Dev (Verbose)" {
-    linux /boot/vmlinuz modules=loop,squashfs,overlay,sd-mod,usb-storage
+    linux /boot/vmlinuz modules=loop,squashfs,overlay,sd-mod,usb-storage nomodeset
     initrd /boot/initramfs
 }
 
 menuentry "GentlyOS Dev (RAM Only)" {
-    linux /boot/vmlinuz modules=loop,squashfs,sd-mod,usb-storage toram quiet
+    linux /boot/vmlinuz modules=loop,squashfs,sd-mod,usb-storage nomodeset toram quiet
+    initrd /boot/initramfs
+}
+
+menuentry "GentlyOS Dev (Safe — no GPU)" {
+    linux /boot/vmlinuz modules=loop,squashfs,overlay,sd-mod,usb-storage nomodeset noapic acpi=off
     initrd /boot/initramfs
 }
 GRUB_CFG
