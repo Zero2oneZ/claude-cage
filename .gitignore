@@ -48,6 +48,11 @@ mongodb/package-lock.json
 target/
 gentlyos-core/target/
 
+# Nix
+result
+result-*
+.direnv/
+
 # Audit logs (runtime-generated, not source)
 audit/
 
