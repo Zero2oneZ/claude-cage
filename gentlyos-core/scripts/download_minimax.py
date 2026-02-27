@@ -2,7 +2,9 @@
 """Download MiniMax-M2.1 and convert to Living SVG Agent"""
 
 import os
-os.environ["HF_TOKEN"] = "REDACTED_USE_ENV_VAR"
+HF_TOKEN = os.environ.get("HF_TOKEN", "")
+if not HF_TOKEN:
+    raise SystemExit("Set HF_TOKEN environment variable before running")
 
 from huggingface_hub import snapshot_download, login
 from pathlib import Path
@@ -11,7 +13,7 @@ import json
 from datetime import datetime
 
 # Login
-login(token=os.environ["HF_TOKEN"])
+login(token=HF_TOKEN)
 
 print("Downloading MiniMax-M2.1...")
 print("This is 456B params - gonna take a while...\n")
@@ -19,7 +21,7 @@ print("This is 456B params - gonna take a while...\n")
 # Download
 model_path = snapshot_download(
     "MiniMaxAI/MiniMax-M2.1",
-    token=os.environ["HF_TOKEN"],
+    token=HF_TOKEN,
     resume_download=True,
 )
 
