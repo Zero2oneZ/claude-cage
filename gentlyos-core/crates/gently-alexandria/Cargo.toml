@@ -9,6 +9,8 @@ license = "MIT"
 # Core
 gently-core = { path = "../gently-core" }
 gently-ipfs = { path = "../gently-ipfs" }
+gently-chain = { path = "../gently-chain" }
+blake3 = "1.5"
 
 # Crypto
 sha2 = "0.10"

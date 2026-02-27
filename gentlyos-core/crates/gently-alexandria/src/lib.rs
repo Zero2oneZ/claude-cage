@@ -37,6 +37,7 @@ pub mod sync;
 pub mod query;
 pub mod economics;
 pub mod tesseract;
+pub mod sui_route;
 
 pub use concept::ConceptId;
 pub use edge::{AlexandriaEdge, EdgeKind, EdgeUpdate};
@@ -52,6 +53,7 @@ pub use tesseract::{
     HyperNavigation, HyperQuery, HyperQueryResult,
     FaceEmbeddings, DIMS_PER_FACE, TOTAL_DIMS,
 };
+pub use sui_route::{SuiAddress, SuiRouting, ExecutionStrategy, ConstraintPassResult};
 
 use thiserror::Error;
 

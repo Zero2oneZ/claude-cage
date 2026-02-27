@@ -13,6 +13,8 @@
 //! │  events.rs    │ Event subscription + filtering   │
 //! │  types.rs     │ Move resource type mappings      │
 //! │  three_kings  │ Gold/Myrrh/Frankincense metadata │
+//! │  transpile    │ CODIE→Move transpiler (24 tests) │
+//! │  pipeline     │ BARF→Alexandria→Sui data flow    │
 //! └──────────────────────────────────────────────────┘
 //! ```
 
@@ -25,6 +27,7 @@ pub mod events;
 pub mod types;
 pub mod three_kings;
 pub mod transpile;
+pub mod pipeline;
 
 pub use client::SuiClient;
 pub use objects::{SuiObject, ObjectQuery};
@@ -33,3 +36,4 @@ pub use events::{EventFilter, SuiEvent};
 pub use types::{ReasoningStep, ObjectID};
 pub use three_kings::ThreeKings;
 pub use transpile::{MoveModule, codie_to_move, source_to_move};
+pub use pipeline::{PipelineResult, PipelineConfig, PipelineStats};

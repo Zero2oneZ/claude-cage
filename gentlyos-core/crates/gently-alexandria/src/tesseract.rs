@@ -313,16 +313,16 @@ impl Default for TemporalPosition {
 #[derive(Debug, Clone)]
 pub struct SemanticTesseract {
     /// All positions indexed by concept
-    positions: HashMap<ConceptId, Vec<HyperPosition>>,
+    pub(crate) positions: HashMap<ConceptId, Vec<HyperPosition>>,
 
     /// Temporal index: era -> concepts active in that era
-    temporal_index: HashMap<String, Vec<ConceptId>>,
+    pub(crate) temporal_index: HashMap<String, Vec<ConceptId>>,
 
     /// Observer index: perspective -> concepts
-    observer_index: HashMap<String, Vec<ConceptId>>,
+    pub(crate) observer_index: HashMap<String, Vec<ConceptId>>,
 
     /// Context/domain index
-    context_index: HashMap<String, Vec<ConceptId>>,
+    pub(crate) context_index: HashMap<String, Vec<ConceptId>>,
 }
 
 impl SemanticTesseract {

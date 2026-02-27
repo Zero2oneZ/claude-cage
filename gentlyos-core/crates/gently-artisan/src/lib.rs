@@ -16,6 +16,7 @@ pub mod foam;
 pub mod flux;
 pub mod barf;
 pub mod winding;
+pub mod chain;
 
 pub use coord::TorusCoordinate;
 pub use torus::{Torus, TorusPoint};
@@ -23,6 +24,7 @@ pub use foam::{Foam, TorusBlend};
 pub use flux::FluxLine;
 pub use barf::{BarfQuery, BarfResult};
 pub use winding::WindingLevel;
+pub use chain::{ChainEligibility, ChainSubmission, ChainStats, CHAIN_BOUNDARY_WINDING};
 
 use std::f64::consts::TAU; // 2π
 
