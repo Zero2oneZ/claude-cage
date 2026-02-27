@@ -26,7 +26,7 @@ echo ""
 echo "╔══════════════════════════════════════════════════════════════╗"
 echo "║           GentlyOS v${VERSION} - Deployment Builder              ║"
 echo "║                                                              ║"
-echo "║   Targets: Docker | ISO | VirtualBox | Termux | DEB/RPM     ║"
+echo "║   Targets: Docker | ISO | Dev ISO | VBox | Termux | DEB     ║"
 echo "╚══════════════════════════════════════════════════════════════╝"
 echo ""
 
@@ -36,6 +36,7 @@ mkdir -p "${BUILD_DIR}" "${DIST_DIR}"
 # Parse arguments
 BUILD_DOCKER=false
 BUILD_ISO=false
+BUILD_DEV_ISO=false
 BUILD_VBOX=false
 BUILD_TERMUX=false
 BUILD_DEB=false
@@ -49,6 +50,7 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         --docker) BUILD_DOCKER=true; shift ;;
         --iso) BUILD_ISO=true; shift ;;
+        --dev-iso) BUILD_DEV_ISO=true; shift ;;
         --vbox) BUILD_VBOX=true; shift ;;
         --termux) BUILD_TERMUX=true; shift ;;
         --deb) BUILD_DEB=true; shift ;;
@@ -83,6 +85,13 @@ if $BUILD_ISO; then
     log "Building bootable ISO..."
     "${PROJECT_ROOT}/scripts/deploy/build-iso.sh"
     success "ISO built: dist/gentlyos-${VERSION}.iso"
+fi
+
+# Step 3b: Dev ISO (Rust toolchain + source + cargo-watch + persistence)
+if $BUILD_DEV_ISO; then
+    log "Building dev ISO (Rust toolchain + hot-reload)..."
+    "${PROJECT_ROOT}/scripts/deploy/build-alpine-dev-iso.sh"
+    success "Dev ISO built: dist/gentlyos-dev-${VERSION}-x86_64.iso"
 fi
 
 # Step 4: VirtualBox
