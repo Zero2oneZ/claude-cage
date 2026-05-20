@@ -1,0 +1,85 @@
+Copyright (c) 2024-2026 Tom Lee (Zero2oneZ). All Rights Reserved.
+
+GENTLYOS PROPRIETARY SOURCE LICENSE v1.0
+
+This software and all associated source code, documentation, training data,
+model weights, neural architectures, compression algorithms, cryptographic
+protocols, audit artifacts, and related intellectual property (collectively,
+the "Software") are the exclusive property of Tom Lee ("Author").
+
+-------------------------------------------------------------------------------
+PERMITTED
+
+1. You may VIEW this source code for personal, non-commercial reference only.
+2. You may FORK this repository on GitHub for the sole purpose of submitting
+   a pull request to the Author.
+
+-------------------------------------------------------------------------------
+PROHIBITED — WITHOUT EXPLICIT WRITTEN COMMERCIAL LICENSE
+
+The following are strictly prohibited without a signed commercial license
+agreement with the Author:
+
+1. USE — Running, executing, or deploying the Software or any derivative
+   for any purpose, including internal business use, research, or evaluation.
+
+2. COPY — Reproducing any portion of the Software in another project,
+   product, or system.
+
+3. MODIFY — Creating derivative works based on the Software's architecture,
+   algorithms, or training methodology, including but not limited to:
+   - HIVECATCH mid-inference surgical intervention
+   - CODIE staircase compression (L1–L7)
+   - Domain probe training pipeline
+   - Steering vector extraction methodology
+   - Foam capsule store and outcome-weighted retrieval
+   - The Dance Protocol (XOR split-knowledge cryptography)
+   - Alexandria hyperspace geometry (BBBCP, 5W topology)
+   - GentlyOS substrate (Entity/Principal/Asset/Capability/Scope)
+
+4. DISTRIBUTE — Sharing, sublicensing, selling, or transferring the Software
+   or any derivative to any third party.
+
+5. TRAIN — Using this code, data, or methodology to train, fine-tune, or
+   evaluate any machine learning model intended for commercial deployment.
+
+6. EMBED — Incorporating any portion of this Software into a product, SaaS
+   offering, API, or service offered to third parties.
+
+-------------------------------------------------------------------------------
+COMMERCIAL LICENSING
+
+To obtain a commercial license, contact:
+
+    Tom Lee (Zero2oneZ)
+    Email: tomlee3ddesign@gmail.com
+    GitHub: https://github.com/Zero2oneZ
+
+Commercial licenses are available for:
+- Single-deployment self-hosted licenses
+- SaaS / API integration licenses
+- OEM / white-label licenses
+- Research institution licenses
+
+Pricing and terms are negotiated directly. There is no standard rate card —
+reach out and we'll find something that works.
+
+-------------------------------------------------------------------------------
+DISCLAIMER
+
+THE SOFTWARE IS PROVIDED FOR VIEWING PURPOSES ONLY. THE AUTHOR MAKES NO
+WARRANTIES, EXPRESS OR IMPLIED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM UNAUTHORIZED USE OF
+THIS SOFTWARE.
+
+-------------------------------------------------------------------------------
+ENFORCEMENT
+
+Unauthorized use of this Software may constitute copyright infringement and/or
+misappropriation of trade secrets under applicable law. The Author reserves
+all rights to seek injunctive relief, damages, and attorney's fees.
+
+-------------------------------------------------------------------------------
+This license does not grant any trademark rights to "GentlyOS", "HIVECATCH",
+"CODIE", "Zero2oneZ", "zNiXz", "TrollzDotFun", or any associated brand names.
+All trademarks are the exclusive property of Tom Lee.
