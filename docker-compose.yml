@@ -56,6 +56,36 @@ services:
     networks:
       - cage-net
 
+  # ── Tau CLI (provider-neutral agent; cage×tau hybrid 2026-08-19) ──
+  # Same 8-layer sandbox via the *common anchor. Two deltas vs `cli`:
+  # the state volume mounts tau's ~/.tau (not ~/.claude), and auth is
+  # per-provider env (tau is provider-neutral), not Anthropic-only.
+  cli-tau:
+    <<: *common
+    build:
+      context: ./docker/cli
+      dockerfile: Dockerfile.tau
+    image: claude-cage-tau:latest
+    container_name: cage-tau
+    hostname: cage-tau
+    stdin_open: true
+    tty: true
+    environment:
+      # provider-neutral: set whichever the deployment uses; none are
+      # hard-required (unlike the Anthropic-only cli service).
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - HF_TOKEN=${HF_TOKEN:-}
+      - OLLAMA_HOST=${OLLAMA_HOST:-}
+    volumes:
+      - cli-tau-data:/home/cageuser/.tau
+      - ${CAGE_WORKSPACE:-.}:/workspace:rw
+    cpus: 2
+    mem_limit: 4g
+    pids_limit: 512
+    networks:
+      - cage-net
+
   # ── Claude Desktop (browser via noVNC) ─────────────────────────
   desktop:
     <<: *common
@@ -170,6 +200,8 @@ services:
 volumes:
   cli-data:
     name: cage-cli-data
+  cli-tau-data:
+    name: cage-cli-tau-data
   desktop-data:
     name: cage-desktop-data
   isolated-data:

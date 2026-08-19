@@ -28,6 +28,40 @@ from pathlib import Path
 CAGE_ROOT = os.environ.get("CAGE_ROOT", str(Path(__file__).parent.parent))
 
 
+# ── Agent adapter (cage×tau hybrid, 2026-08-19) ─────────────────────────────
+# The headless executor's contract is: binary + one non-interactive print call
+# → stdout → exit. Both claude and tau satisfy it; tau is provider-neutral and
+# its append-only JSONL sessions are the better audit substrate. AGENT_BIN picks
+# the binary; the shim builds the right argv per agent.
+
+AGENT_BIN = os.environ.get("CAGE_AGENT_BIN", "tau")
+
+# argv builders per agent. Each maps (instruction) → argv list.
+def _argv_tau(instruction: str) -> list:
+    # tau --print runs the positional prompt in non-interactive print mode.
+    # --output-format text gives clean stdout (no TUI chrome).
+    return [AGENT_BIN, "--print", instruction, "--output-format", "text"]
+
+def _argv_claude(instruction: str) -> list:
+    return [AGENT_BIN, "--print", instruction]
+
+_AGENT_ARGV = {"tau": _argv_tau, "claude": _argv_claude}
+
+def agent_argv(instruction: str) -> list:
+    """Build the headless invocation for the configured agent binary."""
+    return _AGENT_ARGV.get(AGENT_BIN, _argv_claude)(instruction)
+
+def agent_env() -> dict:
+    """Env for the agent subprocess. tau reads its own providers; the CC
+    telemetry var only matters for claude."""
+    env = {**os.environ}
+    if AGENT_BIN == "claude":
+        env["CLAUDE_CODE_ENTRYPOINT"] = "ptc"
+    else:
+        env["TAU_ENTRYPOINT"] = "ptc"
+    return env
+
+
 def execute(task):
     """Execute a leaf-level task. Returns output dict.
 
@@ -277,10 +311,10 @@ def _intent_to_command(task):
 
 
 def _execute_claude(task):
-    """Claude mode: invoke Claude Code to do the work.
+    """Agent mode: invoke the configured agent CLI (tau or claude) to do the work.
 
     Builds a structured instruction from the task context,
-    invokes `claude --print` in non-interactive mode,
+    invokes the agent in non-interactive print mode (see agent_argv),
     captures the output, stores it as an artifact.
     """
     intent = task.get("intent", "")
@@ -301,19 +335,18 @@ def _execute_claude(task):
             "escalated_to": approval.get("escalated_to"),
         }
 
-    # Build the instruction for Claude
+    # Build the instruction for the agent
     instruction = _build_claude_instruction(task)
 
-    # Invoke Claude Code CLI in non-interactive mode
+    # Invoke the agent CLI in non-interactive mode
     try:
-        # --print sends the prompt, prints the response, exits
         result = subprocess.run(
-            ["claude", "--print", instruction],
+            agent_argv(instruction),
             capture_output=True,
             text=True,
             timeout=120,
             cwd=CAGE_ROOT,
-            env={**os.environ, "CLAUDE_CODE_ENTRYPOINT": "ptc"},
+            env=agent_env(),
         )
 
         output = result.stdout.strip() if result.stdout else ""
